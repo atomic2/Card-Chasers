@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Pro Shop | Card Chaser's</title>
+    <style>
+        :root {
+            --primary: #ff9f43;
+            --primary-dark: #b1601a;
+            --room-bg: radial-gradient(circle at center, #1a1c23 0%, #090a0f 100%);
+            --glow: rgba(255, 159, 67, 0.4);
+        }
+
+        body, html {
+            margin: 0; padding: 0; min-height: 100vh;
+            background: var(--room-bg); font-family: 'Arial Black', sans-serif;
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            color: #fff; box-sizing: border-box; overflow-x: hidden;
+        }
+        *, *:before, *:after { box-sizing: inherit; }
+
+        .shop-container {
+            position: relative; width: 100%; max-width: 1200px; 
+            display: flex; flex-direction: column; align-items: center;
+            padding: 40px 20px 60px 20px;
+        }
+
+        .header-panel {
+            display: flex; justify-content: space-between; align-items: center; width: 100%;
+            background: #000; padding: 15px 25px; border-radius: 16px;
+            border-bottom: 4px solid var(--primary); box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+            margin-bottom: 30px; flex-wrap: wrap; gap: 15px;
+        }
+        .title { margin: 0; font-size: clamp(1.5rem, 4vw, 2.2rem); text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px var(--glow); }
+        .bank-readout { display: flex; gap: 15px; font-size: clamp(0.8rem, 2.5vw, 1rem); color: #8892b0; align-items: center; }
+        .bank-readout span { font-weight: 900; margin-left: 5px; }
+        .stat-pts span { color: var(--primary); }
+        .stat-cash span { color: #2ecc71; font-size: 1.2em; }
+
+        /* THE VIP DIAMOND SHOWCASE (TOP CENTER) */
+        .diamond-showcase {
+            display: flex; justify-content: center; width: 100%; margin-bottom: 30px;
+        }
+        .diamond-showcase .pack-listing {
+            width: 100%; max-width: 340px; /* Slightly wider */
+            border-width: 3px; z-index: 10;
+        }
+        .diamond-showcase .pack-foil {
+            width: 150px; height: 210px; /* Taller, more imposing pack */
+        }
+        .diamond-showcase .foil-text-main {
+            font-size: 3rem; /* Massive Diamond icon */
+        }
+
+        /* THE STANDARD PACK GRID */
+        .pack-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px; width: 100%;
+        }
+
+        .pack-listing {
+            background: #0b0c10; border-radius: 16px; padding: 20px;
+            display: flex; flex-direction: column; align-items: center;
+            border: 2px solid #1f232d; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            transition: transform 0.2s, box-shadow 0.2s; position: relative; overflow: hidden;
+        }
+        .pack-listing:hover { transform: translateY(-5px); }
+
+        .pack-foil {
+            width: 120px; height: 170px; border-radius: 8px; margin-bottom: 20px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.6); position: relative;
+        }
+        .pack-foil::before, .pack-foil::after {
+            content: ''; position: absolute; left: 0; right: 0; height: 8px;
+            background-image: repeating-linear-gradient(90deg, rgba(0,0,0,0.2), rgba(0,0,0,0.2) 4px, transparent 4px, transparent 8px);
+        }
+        .pack-foil::before { top: 0; border-radius: 8px 8px 0 0; }
+        .pack-foil::after { bottom: 0; border-radius: 0 0 8px 8px; }
+
+        .pack-title { font-size: 1.2rem; margin: 0 0 5px 0; text-transform: uppercase; text-align: center; }
+        .pack-desc { font-size: 0.7rem; color: #8892b0; text-align: center; margin-bottom: 15px; font-family: monospace; }
+        
+        .buy-btn {
+            width: 100%; padding: 12px; border: none; border-radius: 8px; font-family: 'Arial Black', sans-serif;
+            font-size: 1rem; color: #000; cursor: pointer; text-transform: uppercase; font-weight: 900;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.4); transition: transform 0.1s;
+        }
+        .buy-btn:active { transform: translateY(4px); box-shadow: none; }
+
+        /* PACK TIERS STYLING */
+        .tier-base .pack-foil { background: linear-gradient(135deg, #7f8c8d, #34495e); border: 1px solid #95a5a6; }
+        .tier-base .buy-btn { background: #95a5a6; }
+        .tier-base:hover { box-shadow: 0 10px 30px rgba(149, 165, 166, 0.2); border-color: #95a5a6; }
+
+        .tier-silver .pack-foil { background: linear-gradient(135deg, #bdc3c7, #7f8c8d); border: 1px solid #ecf0f1; }
+        .tier-silver .buy-btn { background: #bdc3c7; }
+        .tier-silver:hover { box-shadow: 0 10px 30px rgba(189, 195, 199, 0.3); border-color: #bdc3c7; }
+
+        .tier-gold .pack-foil { background: linear-gradient(135deg, #f1c40f, #d35400); border: 1px solid #f39c12; }
+        .tier-gold .buy-btn { background: #f1c40f; }
+        .tier-gold:hover { box-shadow: 0 10px 30px rgba(241, 196, 15, 0.3); border-color: #f1c40f; }
+
+        .tier-platinum .pack-foil { background: linear-gradient(135deg, #e0eaf5, #7a8b9e); border: 1px solid #fff; }
+        .tier-platinum .buy-btn { background: #e0eaf5; }
+        .tier-platinum:hover { box-shadow: 0 10px 30px rgba(224, 234, 245, 0.4); border-color: #e0eaf5; }
+
+        .tier-diamond .pack-foil { background: linear-gradient(135deg, #00f2fe, #4facfe); border: 1px solid #fff; box-shadow: 0 0 20px rgba(0, 242, 254, 0.6); animation: diamondPulse 2s infinite alternate; }
+        .tier-diamond .buy-btn { background: #00f2fe; }
+        .tier-diamond:hover { box-shadow: 0 15px 40px rgba(0, 242, 254, 0.6); border-color: #00f2fe; transform: scale(1.02); }
+
+        @keyframes diamondPulse { 0% { box-shadow: 0 0 15px rgba(0, 242, 254, 0.4); } 100% { box-shadow: 0 0 30px rgba(0, 242, 254, 0.8); } }
+
+        .exit-link { 
+            position: absolute; top: 10px; left: 20px;
+            background: #000; border: 2px solid #4c566a; color: #fff; 
+            padding: 8px 12px; border-radius: 8px; cursor: pointer; 
+            font-weight: 900; font-size: 0.8rem; text-transform: uppercase; 
+            z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.6); transition: 0.1s;
+        }
+        .exit-link:hover { border-color: var(--primary); color: var(--primary); }
+
+        /* THEATER OVERLAY */
+        .ripping-theater-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(5,6,8,0.98); backdrop-filter: blur(8px); z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 25px; }
+        .active-ripping-pack { animation: shakePack 0.1s infinite alternate; }
+        @keyframes shakePack { 0% { transform: translate(2px, 1px) rotate(0deg); } 100% { transform: translate(-2px, -1px) rotate(1deg); } }
+        .theater-pack-actor { width: 170px; height: 240px; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 15px 30px rgba(0,0,0,0.7); }
+        .theater-pack-actor:hover { transform: scale(1.05); }
+        .theater-pack-actor::before, .theater-pack-actor::after { content: ''; position: absolute; left: 0; right: 0; height: 10px; background-image: repeating-linear-gradient(90deg, rgba(0,0,0,0.2), rgba(0,0,0,0.2) 6px, transparent 6px, transparent 12px); }
+        .theater-pack-actor::before { top: 0; border-radius: 10px 10px 0 0; }
+        .theater-pack-actor::after { bottom: 0; border-radius: 0 0 10px 10px; }
+        .foil-text-main { font-family: 'Arial Black', sans-serif; font-size: 1.5rem; font-style: italic; transform: skewX(-5deg); margin: 0; color: #1a252f; }
+        .foil-text-sub { font-family: 'Arial Black', sans-serif; font-size: 0.8rem; letter-spacing: 2px; margin-top: 4px; opacity: 0.8; color: #1a252f; }
+        
+        .ripped-open-reveal-row { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; width: 90vw; max-width: 1100px; margin-top: 10px; }
+        .opened-showcase-card { background: #11141a; border-radius: 16px; padding: 12px; width: 175px; height: 255px; display: flex; flex-direction: column; align-items: center; box-shadow: 0 12px 24px rgba(0,0,0,0.8); border: 2px solid #4c566a; text-align: center; position: relative; animation: cardDropIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; transform: scale(0.6); }
+        @keyframes cardDropIn { to { opacity: 1; transform: scale(1); } }
+        .card-pos-badge { position: absolute; top: 12px; right: 12px; color: #8892b0; font-size: 0.75rem; font-weight: bold; }
+        .card-tier-tag { position: absolute; top: 12px; left: 12px; padding: 2px 8px; border-radius: 6px; font-size: 0.6rem; text-transform: uppercase; font-weight: 900; color: #000; }
+        .card-glyph-container { width: 45px; height: 45px; background: #232936; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-top: 25px; margin-bottom: 10px; }
+        .card-headline-name { font-size: 0.95rem; color: #fff; font-weight: 900; margin-bottom: 2px; letter-spacing: -0.5px; font-family: 'Arial Black', sans-serif; }
+        .dna-capsule-box { background: rgba(0,0,0,0.4); border: 1px solid #2e3646; border-radius: 8px; padding: 5px; width: 100%; margin-top: 4px; box-sizing: border-box; }
+        .dna-capsule-label { font-size: 0.5rem; color: #66758c; letter-spacing: 0.5px; text-transform: uppercase; font-weight: bold; }
+        .dna-capsule-target { font-size: 0.7rem; color: #00ff66; font-weight: bold; font-family: monospace; margin-top: 1px; }
+        .card-power-text { font-size: 0.75rem; color: #fff; margin-top: auto; display: flex; align-items: center; gap: 3px; font-weight: bold; }
+        .price-capsule { background: #1a1c23; border: 1px solid #2e3646; border-radius: 6px; padding: 3px 8px; font-family: monospace; color: #dddddd; margin-top: 6px; display: inline-flex; align-items: center; gap: 4px; font-size: 0.75rem; font-weight: bold; }
+        
+        .bg-base { background: linear-gradient(135deg, #7f8c8d, #34495e); }
+        .bg-silver { background: linear-gradient(135deg, #bdc3c7, #7f8c8d); }
+        .bg-gold { background: linear-gradient(135deg, #f1c40f, #d35400); }
+        .bg-platinum { background: linear-gradient(135deg, #e0eaf5, #7a8b9e); }
+        .bg-diamond { background: linear-gradient(135deg, #00f2fe, #4facfe); }
+
+        .tier-base-tag { background: #7f8c8d; color: #fff; }
+        .tier-silver-tag { background: #bdc3c7; }
+        .tier-gold-tag { background: #f1c40f; box-shadow: 0 0 8px rgba(241,196,15,0.3); }
+        .tier-platinum-tag { background: #e5e4e2; box-shadow: 0 0 12px rgba(229,228,226,0.4); }
+        .tier-diamond-tag { background: #00f2fe; box-shadow: 0 0 15px rgba(0,242,254,0.6); }
+
+        .vault-transfer-btn { background: #2ecc71; border: none; border-radius: 12px; padding: 15px 40px; color: #000; font-family: 'Arial Black', sans-serif; font-size: 1.1rem; cursor: pointer; text-transform: uppercase; margin-top: 20px; display: none; box-shadow: 0 0 15px rgba(46,204,113,0.4); }
+
+        .msg-log { width: 100%; text-align: center; color: #ff4757; font-size: 1.2rem; margin-bottom: 20px; min-height: 25px; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+
+    <div class="shop-container">
+        
+        <button class="exit-link" onclick="window.location.href='game_room.html'">◀ Exit Shop</button>
+
+        <div class="header-panel" style="margin-top: 40px;">
+            <h1 class="title">THE PRO SHOP</h1>
+            <div class="bank-readout">
+                <div class="stat-cash">CASH: <span id="bank-cash">$0</span></div>
+                <div class="stat-pts">PTS: <span id="bank-pts">0</span></div>
+            </div>
+        </div>
+
+        <div class="msg-log" id="msg-log"></div>
+
+        <div class="diamond-showcase">
+            <div class="pack-listing tier-diamond">
+                <div class="pack-foil">
+                    <p class="foil-text-main" id="sym-diamond">💎</p>
+                </div>
+                <h3 class="pack-title">Diamond Pack</h3>
+                <p class="pack-desc">20% Diamond Chance.</p>
+                <button class="buy-btn" onclick="buyPack('diamond')">BUY - $5,000</button>
+            </div>
+        </div>
+
+        <div class="pack-grid">
+            
+            <div class="pack-listing tier-base">
+                <div class="pack-foil">
+                    <p class="foil-text-main" id="sym-base">🏀</p>
+                </div>
+                <h3 class="pack-title">Base Pack</h3>
+                <p class="pack-desc">Standard Draw. No Diamonds.</p>
+                <button class="buy-btn" onclick="buyPack('base')">BUY - $100</button>
+            </div>
+
+            <div class="pack-listing tier-silver">
+                <div class="pack-foil">
+                    <p class="foil-text-main" id="sym-silver">🏀</p>
+                </div>
+                <h3 class="pack-title">Silver Pack</h3>
+                <p class="pack-desc">Higher Base Tier. No Diamonds.</p>
+                <button class="buy-btn" onclick="buyPack('silver')">BUY - $250</button>
+            </div>
+
+            <div class="pack-listing tier-gold">
+                <div class="pack-foil">
+                    <p class="foil-text-main" id="sym-gold">🏀</p>
+                </div>
+                <h3 class="pack-title">Gold Pack</h3>
+                <p class="pack-desc">1% Diamond Chance.</p>
+                <button class="buy-btn" onclick="buyPack('gold')">BUY - $500</button>
+            </div>
+
+            <div class="pack-listing tier-platinum">
+                <div class="pack-foil">
+                    <p class="foil-text-main" id="sym-platinum">🏀</p>
+                </div>
+                <h3 class="pack-title">Platinum Pack</h3>
+                <p class="pack-desc">5% Diamond Chance.</p>
+                <button class="buy-btn" onclick="buyPack('platinum')">BUY - $1,000</button>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="ripping-theater-overlay" id="rip-theater">
+        <h2 style="font-family:'Arial Black',sans-serif; letter-spacing:2px; margin:0; color:#fff;" id="theater-banner-msg">TAP PACK TO RIP</h2>
+        <div class="theater-pack-actor" id="theater-pack-actor">
+            <p class="foil-text-main" id="theater-foil-sport-title">SPORT</p>
+            <p class="foil-text-sub" id="theater-foil-pack-sub">PACK</p>
+        </div>
+        <div class="ripped-open-reveal-row" id="revealed-cards-row"></div>
+        <button class="vault-transfer-btn" id="vault-transfer-trigger" onclick="closePackScreen()">SEND TO LOCKER ROOM</button>
+    </div>
+<script src="card_reveal.js"></script>
+<script>
+        let playerCash = parseInt(localStorage.getItem('playerMoney')) || 0;
+        let playerPoints = parseInt(localStorage.getItem('playerPoints')) || 0;
+        let currentSport = localStorage.getItem('selectedSport') || 'default';
+        const msgLog = document.getElementById('msg-log');
+
+        function updateLedgers() {
+            document.getElementById('bank-cash').innerText = "$" + playerCash;
+            document.getElementById('bank-pts').innerText = playerPoints;
+            localStorage.setItem('playerMoney', playerCash);
+        }
+        updateLedgers();
+
+        // ========================================================
+        // SPORT DATA & PRICING CONFIG
+        // ========================================================
+        const sportData = { 
+            nhl: { title: "HOCKEY", symbol: "🏒", key: "nhl_inventory", pool: [ {name: "Game Changer", dna: "Kirill Kaprizov (MIN)", pos: "LW"}, {name: "Rink Rat", dna: "Connor McDavid (EDM)", pos: "C"}, {name: "The Great One", dna: "Wayne Gretzky (LEG)", pos: "C"}, {name: "The Sidkid", dna: "Sidney Crosby (PIT)", pos: "C"}, {name: "Matts Magic", dna: "Auston Matthews (TOR)", pos: "C"}, {name: "Ice Wall", dna: "Andrei Vasilevskiy (TB)", pos: "G"}, {name: "Blueline Boss", dna: "Cale Makar (COL)", pos: "LD"} ] }, 
+            mlb: { title: "BASEBALL", symbol: "⚾", key: "mlb_inventory", pool: [ {name: "Diamond King", dna: "Shohei Ohtani (LAD)", pos: "P"}, {name: "The Captain", dna: "Aaron Judge (NYY)", pos: "CF"}, {name: "Mookie Magic", dna: "Mookie Betts (LAD)", pos: "2B"}, {name: "Soto Shuffle", dna: "Juan Soto (NYY)", pos: "LF"} ] }, 
+            nba: { title: "BASKETBALL", symbol: "🏀", key: "nba_inventory", pool: [ {name: "Crossover Master", dna: "Stephen Curry (GSW)", pos: "PG"}, {name: "King James", dna: "LeBron James (LAL)", pos: "SF"}, {name: "The Joker", dna: "Nikola Jokic (DEN)", pos: "C"}, {name: "Greek Freak", dna: "Giannis Antetokounmpo (MIL)", pos: "PF"} ] }, 
+            nfl: { title: "FOOTBALL", symbol: "🏈", key: "nfl_inventory", pool: [ {name: "Showtime", dna: "Patrick Mahomes (KC)", pos: "QB"}, {name: "Run CMC", dna: "Christian McCaffrey (SF)", pos: "RB"}, {name: "Action Jackson", dna: "Lamar Jackson (BAL)", pos: "QB"}, {name: "Cheetah", dna: "Tyreek Hill (MIA)", pos: "WR"} ] }, 
+            default: { title: "CHASER", symbol: "🃏", key: "default_inventory", pool: [ {name: "Base Player", dna: "Rookie Draft Pick", pos: "UTIL"} ] } 
+        };
+        const activeConfig = sportData[currentSport] || sportData['default'];
+
+        // Update pack icons to match sport (skipping Diamond so it stays a gem)
+        ['base', 'silver', 'gold', 'platinum'].forEach(tier => {
+            document.getElementById(`sym-${tier}`).innerText = activeConfig.symbol;
+        });
+
+        // Pack Odds Definition (Cumulative thresholds for Math.random)
+        const packOdds = {
+            base:     { cost: 100,  odds: { base: 0.75, silver: 0.95, gold: 0.99, platinum: 1.00, diamond: 1.00 } },
+            silver:   { cost: 250,  odds: { base: 0.20, silver: 0.85, gold: 0.97, platinum: 1.00, diamond: 1.00 } },
+            gold:     { cost: 500,  odds: { base: 0.00, silver: 0.30, gold: 0.90, platinum: 0.99, diamond: 1.00 } },
+            platinum: { cost: 1000, odds: { base: 0.00, silver: 0.00, gold: 0.30, platinum: 0.95, diamond: 1.00 } },
+            diamond:  { cost: 5000, odds: { base: 0.00, silver: 0.00, gold: 0.00, platinum: 0.80, diamond: 1.00 } }
+        };
+
+        const cardValues = { "base": 50, "silver": 250, "gold": 1000, "platinum": 1500, "diamond": 10000 };
+        const powerMap = { "base": "1x", "silver": "2x", "gold": "3x", "platinum": "6x", "diamond": "10x" };
+
+        // ========================================================
+        // AUDIO ENGINE
+        // ========================================================
+        let audioCtx = null;
+        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+        function playSound(type) {
+            initAudio(); if (!audioCtx) return;
+            let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination); let now = audioCtx.currentTime;
+
+            if (type === 'buy') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(800, now); osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+                gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                osc.start(now); osc.stop(now + 0.2);
+            } else if (type === 'rip') {
+                let bufferSize = audioCtx.sampleRate * 0.4; let buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                let data = buffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
+                let noise = audioCtx.createBufferSource(); noise.buffer = buffer;
+                let filter = audioCtx.createBiquadFilter(); filter.type = 'highpass'; filter.frequency.value = 800;
+                noise.connect(filter); filter.connect(gain);
+                gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                noise.start(now);
+            } else if (type === 'reveal_std') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(523.25, now); osc.frequency.setValueAtTime(659.25, now + 0.1); 
+                gain.gain.setValueAtTime(0.15, now); gain.gain.linearRampToValueAtTime(0, now + 0.3);
+                osc.start(now); osc.stop(now + 0.3);
+            } else if (type === 'reveal_rare') {
+                let notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, idx) => {
+                    let o = audioCtx.createOscillator(); let g = audioCtx.createGain();
+                    o.connect(g); g.connect(audioCtx.destination); o.type = 'triangle';
+                    o.frequency.setValueAtTime(freq, now + (idx * 0.1));
+                    g.gain.setValueAtTime(0.15, now + (idx * 0.1)); g.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.1) + 0.2);
+                    o.start(now + (idx * 0.1)); o.stop(now + (idx * 0.1) + 0.2);
+                });
+            }
+        }
+
+        // ========================================================
+        // PURCHASING LOGIC
+        // ========================================================
+        function buyPack(packType) {
+            msgLog.innerText = "";
+            let config = packOdds[packType];
+            
+            if (playerCash < config.cost) {
+                msgLog.innerText = "INSUFFICIENT FUNDS. HIT THE CASINO.";
+                return;
+            }
+
+            playerCash -= config.cost;
+            updateLedgers();
+            playSound('buy');
+
+            let roll = Math.random();
+            let pulledTier = 'base';
+            
+            if (roll <= config.odds.base) pulledTier = 'base';
+            else if (roll <= config.odds.silver) pulledTier = 'silver';
+            else if (roll <= config.odds.gold) pulledTier = 'gold';
+            else if (roll <= config.odds.platinum) pulledTier = 'platinum';
+            else pulledTier = 'diamond';
+
+            let template = activeConfig.pool[Math.floor(Math.random() * activeConfig.pool.length)];
+            let newCard = { 
+                id: "shop_mint_" + Date.now() + "_" + Math.random(), 
+                name: template.name, dna: template.dna, pos: template.pos, 
+                tier: pulledTier, value: cardValues[pulledTier], power: powerMap[pulledTier] 
+            };
+
+            let inv = JSON.parse(localStorage.getItem(activeConfig.key)) || []; 
+            inv.push(newCard); 
+            localStorage.setItem(activeConfig.key, JSON.stringify(inv)); 
+
+            beginRippingTheater(newCard, packType);
+        }
+
+        function beginRippingTheater(card, packType) { 
+           const overlay = document.getElementById('rip-theater'); 
+           const actor = document.getElementById('theater-pack-actor'); 
+           const row = document.getElementById('revealed-cards-row'); 
+           const transferTrigger = document.getElementById('vault-transfer-trigger'); 
+           
+           row.innerHTML = ''; transferTrigger.style.display = 'none'; 
+           document.getElementById('theater-banner-msg').innerText = "TAP PACK TO RIP"; 
+           
+           actor.className = `theater-pack-actor bg-${packType}`;
+           document.getElementById('theater-foil-sport-title').innerText = activeConfig.title; 
+           document.getElementById('theater-foil-pack-sub').innerText = packType.toUpperCase() + " PACK";
+           
+           actor.style.display = 'flex'; 
+           overlay.style.display = 'flex';            
+            
+            actor.onclick = function() { 
+                actor.onclick = null; actor.classList.add('active-ripping-pack'); 
+                document.getElementById('theater-banner-msg').innerText = "TEARING FOIL SEALS..."; 
+                playSound('rip');
+                
+                setTimeout(() => { 
+                    if (card.tier === 'diamond' || card.tier === 'platinum') playSound('reveal_rare');
+                    else playSound('reveal_std');
+
+                    actor.classList.remove('active-ripping-pack'); actor.style.display = 'none'; 
+                    document.getElementById('theater-banner-msg').innerText = "ASSET SECURED:"; 
+                    
+                    // ==========================================
+                    // MASSIVE 2X CARD REVEAL TRIGGER (POST-SHAKE)
+                    // ==========================================
+                        CardReveal.present({
+                        name: card.name,
+                        year: "2026", 
+                        cardNumber: card.pos,
+                        rarity: card.tier, 
+                        // This generates a massive custom card image on the fly!
+                        imageSrc: "https://dummyimage.com/360x480/1a1c23/ffffff&text=" + encodeURIComponent(card.dna)
+                    });
+                    
+                    // This creates the smaller showcase card behind the popup so it's there when you hit "COLLECT"
+                    row.innerHTML = ` 
+                        <div class="opened-showcase-card tier-${card.tier}-tag"> 
+                            <div class="card-tier-tag tier-${card.tier}-tag">${card.tier}</div> 
+                            <div class="card-pos-badge">[ ${card.pos} ]</div> 
+                            <div class="card-glyph-container">${card.tier === 'diamond' ? '💎' : activeConfig.symbol}</div> 
+                            <div class="card-headline-name">${card.name}</div> 
+                            <div class="dna-capsule-box"> 
+                                <div class="dna-capsule-label">Performance Match:</div> 
+                                <div class="dna-capsule-target">${card.dna}</div> 
+                            </div> 
+                            <div class="card-power-text">⚡ ${card.power} Power</div> 
+                            <div class="price-capsule capsule-sm">${card.value.toLocaleString()} <span style="color:#2ecc71;">💵</span></div> 
+                        </div> `; 
+                    
+                    setTimeout(() => { transferTrigger.style.display = 'block'; }, 500); 
+                }, 800); 
+            }; 
+        }
+
+        function closePackScreen() { 
+            document.getElementById('rip-theater').style.display = 'none'; 
+        }
+    </script>
+</body>
+</html>

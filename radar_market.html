@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radar Market | Card Chaser's</title>
+    <style>
+        :root {
+            --primary: #9b59b6; --room-bg: radial-gradient(circle at center, #1a1525 0%, #0a0811 100%);
+            --glow: rgba(155, 89, 182, 0.4); --radar: #00d2d3;
+        }
+
+        body, html { margin: 0; padding: 0; min-height: 100vh; background: var(--room-bg); font-family: 'Arial Black', sans-serif; display: flex; flex-direction: column; align-items: center; color: #fff; overflow: hidden; }
+        .market-container { width: 95vw; max-width: 1200px; display: flex; flex-direction: column; align-items: center; padding: 2vh 0; height: 100vh; }
+        
+        .header-panel { display: flex; justify-content: space-between; align-items: center; width: 100%; background: #000; padding: 15px 25px; border-radius: 16px; border-bottom: 4px solid var(--primary); }
+        .ui-btn { background: #000; border: 2px solid var(--primary); color: #fff; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: 900; font-size: 0.7rem; text-transform: uppercase; }
+        .ui-btn:hover { border-color: #fff; color: var(--primary); }
+
+        .market-layout { display: grid; grid-template-columns: 300px 1fr; gap: 20px; width: 100%; margin-top: 20px; height: 80vh; }
+        .dashboard-panel { background: #0b0c10; border-radius: 16px; padding: 20px; border: 2px solid #1f232d; display: flex; flex-direction: column; gap: 15px; }
+        .search-input { width: 100%; background: #000; border: 2px solid #2e3440; color: #fff; padding: 10px; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; }
+        
+        .premium-upgrade { background: #161920; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid var(--radar); margin-top: auto; }
+        .btn-real-money { background: #000; color: #2ecc71; border: 2px solid #2ecc71; padding: 10px; width: 100%; border-radius: 8px; font-family: 'Arial Black', sans-serif; cursor: pointer; }
+
+        /* CARD THUMBNAIL WRAPPER */
+        .card-wrapper { display: flex; flex-direction: column; align-items: center; width: 120px; cursor: pointer; }
+        .card-perspective { width: 120px; height: 160px; perspective: 1000px; }
+        .card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; }
+        
+        .card-perspective.has-back:hover .card-inner { transform: rotateY(180deg); }
+        
+        .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 8px; border: 1px solid #4c566a; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow:hidden;}
+        .card-front { background: #11141a; cursor: zoom-in; }
+        .card-back { background: #2e3440; transform: rotateY(180deg); font-size: 0.5rem; padding: 5px; text-align: left; cursor: zoom-in; }
+        .card-label { font-size: 0.7rem; margin-top: 8px; text-transform: uppercase; color: #fff; text-align: center; }
+
+        /* MODALS */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 5000; display: none; align-items: center; justify-content: center; flex-direction: column; }
+        .meta-form { background: #0b0c10; border: 2px solid var(--primary); padding: 20px; border-radius: 16px; width: 320px; max-height: 80vh; overflow-y: auto; }
+        .form-input { width: 100%; background: #1a1c23; border: 1px solid #4c566a; color: #fff; padding: 8px; margin: 5px 0; border-radius: 6px; box-sizing: border-box; }
+        
+        /* FIXED INSPECTOR SLOTS WITH ZOOM */
+        .modal-content { display: flex; flex-direction: column; align-items: center; max-width: 90vw; width: 100%; }
+        .modal-images-holder { display: flex; gap: 20px; justify-content: center; align-items: center; flex-wrap: wrap; margin-bottom: 20px; width: 100%; }
+        
+        .inspector-card-frame {
+            width: 380px;
+            height: 500px;
+            max-width: 42vw;
+            max-height: 55vh;
+            min-width: 260px;
+            min-height: 340px;
+            border-radius: 12px;
+            border: 4px solid #fff;
+            box-shadow: 0 0 20px rgba(255,255,255,0.2);
+            overflow: hidden;
+            background: #11141a;
+            cursor: crosshair; /* Changes cursor to indicate inspection mode */
+            position: relative;
+        }
+        
+        .inspector-card-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; 
+            object-position: center;
+            /* Smooth snap back when mouse leaves */
+            transition: transform 0.2s ease-out; 
+            pointer-events: none; /* Prevents image dragging from interfering with zoom */
+        }
+
+        .modal-info-box { width: 100%; max-width: 780px; font-size: 1.1rem; background: #0b0c10; border: 2px solid var(--primary); padding: 20px; border-radius: 12px; text-align: center; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+
+    <div class="modal-overlay" id="upload-form-modal">
+        <div class="meta-form">
+            <h3 style="margin-top:0; color:var(--primary);">ADD TO SHOWCASE</h3>
+            <input type="text" id="p-name" class="form-input" placeholder="Player Name">
+            <input type="number" id="p-year" class="form-input" placeholder="Year">
+            <input type="text" id="p-num" class="form-input" placeholder="Card #">
+            <select id="p-cond" class="form-input">
+                <option value="Mint">Mint</option><option value="Near Mint">Near Mint</option>
+                <option value="Good">Good</option>
+            </select>
+            <div style="font-size:0.7rem; color:#8892b0; margin-top:10px;">FRONT IMAGE:</div>
+            <input type="file" id="p-front-file" class="form-input" accept="image/*">
+            <div style="font-size:0.7rem; color:#8892b0; margin-top:10px;">BACK IMAGE (Optional):</div>
+            <input type="file" id="p-back-file" class="form-input" accept="image/*">
+            
+            <button class="ui-btn" style="width:100%; margin-top:15px; padding:10px;" onclick="processUpload()">CONFIRM UPLOAD</button>
+            <button class="ui-btn" style="width:100%; margin-top:5px; padding:10px; background:#1a1c23; border-color:#4c566a;" onclick="document.getElementById('upload-form-modal').style.display='none'">CANCEL</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="high-res-modal" onclick="this.style.display='none'">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-images-holder" id="modal-images-container">
+                </div>
+            <div class="modal-info-box" id="modal-info">
+                </div>
+            <button class="ui-btn" style="margin-top: 20px; padding: 10px 20px;" onclick="document.getElementById('high-res-modal').style.display='none'">CLOSE INSPECTOR</button>
+        </div>
+    </div>
+
+    <div class="market-container">
+        <div class="header-panel">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <button class="ui-btn" onclick="window.location.href='game_room.html'">◀ Exit</button>
+                <h1 style="margin:0; font-size:1.2rem;">RADAR MARKET</h1>
+            </div>
+            <button class="ui-btn" onclick="window.location.href='playground.html'">🏟️ Arena</button>
+        </div>
+
+        <div class="market-layout">
+            <div class="dashboard-panel">
+                <h2 style="font-size: 0.9rem; margin:0;">MY SHOWCASE</h2>
+                <input type="text" class="search-input" id="player-search" placeholder="🔍 Find Player..." onkeyup="filterCards()">
+                <button class="ui-btn" style="width:100%; padding:15px;" onclick="document.getElementById('upload-form-modal').style.display='flex'">+ UPLOAD</button>
+                
+                <div style="margin-top: 20px;">
+                    <h3 style="font-size: 0.7rem; color: var(--radar); margin: 0 0 5px 0;">RADAR SCANNER</h3>
+                    <input type="text" class="search-input" id="zip-search" placeholder="📍 Postal Code...">
+                    <button class="ui-btn" style="width:100%;" onclick="updateRadar()">LOCAL TRADERS</button>
+                </div>
+
+                <div class="premium-upgrade">
+                    <div style="font-size:0.7rem; margin-bottom:5px;">GET 100 SLOTS</div>
+                    <button class="btn-real-money" onclick="alert('Redirecting...')">UNLOCK - $1.99</button>
+                </div>
+            </div>
+
+            <div id="showcase-grid" style="display:grid; grid-template-columns:repeat(auto-fill, 120px); gap:20px; overflow-y: auto;">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // eBay-Style Magnifier Logic
+        function zoomIn(event, element) {
+            const img = element.querySelector('img');
+            const rect = element.getBoundingClientRect();
+            
+            // Calculate mouse position relative to the image frame
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            
+            // Convert to percentages for transform-origin
+            const xPercent = (x / rect.width) * 100;
+            const yPercent = (y / rect.height) * 100;
+
+            // Remove transition so it tracks the mouse instantly without lag
+            img.style.transition = 'none';
+            // Lock focal point to mouse and scale up 3x
+            img.style.transformOrigin = `${xPercent} ${yPercent}%`;
+            img.style.transform = 'scale(3)';
+        }
+
+        function zoomOut(element) {
+            const img = element.querySelector('img');
+            // Re-apply transition for a smooth snap-back to center
+            img.style.transition = 'transform 0.2s ease-out';
+            img.style.transformOrigin = 'center center';
+            img.style.transform = 'scale(1)';
+        }
+
+        async function processUpload() {
+            const name = document.getElementById('p-name').value;
+            const year = document.getElementById('p-year').value;
+            const num = document.getElementById('p-num').value;
+            const cond = document.getElementById('p-cond').value;
+            const frontFile = document.getElementById('p-front-file').files[0];
+            const backFile = document.getElementById('p-back-file').files[0];
+
+            if(!frontFile || !name) { alert("Please select a front image and enter player name."); return; }
+
+            const frontSrc = await readFile(frontFile);
+            const backSrc = backFile ? await readFile(backFile) : null;
+
+            const grid = document.getElementById('showcase-grid');
+            const cardWrap = document.createElement('div');
+            cardWrap.className = 'card-wrapper';
+            cardWrap.dataset.name = name.toLowerCase();
+            
+            const safeName = name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const safeCond = cond.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const frontParam = frontSrc.replace(/'/g, "\\'");
+            const backParam = backSrc ? backSrc.replace(/'/g, "\\'") : 'null';
+
+            cardWrap.innerHTML = `
+                <div class="card-perspective ${backSrc ? 'has-back' : ''}" onclick="showHighRes('${frontParam}', ${backSrc ? `'${backParam}'` : 'null'}, '${safeName}', '${year}', '${num}', '${safeCond}')">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <img src="${frontSrc}" style="width:100%; height:100%; object-fit:cover;">
+                        </div>
+                        ${backSrc ? `
+                        <div class="card-back">
+                            <img src="${backSrc}" style="width:100%; height:100%; object-fit:cover;">
+                        </div>` : `
+                        <div class="card-back">
+                            <div style="padding:10px; font-size:0.6rem; text-align:center;">
+                                <strong>${name}</strong><br><br>${year}<br>#${num}<br>${cond}
+                            </div>
+                        </div>`}
+                    </div>
+                </div>
+                <div class="card-label">${name}</div>
+            `;
+            grid.appendChild(cardWrap);
+            
+            document.getElementById('p-name').value = '';
+            document.getElementById('p-year').value = '';
+            document.getElementById('p-num').value = '';
+            document.getElementById('p-cond').value = 'Mint';
+            document.getElementById('p-front-file').value = '';
+            document.getElementById('p-back-file').value = '';
+
+            document.getElementById('upload-form-modal').style.display = 'none';
+        }
+
+        function readFile(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function showHighRes(frontSrc, backSrc, name, year, num, cond) {
+            const imgContainer = document.getElementById('modal-images-container');
+            
+            // Added onmousemove and onmouseleave triggers to the frames
+            let imagesHtml = `<div class="inspector-card-frame" onmousemove="zoomIn(event, this)" onmouseleave="zoomOut(this)"><img src="${frontSrc}"></div>`;
+            if (backSrc && backSrc !== 'null') {
+                imagesHtml += `<div class="inspector-card-frame" onmousemove="zoomIn(event, this)" onmouseleave="zoomOut(this)"><img src="${backSrc}"></div>`;
+            }
+            imgContainer.innerHTML = imagesHtml;
+
+            document.getElementById('modal-info').innerHTML = `
+                <h2 style="margin: 0 0 10px 0; color: var(--primary); font-size:1.4rem;">${name}</h2>
+                <div style="display:flex; justify-content:space-around; font-size:0.9rem; border-top:1px solid #1f232d; padding-top:10px;">
+                    <span><strong>YEAR:</strong> ${year}</span>
+                    <span><strong>CARD #:</strong> ${num}</span>
+                    <span><strong>CONDITION:</strong> ${cond}</span>
+                </div>
+            `;
+            
+            document.getElementById('high-res-modal').style.display = 'flex';
+        }
+
+        function filterCards() {
+            let val = document.getElementById('player-search').value.toLowerCase();
+            document.querySelectorAll('.card-wrapper').forEach(c => {
+                c.style.display = c.dataset.name.includes(val) ? '' : 'none';
+            });
+        }
+
+        function updateRadar() { alert("Scanning local area..."); }
+    </script>
+</body>
+</html>

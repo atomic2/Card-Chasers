@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Chaser's | Welcome</title>
+    <style>
+        body, html {
+            margin: 0; padding: 0; height: 100%;
+            background-color: #1a1512;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.85)), 
+                              linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px), 
+                              linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+            font-family: 'Arial Black', sans-serif;
+            display: flex; flex-direction: column; justify-content: space-evenly; align-items: center; overflow: hidden;
+        }
+        .jumbotron-box {
+            width: 66vw; min-width: 340px; height: 25vh; margin-top: 5vh; 
+            background: #050608; border: 4px solid #00ff66; border-radius: 16px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative; box-shadow: 0 0 30px rgba(0, 255, 102, 0.3), inset 0 0 40px rgba(0, 255, 102, 0.15);
+            animation: pulseGlow 2s infinite alternate; overflow: hidden;
+        }
+        .jumbotron-box::before { content: '[!]'; position: absolute; top: 10px; left: 15px; color: #00ff66; font-family: monospace; font-size: 1.2rem; font-weight: 900; animation: flashText 1s infinite; }
+        .jumbotron-box::after { content: '[!]'; position: absolute; top: 10px; right: 15px; color: #00ff66; font-family: monospace; font-size: 1.2rem; font-weight: 900; animation: flashText 1s infinite; }
+        .scanlines { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.4) 50%); background-size: 100% 6px; z-index: 2; pointer-events: none; }
+        .alert-header { color: #fff; font-size: clamp(0.7rem, 2vw, 1rem); letter-spacing: 4px; margin-bottom: 10px; font-weight: 900; z-index: 10; text-transform: uppercase; text-shadow: 2px 2px 0px #000; }
+        .marquee-container { width: 90%; overflow: hidden; white-space: nowrap; z-index: 10; border-top: 2px solid rgba(0, 255, 102, 0.4); border-bottom: 2px solid rgba(0, 255, 102, 0.4); padding: 15px 0; background: rgba(0, 255, 102, 0.1); }
+        .marquee-content { display: inline-block; color: #00ff66; font-family: monospace; font-size: clamp(1.5rem, 4vw, 2.5rem); font-weight: 900; letter-spacing: 2px; text-transform: uppercase; text-shadow: 2px 2px 0px #000, -1px -1px 0px #000, 0 0 15px rgba(0, 255, 102, 0.9); animation: scrollText 12s linear infinite; }
+        @keyframes scrollText { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        @keyframes pulseGlow { 0% { box-shadow: 0 0 20px rgba(0, 255, 102, 0.2), inset 0 0 30px rgba(0, 255, 102, 0.1); border-color: rgba(0, 255, 102, 0.5); } 100% { box-shadow: 0 0 40px rgba(0, 255, 102, 0.5), inset 0 0 60px rgba(0, 255, 102, 0.3); border-color: #00ff66; } }
+        @keyframes flashText { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.2; } }
+        .welcome-container { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 30px; perspective: 1000px; margin-bottom: 5vh; }
+        .logo-text { font-size: clamp(3rem, 10vw, 5.5rem); font-weight: 900; color: #ff9f43; text-transform: uppercase; letter-spacing: 4px; margin: 0; line-height: 1; text-shadow: 0 1px 0 #d37724, 0 2px 0 #c26b1f, 0 3px 0 #b1601a, 0 4px 0 #a05416, 0 5px 0 #8f4912, 0 6px 0 #7e3e0e, 0 7px 0 #6d330a, 0 9px 25px rgba(0,0,0,0.9); transform: rotateX(10deg); }
+        .btn-3d-container { position: relative; background: #0f1115; padding: 8px; border-radius: 16px; box-shadow: inset 0 4px 10px rgba(0,0,0,0.8), 0 10px 30px rgba(0,0,0,0.5); margin-top: 10px; }
+        .enter-btn-3d { cursor: pointer; outline: none; border: none; font-family: 'Arial Black', sans-serif; font-size: 2.2rem; font-weight: 900; color: #ffffff; background: linear-gradient(135deg, #2d323f, #1b1e26); padding: 20px 60px; border-radius: 12px; position: relative; border-bottom: 12px solid #ff9f43; transform: translateY(-6px); transition: all 0.1s ease; box-shadow: 0 8px 20px rgba(255, 159, 67, 0.3), 0 12px 0px #b1601a; }
+        .enter-btn-3d:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(255, 159, 67, 0.4), 0 14px 0px #c26b1f; }
+        .enter-btn-3d:active { transform: translateY(4px); border-bottom-width: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.5), 0 2px 0px #5c2807; }
+    </style>
+</head>
+<body>
+    <div class="jumbotron-box" id="jumbo-box"><div class="scanlines"></div><div class="alert-header">=== GLOBAL EVENT FEED ===</div><div class="marquee-container"><div class="marquee-content" id="alert-marquee">SYSTEM BOOT SEQUENCE INITIATED...</div></div></div>
+    <div class="welcome-container"><h1 class="logo-text">Card<br>Chaser's</h1><div class="btn-3d-container"><button class="enter-btn-3d" onclick="window.location.href='playground.html'">ENTER NOW</button></div></div>
+    <script>
+        function getNextMonsterFeeding() {
+            let now = new Date(); let target = new Date(now); target.setUTCHours(20, 0, 0, 0);
+            let currentDay = target.getUTCDay(); let daysUntilSunday = (7 - currentDay) % 7; target.setUTCDate(target.getUTCDate() + daysUntilSunday);
+            if (target.getTime() <= now.getTime()) target.setUTCDate(target.getUTCDate() + 7);
+            return target.getTime(); 
+        }
+        let clockEngine = setInterval(tickClock, 1000); tickClock();
+        function tickClock() {
+            let now = Date.now(); let globalMonsterTime = getNextMonsterFeeding(); let distance = globalMonsterTime - now;
+            let display = document.getElementById('alert-marquee');
+            let oneHour = 3600000;
+            if (distance <= 0 && distance > -oneHour) { display.innerText = "🚨 CHAMBER LIVE! FEED THE BEAST NOW! 🚨"; return; }
+            let d = Math.floor(distance / (1000 * 60 * 60 * 24)); let h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            let m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)); let s = Math.floor((distance % (1000 * 60)) / 1000);
+            display.innerText = `⚡ MUTATION CHAMBER OPENS IN: ${d}D ${h}H ${m}M ${s}S ⚡`;
+        }
+    </script>
+</body>
+</html>

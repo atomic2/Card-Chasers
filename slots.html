@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arena Slots | Card Chaser's</title>
+    <style>
+        :root {
+            --primary: #ff9f43;
+            --primary-dark: #b1601a;
+            --glow: rgba(255, 159, 67, 0.4);
+            --cabinet-bg: linear-gradient(to bottom, #232731, #161920);
+            --border-style: solid;
+        }
+
+        /* Fully responsive body locking to viewport */
+        body, html {
+            margin: 0; padding: 0; height: 100vh;
+            background: radial-gradient(circle at center, #1e222b 0%, #090a0f 100%);
+            font-family: 'Arial Black', -apple-system, sans-serif;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: #fff; box-sizing: border-box; overflow: hidden;
+        }
+        *, *:before, *:after { box-sizing: inherit; }
+
+        /* Cabinet with scaling heights and no thick black bottom cutoff */
+        .slot-cabinet {
+            background: var(--cabinet-bg);
+            border: 6px var(--border-style) var(--primary);
+            border-radius: 20px; padding: 15px 20px; width: 95vw; max-width: 450px;
+            height: 96vh; max-height: 850px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.9), 0 0 30px var(--glow), inset 0 4px 0 rgba(255,255,255,0.1);
+            display: flex; flex-direction: column; align-items: center; justify-content: space-evenly;
+            position: relative; z-index: 1;
+        }
+
+        /* Clickable Marquee for Audio Easter Egg */
+        .glass-marquee {
+            width: 100%; background: #000; border: 3px solid rgba(255,255,255,0.05);
+            border-bottom: 5px solid #000; border-radius: 12px; padding: 8px 0;
+            text-align: center; box-shadow: inset 0 0 20px rgba(0,0,0,1);
+            cursor: pointer; transition: transform 0.1s ease;
+        }
+        .glass-marquee:active { transform: scale(0.98); }
+        .marquee-title {
+            margin: 0; font-size: clamp(1.5rem, 5vh, 2rem); color: #fff; text-transform: uppercase; letter-spacing: 2px;
+            text-shadow: 0 1px 0 var(--primary-dark), 0 3px 0 var(--primary-dark), 0 4px 10px var(--glow);
+        }
+
+        .wallet-panel {
+            display: flex; justify-content: space-between; width: 100%;
+            background: #000; padding: 8px 12px; border-radius: 8px;
+            border: 2px solid rgba(255,255,255,0.05); 
+        }
+        .wallet-stat { font-size: clamp(0.7rem, 2vh, 0.9rem); color: #8892b0; letter-spacing: 1px; }
+        .wallet-stat span { font-size: clamp(1rem, 2.5vh, 1.2rem); font-weight: 900; margin-left: 5px; }
+        #cash-display { color: #2ecc71; }
+        #pts-display { color: var(--primary); }
+
+        .reels-casing {
+            background: #000; border: 4px solid rgba(0,0,0,0.4);
+            border-bottom: 8px solid rgba(255,255,255,0.05); border-radius: 16px;
+            padding: 15px 10px; display: flex; gap: 10px; width: 100%;
+            box-shadow: inset 0 15px 25px rgba(0,0,0,1), 0 5px 10px rgba(0,0,0,0.5); 
+        }
+
+        .reel-window {
+            flex: 1; height: clamp(80px, 15vh, 120px); background: linear-gradient(to bottom, #000 0%, #1f232d 50%, #000 100%);
+            border: 2px solid #000; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+            font-size: clamp(2.5rem, 8vh, 3.5rem); box-shadow: inset 0 0 15px rgba(0,0,0,0.9);
+        }
+
+        .spinning-fast { animation: reelBlur 0.1s infinite linear; }
+        @keyframes reelBlur {
+            0% { transform: translateY(-10px) scaleY(1.2); filter: blur(3px); }
+            50% { transform: translateY(10px) scaleY(1.2); filter: blur(3px); }
+            100% { transform: translateY(-10px) scaleY(1.2); filter: blur(3px); }
+        }
+
+        .btn-chassis { background: #000; padding: 8px; border-radius: 50%; box-shadow: inset 0 8px 16px rgba(0,0,0,1); }
+        
+        .spin-btn {
+            width: clamp(90px, 16vh, 120px); height: clamp(90px, 16vh, 120px); border-radius: 50%; border: none; outline: none; cursor: pointer;
+            font-family: 'Arial Black', sans-serif; font-size: clamp(1rem, 3vh, 1.4rem); font-weight: 900; color: #fff;
+            background: linear-gradient(135deg, #3b4252, #1f232d); border-bottom: 10px solid var(--primary);
+            transform: translateY(-6px); transition: all 0.05s ease; box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+        }
+        .spin-btn:hover { transform: translateY(-8px); box-shadow: 0 12px 25px var(--glow); }
+        .spin-btn:active { transform: translateY(4px); border-bottom-width: 2px; }
+        .spin-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: translateY(4px); border-bottom-width: 2px; }
+
+        .cost-tag { font-size: clamp(0.7rem, 2vh, 0.8rem); color: #a5b1c2; letter-spacing: 1px; }
+        
+        /* Bolder, High-Visibility Win Output Screen */
+        .output-screen {
+            background: #000; width: 100%; padding: 8px; border-radius: 8px;
+            text-align: center; min-height: 40px;
+            display: flex; flex-direction: column; justify-content: center;
+            font-family: 'Arial Black', sans-serif; font-size: clamp(1rem, 2.8vh, 1.2rem); font-weight: 900; 
+            text-transform: uppercase; letter-spacing: 1px;
+            box-shadow: 0 0 10px rgba(0,230,118,0.2), inset 0 0 5px rgba(0,0,0,1);
+            color: #2ecc71; 
+        }
+
+        /* In-Cabinet Exit Button */
+        .exit-link { 
+            width: 100%; background: #000; border: 2px solid #4c566a; color: #fff; 
+            padding: 12px 0; border-radius: 8px; cursor: pointer; 
+            font-weight: 900; font-size: clamp(0.8rem, 2vh, 0.95rem); text-transform: uppercase; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.6); transition: all 0.2s; font-family: 'Arial Black', sans-serif;
+            margin-top: 5px;
+        }
+        .exit-link:hover { border-color: #d8dee9; color: var(--primary); transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.8); }
+
+        .confetti { position: fixed; top: -10px; width: 10px; height: 10px; z-index: 9999; animation: fall linear forwards; opacity: 1; }
+        @keyframes fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+
+        /* The Ripping Theater */
+        .ripping-theater-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(5,6,8,0.98); backdrop-filter: blur(8px); z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 25px; }
+        .active-ripping-pack { animation: shakePack 0.1s infinite alternate; }
+        @keyframes shakePack { 0% { transform: translate(2px, 1px) rotate(0deg); } 100% { transform: translate(-2px, -1px) rotate(1deg); } }
+        .foil-wrapper { width: 170px; height: 240px; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 15px 30px rgba(0,0,0,0.7); }
+        .foil-wrapper:hover { transform: scale(1.05); }
+        .foil-wrapper::before, .foil-wrapper::after { content: ''; position: absolute; left: 0; right: 0; height: 10px; background-image: repeating-linear-gradient(90deg, #333, #333 6px, #111 6px, #111 12px); }
+        .foil-wrapper::before { top: 0; border-radius: 10px 10px 0 0; }
+        .foil-wrapper::after { bottom: 0; border-radius: 0 0 10px 10px; }
+        .foil-base { background: linear-gradient(135deg, #a6b8c7 0%, #607d8b 100%); border: 1px solid #78909c; color: #1a252f; }
+        .foil-text-main { font-family: 'Arial Black', sans-serif; font-size: 1.5rem; font-style: italic; transform: skewX(-5deg); margin: 0; }
+        .foil-text-sub { font-family: 'Arial Black', sans-serif; font-size: 0.8rem; letter-spacing: 2px; margin-top: 4px; opacity: 0.8; }
+        .ripped-open-reveal-row { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; width: 90vw; max-width: 1100px; margin-top: 10px; }
+        .opened-showcase-card { background: #11141a; border-radius: 16px; padding: 12px; width: 175px; height: 255px; display: flex; flex-direction: column; align-items: center; box-shadow: 0 12px 24px rgba(0,0,0,0.8); border: 2px solid #4c566a; text-align: center; position: relative; animation: cardDropIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; transform: scale(0.6); }
+        @keyframes cardDropIn { to { opacity: 1; transform: scale(1); } }
+        .card-pos-badge { position: absolute; top: 12px; right: 12px; color: #8892b0; font-size: 0.75rem; font-weight: bold; }
+        .card-tier-tag { position: absolute; top: 12px; left: 12px; padding: 2px 8px; border-radius: 6px; font-size: 0.6rem; text-transform: uppercase; font-weight: 900; color: #000; }
+        .card-glyph-container { width: 45px; height: 45px; background: #232936; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-top: 25px; margin-bottom: 10px; }
+        .card-headline-name { font-size: 0.95rem; color: #fff; font-weight: 900; margin-bottom: 2px; letter-spacing: -0.5px; font-family: 'Arial Black', sans-serif; }
+        .dna-capsule-box { background: rgba(0,0,0,0.4); border: 1px solid #2e3646; border-radius: 8px; padding: 5px; width: 100%; margin-top: 4px; box-sizing: border-box; }
+        .dna-capsule-label { font-size: 0.5rem; color: #66758c; letter-spacing: 0.5px; text-transform: uppercase; font-weight: bold; }
+        .dna-capsule-target { font-size: 0.7rem; color: #00ff66; font-weight: bold; font-family: monospace; margin-top: 1px; }
+        .card-power-text { font-size: 0.75rem; color: #fff; margin-top: auto; display: flex; align-items: center; gap: 3px; font-weight: bold; }
+        .price-capsule { background: #1a1c23; border: 1px solid #2e3646; border-radius: 6px; padding: 3px 8px; font-family: monospace; color: #dddddd; margin-top: 6px; display: inline-flex; align-items: center; gap: 4px; font-size: 0.75rem; font-weight: bold; }
+        .tier-base { background: #7f8c8d; color: #fff; }
+        .tier-silver { background: #bdc3c7; }
+        .tier-gold { background: #f1c40f; box-shadow: 0 0 8px rgba(241,196,15,0.3); }
+        .tier-platinum { background: #e5e4e2; box-shadow: 0 0 12px rgba(229,228,226,0.4); }
+        .vault-transfer-btn { background: #2ecc71; border: none; border-radius: 12px; padding: 15px 40px; color: #000; font-family: 'Arial Black', sans-serif; font-size: 1.1rem; cursor: pointer; text-transform: uppercase; margin-top: 20px; display: none; box-shadow: 0 0 15px rgba(46,204,113,0.4); }
+    </style>
+</head>
+<body>
+
+    <div class="slot-cabinet">
+        <div class="glass-marquee" onclick="playSound('jackpot')"><h1 class="marquee-title" id="machine-title">SLOTS</h1></div>
+        
+        <div class="wallet-panel">
+            <div class="wallet-stat">BANK: <span id="cash-display">$0</span></div>
+            <div class="wallet-stat">PTS: <span id="pts-display">0</span></div>
+        </div>
+        
+        <div class="reels-casing">
+            <div class="reel-window" id="r1">🎰</div>
+            <div class="reel-window" id="r2">🎰</div>
+            <div class="reel-window" id="r3">🎰</div>
+        </div>
+        
+        <div class="btn-chassis"><button class="spin-btn" id="spin-btn" onclick="pullLever()">SPIN</button></div>
+        <div class="cost-tag">COST PER SPIN: $1</div>
+        
+        <div class="output-screen" id="feedback-screen">INSERT CASH...</div>
+
+        <button class="exit-link" onclick="window.location.href='game_room.html'">◀ Exit Casino</button>
+    </div>
+    
+    <div class="ripping-theater-overlay" id="rip-theater">
+        <h2 style="font-family:'Arial Black',sans-serif; letter-spacing:2px; margin:0; color:#fff;" id="theater-banner-msg">SLOT PAYOUT: RIP THE FOIL</h2>
+        <div class="foil-wrapper foil-base" id="theater-pack-actor" style="transform: scale(1.5);">
+            <p class="foil-text-main" id="theater-foil-sport-title">HOCKEY</p>
+            <p class="foil-text-sub" id="theater-foil-pack-sub">BOOSTER</p>
+        </div>
+        <div class="ripped-open-reveal-row" id="revealed-cards-row"></div>
+        <button class="vault-transfer-btn" id="vault-transfer-trigger" onclick="closePackScreen()">COLLECT & CONTINUE</button>
+    </div>
+
+    <script>
+
+        // FIXED: Bankroll initializes to 1000 so the machine actually lets you spin!
+        let playerCash = parseInt(localStorage.getItem('playerMoney')) || 1000;
+        let playerPoints = parseInt(localStorage.getItem('playerPoints')) || 0;
+        let currentSport = localStorage.getItem('selectedSport') || 'default';
+        
+        // ========================================================
+        // WEB AUDIO SYNTHESIZER ENGINE
+        // ========================================================
+        let audioCtx = null;
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        function playSound(type) {
+            initAudio();
+            if (!audioCtx) return;
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            let now = audioCtx.currentTime;
+
+            if (type === 'tick') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(800, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.05);
+                gain.gain.setValueAtTime(0.05, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.start(now); osc.stop(now + 0.05);
+            } else if (type === 'win') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, now); // C
+                osc.frequency.setValueAtTime(659.25, now + 0.1); // E
+                osc.frequency.setValueAtTime(783.99, now + 0.2); // G
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.4);
+                osc.start(now); osc.stop(now + 0.4);
+            } else if (type === 'jackpot') {
+                let notes = [
+                    {f: 293.66, t: 0, d: 0.15},   // D4
+                    {f: 392.00, t: 0.15, d: 0.15}, // G4
+                    {f: 440.00, t: 0.30, d: 0.15}, // A4
+                    {f: 466.16, t: 0.45, d: 0.30}, // Bb4
+                    {f: 440.00, t: 0.80, d: 0.20}, // A4
+                    {f: 392.00, t: 1.00, d: 0.60}  // G4
+                ];
+                notes.forEach(note => {
+                    let o = audioCtx.createOscillator(); let g = audioCtx.createGain();
+                    o.connect(g); g.connect(audioCtx.destination); 
+                    o.type = 'sawtooth'; 
+                    o.frequency.setValueAtTime(note.f, now + note.t);
+                    g.gain.setValueAtTime(0.15, now + note.t);
+                    g.gain.exponentialRampToValueAtTime(0.001, now + note.t + note.d);
+                    o.start(now + note.t); o.stop(now + note.t + note.d);
+                });
+            } else if (type === 'rip') {
+                let bufferSize = audioCtx.sampleRate * 0.4;
+                let buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                let data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
+                let noiseSource = audioCtx.createBufferSource();
+                noiseSource.buffer = buffer;
+                let filter = audioCtx.createBiquadFilter();
+                filter.type = 'highpass'; filter.frequency.value = 800;
+                noiseSource.connect(filter); filter.connect(gain);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                noiseSource.start(now);
+            }
+        }
+
+        const sportData = { 
+            nhl: { title: "Ice Blast", primary: "#3498db", dark: "#1a5276", bg: "linear-gradient(to bottom, #2c3e50, #0f171e)", border: "double", symbols: ["🏆", "💎", "🏒", "🥅", "⛸️", "🚨"], key: "nhl_inventory", pool: [ {name: "Game Changer", dna: "Kirill Kaprizov (MIN)", pos: "LW"}, {name: "Rink Rat", dna: "Connor McDavid (EDM)", pos: "C"}, {name: "The Great One", dna: "Wayne Gretzky (LEG)", pos: "C"}, {name: "The Sidkid", dna: "Sidney Crosby (PIT)", pos: "C"}, {name: "Matts Magic", dna: "Auston Matthews (TOR)", pos: "C"}, {name: "Ice Wall", dna: "Andrei Vasilevskiy (TB)", pos: "G"}, {name: "Blueline Boss", dna: "Cale Makar (COL)", pos: "LD"} ] }, 
+            mlb: { title: "Grand Slam", primary: "#2ecc71", dark: "#196f3d", bg: "linear-gradient(to bottom, #2d4a22, #0d1a0a)", border: "dashed", symbols: ["🏆", "💎", "⚾", "🧢", "🏟️", "👟"], key: "mlb_inventory", pool: [ {name: "Diamond King", dna: "Shohei Ohtani (LAD)", pos: "P"}, {name: "The Captain", dna: "Aaron Judge (NYY)", pos: "CF"}, {name: "Mookie Magic", dna: "Mookie Betts (LAD)", pos: "2B"}, {name: "Soto Shuffle", dna: "Juan Soto (NYY)", pos: "LF"} ] }, 
+            nba: { title: "Full Court", primary: "#e67e22", dark: "#a04000", bg: "linear-gradient(to bottom, #5c2c06, #1a0c02)", border: "solid", symbols: ["🏆", "💎", "🏀", "👟", "🔥", "👑"], key: "nba_inventory", pool: [ {name: "Crossover Master", dna: "Stephen Curry (GSW)", pos: "PG"}, {name: "King James", dna: "LeBron James (LAL)", pos: "SF"}, {name: "The Joker", dna: "Nikola Jokic (DEN)", pos: "C"}, {name: "Greek Freak", dna: "Giannis Antetokounmpo (MIL)", pos: "PF"} ] }, 
+            nfl: { title: "Gridiron", primary: "#f1c40f", dark: "#9a7d0a", bg: "linear-gradient(to bottom, #3e2723, #150c0a)", border: "solid", symbols: ["🏆", "💎", "🏈", "🏟️", "📣", "🧤"], key: "nfl_inventory", pool: [ {name: "Showtime", dna: "Patrick Mahomes (KC)", pos: "QB"}, {name: "Run CMC", dna: "Christian McCaffrey (SF)", pos: "RB"}, {name: "Action Jackson", dna: "Lamar Jackson (BAL)", pos: "QB"}, {name: "Cheetah", dna: "Tyreek Hill (MIA)", pos: "WR"} ] }, 
+            default: { title: "Card Chaser", primary: "#ff9f43", dark: "#b1601a", bg: "linear-gradient(to bottom, #232731, #161920)", border: "solid", symbols: ["🏆", "💎", "🎰", "🍒", "🔔", "⭐"], key: "default_inventory", pool: [ {name: "Base Player", dna: "Rookie Draft Pick", pos: "UTIL"} ] } 
+        };
+        const activeConfig = sportData[currentSport] || sportData['default'];
+        document.documentElement.style.setProperty('--primary', activeConfig.primary);
+        document.documentElement.style.setProperty('--primary-dark', activeConfig.dark);
+        document.documentElement.style.setProperty('--cabinet-bg', activeConfig.bg);
+        document.documentElement.style.setProperty('--border-style', activeConfig.border);
+        document.getElementById('machine-title').innerText = activeConfig.title + " SLOTS";
+        document.getElementById('r1').innerText = activeConfig.symbols[2];
+        document.getElementById('r2').innerText = activeConfig.symbols[3];
+        document.getElementById('r3').innerText = activeConfig.symbols[4];
+        
+        function updateLedgers() { 
+            document.getElementById('cash-display').innerText = "$" + playerCash; 
+            document.getElementById('pts-display').innerText = playerPoints; 
+            localStorage.setItem('playerMoney', playerCash); 
+            localStorage.setItem('playerPoints', playerPoints); 
+        }
+        updateLedgers();
+        
+        function fireConfetti() { 
+            const colors = ['#f1c40f', '#e74c3c', '#3498db', '#2ecc71', '#9b59b6', '#ffffff']; 
+            for(let i=0; i<120; i++) { 
+                let conf = document.createElement('div'); 
+                conf.className = 'confetti'; 
+                conf.style.left = Math.random() * 100 + 'vw'; 
+                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)]; 
+                conf.style.animationDuration = (Math.random() * 2 + 2) + 's'; 
+                conf.style.animationDelay = (Math.random() * 0.5) + 's'; 
+                document.body.appendChild(conf); 
+                setTimeout(() => conf.remove(), 4000); 
+            } 
+        }
+
+        function mintCard() { 
+            let template = activeConfig.pool[Math.floor(Math.random() * activeConfig.pool.length)]; 
+            let roll = Math.random(); 
+            let tier = 'base'; 
+            
+            if (roll > 0.99) tier = 'platinum'; 
+            else if (roll > 0.87) tier = 'gold'; 
+            else if (roll > 0.55) tier = 'silver'; 
+            else tier = 'base'; 
+            
+            const pricingMap = { "base": 50, "silver": 250, "gold": 1000, "platinum": 1500 }; 
+            const powerMap = { "base": "1x", "silver": "2x", "gold": "3x", "platinum": "6x" }; 
+            
+            let newCard = { 
+                id: "slot_mint_" + Date.now() + "_" + Math.random(), 
+                name: template.name, dna: template.dna, pos: template.pos, 
+                tier: tier, value: pricingMap[tier], power: powerMap[tier] 
+            }; 
+            
+            let inv = JSON.parse(localStorage.getItem(activeConfig.key)) || []; 
+            inv.push(newCard); 
+            localStorage.setItem(activeConfig.key, JSON.stringify(inv)); 
+            
+            return newCard; 
+        }
+
+        function pullLever() { 
+            initAudio(); 
+            const btn = document.getElementById('spin-btn'); 
+            const feedback = document.getElementById('feedback-screen'); 
+            
+            if (playerCash < 1) { 
+                feedback.innerText = "INSUFFICIENT FUNDS! GO SELL CARDS OR WIN MATCHES."; 
+                feedback.style.color = "#ff4757"; 
+                return; 
+            } 
+            
+            playerCash -= 1; 
+            updateLedgers(); 
+            btn.disabled = true; 
+            feedback.innerText = "SPINNING REELS..."; 
+            feedback.style.color = activeConfig.primary; 
+            
+            const reel1 = document.getElementById('r1'); const reel2 = document.getElementById('r2'); const reel3 = document.getElementById('r3'); 
+            reel1.classList.add('spinning-fast'); reel2.classList.add('spinning-fast'); reel3.classList.add('spinning-fast'); 
+            
+            let shuffle = setInterval(() => { 
+                reel1.innerText = activeConfig.symbols[Math.floor(Math.random() * activeConfig.symbols.length)]; 
+                reel2.innerText = activeConfig.symbols[Math.floor(Math.random() * activeConfig.symbols.length)]; 
+                reel3.innerText = activeConfig.symbols[Math.floor(Math.random() * activeConfig.symbols.length)]; 
+                playSound('tick');
+            }, 80); 
+            
+            setTimeout(() => { 
+                clearInterval(shuffle); 
+                reel1.classList.remove('spinning-fast'); reel2.classList.remove('spinning-fast'); reel3.classList.remove('spinning-fast'); 
+                
+                let oddsRoll = Math.random(); let final1, final2, final3; let winType = "LOSS"; 
+                if (oddsRoll < 0.001) { 
+                    final1 = final2 = final3 = activeConfig.symbols[0]; winType = "GRAND"; 
+                } else if (oddsRoll < 0.005) { 
+                    final1 = final2 = final3 = activeConfig.symbols[1]; winType = "DIAMOND"; 
+                } else if (oddsRoll < 0.025) { 
+                    final1 = final2 = final3 = activeConfig.symbols[2]; winType = "CARD"; 
+                } else if (oddsRoll < 0.065) { 
+                    let otherSyms = [activeConfig.symbols[3], activeConfig.symbols[4], activeConfig.symbols[5]]; 
+                    final1 = final2 = final3 = otherSyms[Math.floor(Math.random() * 3)]; winType = "MINOR"; 
+                } else if (oddsRoll < 0.265) { 
+                    final1 = activeConfig.symbols[Math.floor(Math.random() * activeConfig.symbols.length)]; 
+                    final2 = final1; 
+                    final3 = activeConfig.symbols[Math.floor(Math.random() * activeConfig.symbols.length)]; 
+                    while (final3 === final1) final3 = activeConfig.symbols[Math.floor(Math.random() * activeConfig.symbols.length)]; 
+                    let mix = [final1, final2, final3].sort(() => Math.random() - 0.5); 
+                    final1 = mix[0]; final2 = mix[1]; final3 = mix[2]; winType = "PAIR"; 
+                } else { 
+                    final1 = activeConfig.symbols[3]; final2 = activeConfig.symbols[4]; final3 = activeConfig.symbols[5]; 
+                    let mix = [final1, final2, final3].sort(() => Math.random() - 0.5); 
+                    final1 = mix[0]; final2 = mix[1]; final3 = mix[2]; winType = "LOSS"; 
+                } 
+                reel1.innerText = final1; reel2.innerText = final2; reel3.innerText = final3; 
+                evaluateWin(winType, feedback); 
+                btn.disabled = false; 
+            }, 1200); 
+        }
+
+        function evaluateWin(winType, feedback) { 
+            if (winType === "GRAND") { 
+                playerCash += 250; playerPoints += 50; fireConfetti(); playSound('jackpot');
+                feedback.innerText = "🏆 GRAND JACKPOT! +$250 🏆"; feedback.style.color = "#f1c40f"; 
+            } else if (winType === "DIAMOND") { 
+                playerCash += 100; playerPoints += 20; fireConfetti(); playSound('jackpot');
+                feedback.innerText = "💎 DIAMOND PAYOUT! +$100 💎"; feedback.style.color = "#00ffff"; 
+            } else if (winType === "CARD") { 
+                let pulled = mintCard(); playSound('win');
+                feedback.innerText = "CARD PACK DISPENSED!"; feedback.style.color = "#ff4757"; 
+                beginRippingTheater(pulled); 
+            } else if (winType === "MINOR") { 
+                playerCash += 5; playerPoints += 2; playSound('win');
+                feedback.innerText = "TRIPLE MATCH! +$5"; feedback.style.color = "#2ecc71"; 
+            } else if (winType === "PAIR") { 
+                playerCash += 2; playSound('win');
+                feedback.innerText = "PAIR MATCHED! +$2"; feedback.style.color = "#a5b1c2"; 
+            } else { 
+                feedback.innerText = "NO MATCH. TRY AGAIN."; feedback.style.color = "#7f8c8d"; 
+            } 
+            updateLedgers(); 
+        }
+
+        function beginRippingTheater(pulledCardData) { 
+            const overlay = document.getElementById('rip-theater'); 
+            const actor = document.getElementById('theater-pack-actor'); 
+            const row = document.getElementById('revealed-cards-row'); 
+            const transferTrigger = document.getElementById('vault-transfer-trigger'); 
+            row.innerHTML = ''; transferTrigger.style.display = 'none'; 
+            document.getElementById('theater-banner-msg').innerText = "SLOT PAYOUT: TAP PACK TO RIP"; 
+            let sportNameText = currentSport === 'nhl' ? "HOCKEY" : currentSport === 'mlb' ? "BASEBALL" : currentSport === 'nba' ? "BASKETBALL" : "FOOTBALL"; 
+            actor.style.display = 'flex'; document.getElementById('theater-foil-sport-title').innerText = sportNameText; 
+            overlay.style.display = 'flex'; 
+            
+            actor.onclick = function() { 
+                actor.onclick = null; actor.classList.add('active-ripping-pack'); 
+                document.getElementById('theater-banner-msg').innerText = "TEARING FOIL SEALS..."; 
+                playSound('rip');
+                
+                setTimeout(() => { 
+                    playSound('jackpot'); // Play triumph sound on reveal
+                    actor.classList.remove('active-ripping-pack'); actor.style.display = 'none'; 
+                    document.getElementById('theater-banner-msg').innerText = "ASSET ACQUIRED:"; 
+                    row.innerHTML = ` 
+                        <div class="opened-showcase-card tier-${pulledCardData.tier}"> 
+                            <div class="card-tier-tag tier-${pulledCardData.tier}">${pulledCardData.tier}</div> 
+                            <div class="card-pos-badge">[ ${pulledCardData.pos} ]</div> 
+                            <div class="card-glyph-container">${activeConfig.symbols[2]}</div> 
+                            <div class="card-headline-name">${pulledCardData.name}</div> 
+                            <div class="dna-capsule-box"> 
+                                <div class="dna-capsule-label">Performance DNA Match:</div> 
+                                <div class="dna-capsule-target">${pulledCardData.dna}</div> 
+                            </div> 
+                            <div class="card-power-text">⚡ ${pulledCardData.power} Power</div> 
+                            <div class="price-capsule capsule-sm">${pulledCardData.value.toLocaleString()} <span style="color:#2ecc71;">💵</span></div> 
+                        </div> `; 
+                    setTimeout(() => { transferTrigger.style.display = 'block'; }, 500); 
+                }, 800); 
+            }; 
+        }
+
+        function closePackScreen() { 
+            document.getElementById('rip-theater').style.display = 'none'; 
+        }
+    </script>
+</body>
+</html>

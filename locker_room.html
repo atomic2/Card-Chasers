@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Locker Room | Card Chaser's</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --primary-dark: #1f4f75;
+            --glow: rgba(52, 152, 219, 0.4);
+            --vault-bg: linear-gradient(to bottom, #1a222d, #0d1218);
+        }
+
+        body, html {
+            margin: 0; padding: 0; height: 100%;
+            background: var(--vault-bg); font-family: 'Arial Black', sans-serif;
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            color: #fff; padding-top: 2vh; box-sizing: border-box; overflow-x: hidden;
+        }
+        *, *:before, *:after { box-sizing: inherit; }
+
+        .vault-container { width: 95vw; max-width: 1000px; display: flex; flex-direction: column; gap: 15px; padding-bottom: 40px; }
+
+        /* EXIT BUTTON MOVED TO TOP */
+        .exit-btn { 
+            align-self: flex-start; background: none; border: none; 
+            color: #8892b0; font-weight: 900; font-size: 0.95rem; 
+            cursor: pointer; padding: 0; margin-left: 5px; margin-bottom: -5px;
+            text-transform: uppercase; transition: color 0.2s; 
+        }
+        .exit-btn:hover { color: #fff; text-shadow: 0 0 8px rgba(255,255,255,0.5); }
+
+        .vault-header {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #000; padding: 15px 25px; border-radius: 16px;
+            border-bottom: 6px solid var(--primary); box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+        }
+        .vault-title { margin: 0; font-size: 1.6rem; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px var(--glow); }
+
+        /* THE DYNAMIC CARD VIEW WITH THE GRAPHIC VALUE CAPSULES */
+        .locker-card {
+            background: #11141a; border-radius: 16px; padding: 12px; width: 165px; height: 245px;
+            display: flex; flex-direction: column; align-items: center;
+            box-shadow: 0 12px 24px rgba(0,0,0,0.7); border: 2px solid #4c566a; text-align: center; position: relative;
+        }
+        .pos-tag { position: absolute; top: 12px; right: 12px; color: #8892b0; font-size: 0.75rem; font-weight: bold; font-family: sans-serif; }
+        .tier-tag { 
+            position: absolute; top: 12px; left: 12px; padding: 2px 8px; border-radius: 6px; 
+            font-size: 0.6rem; text-transform: uppercase; font-weight: 900; color: #000; 
+        }
+        
+        .card-art-box { width: 45px; height: 45px; background: #232936; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-top: 25px; margin-bottom: 10px; }
+        .card-name { font-size: 0.95rem; color: #fff; font-weight: 900; margin-bottom: 2px; letter-spacing: -0.5px; }
+        
+        /* SLEEK PERFORMANCE DNA MATCH DISPLAY */
+        .dna-box { background: rgba(0,0,0,0.4); border: 1px solid #2e3646; border-radius: 8px; padding: 5px; width: 100%; margin-top: 4px; box-sizing: border-box; }
+        .dna-label { font-size: 0.5rem; color: #66758c; letter-spacing: 0.5px; text-transform: uppercase; font-family: sans-serif; font-weight: bold; }
+        .dna-match-name { font-size: 0.7rem; color: #00ff66; font-weight: bold; font-family: monospace; margin-top: 1px; }
+
+        .power-metric { font-size: 0.75rem; color: #fff; margin-top: auto; display: flex; align-items: center; gap: 3px; font-weight: bold; }
+
+        /* THE DARK VALUE CAPSULE PILL FROM THE PHOTO EXAMPLES */
+        .price-capsule {
+            background: #1a1c23; border: 1px solid #2e3646; border-radius: 6px;
+            padding: 3px 8px; font-family: monospace; color: #dddddd; margin-top: 6px;
+            display: inline-flex; align-items: center; gap: 4px; font-size: 0.75rem; font-weight: bold;
+        }
+
+        .tier-base { background: #7f8c8d; color: #fff; }
+        .tier-silver { background: #bdc3c7; }
+        .tier-gold { background: #f1c40f; box-shadow: 0 0 8px rgba(241,196,15,0.3); }
+        .tier-platinum { background: #e5e4e2; box-shadow: 0 0 12px rgba(229,228,226,0.4); }
+        .tier-diamond { background: #00ffff; box-shadow: 0 0 15px rgba(0,255,255,0.5); }
+
+        .utility-bar { background: #0b0c10; padding: 15px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #1f232d; }
+        .pack-btn { background: linear-gradient(135deg, #e74c3c, #c0392b); border: none; border-bottom: 5px solid #7f231c; padding: 12px 25px; border-radius: 8px; color: #fff; font-family: 'Arial Black', sans-serif; font-size: 1rem; cursor: pointer; text-transform: uppercase; }
+        .pack-btn:active { transform: translateY(3px); border-bottom-width: 2px; }
+        
+        .send-btn { background: #2ecc71; border: none; border-radius: 8px; padding: 12px 25px; color: #000; font-family: 'Arial Black', sans-serif; font-size: 1rem; cursor: pointer; text-transform: uppercase; margin-top: 10px; width: 100%; max-width: 250px;}
+        .send-btn:hover { background: #27ae60; }
+
+        .pack-reveal-zone { background: linear-gradient(to bottom, #1c2430, #10151e); border: 3px solid #2e3d52; border-radius: 20px; padding: 25px; display: none; flex-direction: column; align-items: center; gap: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+        .pack-cards-display { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; width: 100%; }
+
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 20px; background: rgba(0,0,0,0.2); border: 2px solid #1f232d; border-radius: 20px; padding: 25px; min-height: 350px; }
+        .empty-msg { grid-column: 1 / -1; text-align: center; color: #4c566a; font-size: 1.2rem; padding-top: 100px; }
+    </style>
+</head>
+<body>
+
+    <div class="vault-container">
+        
+        <button class="exit-btn" onclick="window.location.href='game_room.html'">◀ Back to Clubhouse</button>
+        
+        <div class="vault-header">
+            <h1 class="vault-title" id="vault-title">THE LOCKER ROOM</h1>
+            <div style="font-size: 0.9rem; color: #8892b0;">TOTAL ASSETS: <span id="total-count" style="color:#fff; font-weight:900;">0</span></div>
+        </div>
+
+        <div class="utility-bar">
+            <div style="font-size:0.85rem; color:#a5b1c2;">VAULT LEDGER: AUTOMATICALLY ORGANIZED HIGHEST TO LOWEST VALUE.</div>
+            <button class="pack-btn" id="pack-pull-btn" onclick="openBoosterPack()">🎁 RIP PACK</button>
+        </div>
+
+        <div class="pack-reveal-zone" id="reveal-zone">
+            <div style="color: #f1c40f; font-size: 1.1rem; letter-spacing: 1px;">PACK PULL INTEL REVEALED:</div>
+            <div class="pack-cards-display" id="reveal-cards-row"></div>
+            <button class="send-btn" onclick="closePackScreen()">SEND TO VAULT</button>
+        </div>
+
+        <div class="card-grid" id="display-grid"></div>
+
+    </div>
+
+    <script>
+        let activeSport = localStorage.getItem('selectedSport') || 'nhl';
+        
+        const pricingMap = { "base": 50, "silver": 250, "gold": 1000, "platinum": 1500, "diamond": 2500 };
+        const powerMap = { "base": "1x", "silver": "2x", "gold": "3x", "platinum": "6x", "diamond": "10x" };
+
+        const sportConfig = {
+            nhl: { 
+                title: "HOCKEY LOCKER", primary: "#3498db", bg: "radial-gradient(circle at center, #0a1922 0%, #030a0e 100%)", key: "nhl_inventory", icon: "🏒", btnText: "🎁 RIP HOCKEY PACK",
+                pool: [
+                    {name: "Game Changer", dna: "Kirill Kaprizov (MIN)", pos: "LW"},
+                    {name: "Rink Rat", dna: "Connor McDavid (EDM)", pos: "C"},
+                    {name: "The Great One", dna: "Wayne Gretzky (LEG)", pos: "C"},
+                    {name: "The Sidkid", dna: "Sidney Crosby (PIT)", pos: "C"},
+                    {name: "Matts Magic", dna: "Auston Matthews (TOR)", pos: "C"},
+                    {name: "The Great 8", dna: "Alex Ovechkin (WSH)", pos: "RW"},
+                    {name: "Ice Wall", dna: "Andrei Vasilevskiy (TB)", pos: "G"},
+                    {name: "The Czar", dna: "Igor Shesterkin (NYR)", pos: "G"},
+                    {name: "Blueline Boss", dna: "Cale Makar (COL)", pos: "LD"},
+                    {name: "Puck Mover", dna: "Adam Fox (NYR)", pos: "RD"}
+                ]
+            },
+            mlb: { 
+                title: "BASEBALL LOCKER", primary: "#2ecc71", bg: "radial-gradient(circle at center, #0d1f13 0%, #040d07 100%)", key: "mlb_inventory", icon: "⚾", btnText: "🎁 RIP BASEBALL PACK", 
+                pool: [
+                    {name: "Diamond King", dna: "Shohei Ohtani (LAD)", pos: "P"},
+                    {name: "The Captain", dna: "Aaron Judge (NYY)", pos: "CF"},
+                    {name: "Mookie Magic", dna: "Mookie Betts (LAD)", pos: "2B"},
+                    {name: "Soto Shuffle", dna: "Juan Soto (NYY)", pos: "LF"}
+                ] 
+            },
+            nba: { 
+                title: "BASKETBALL LOCKER", primary: "#e67e22", bg: "radial-gradient(circle at center, #241105 0%, #0a0401 100%)", key: "nba_inventory", icon: "🏀", btnText: "🎁 RIP BASKETBALL PACK", 
+                pool: [
+                    {name: "Crossover Master", dna: "Stephen Curry (GSW)", pos: "PG"},
+                    {name: "King James", dna: "LeBron James (LAL)", pos: "SF"},
+                    {name: "The Joker", dna: "Nikola Jokic (DEN)", pos: "C"},
+                    {name: "Greek Freak", dna: "Giannis Antetokounmpo (MIL)", pos: "PF"}
+                ] 
+            },
+            nfl: { 
+                title: "FOOTBALL LOCKER", primary: "#f1c40f", bg: "radial-gradient(circle at center, #1f1505 0%, #0d0902 100%)", key: "nfl_inventory", icon: "🏈", btnText: "🎁 RIP FOOTBALL PACK", 
+                pool: [
+                    {name: "Showtime", dna: "Patrick Mahomes (KC)", pos: "QB"},
+                    {name: "Run CMC", dna: "Christian McCaffrey (SF)", pos: "RB"},
+                    {name: "Action Jackson", dna: "Lamar Jackson (BAL)", pos: "QB"},
+                    {name: "Cheetah", dna: "Tyreek Hill (MIA)", pos: "WR"}
+                ] 
+            }
+        };
+
+        function initLocker() {
+            const config = sportConfig[activeSport];
+            document.documentElement.style.setProperty('--primary', config.primary);
+            document.documentElement.style.setProperty('--vault-bg', config.bg);
+            document.getElementById('vault-title').innerText = config.title;
+            document.getElementById('pack-pull-btn').innerText = config.btnText;
+            loadInventory();
+        }
+
+        function makeCardMarkup(card, icon) {
+            return `
+                <div class="locker-card tier-${card.tier}">
+                    <div class="tier-tag tier-${card.tier}">${card.tier}</div>
+                    <div class="pos-tag">[ ${card.pos} ]</div>
+                    <div class="card-art-box">${icon}</div>
+                    <div class="card-name">${card.name}</div>
+                    
+                    <div class="dna-box">
+                        <div class="dna-label">Performance DNA Match:</div>
+                        <div class="dna-match-name">${card.dna}</div>
+                    </div>
+                    
+                    <div class="power-metric">⚡ ${card.power} Power</div>
+                    <div class="price-capsule">${card.value.toLocaleString()} <span style="color:#2ecc71; padding-left:2px;">💵</span></div>
+                </div>
+            `;
+        }
+
+        function loadInventory() {
+            const grid = document.getElementById('display-grid');
+            grid.innerHTML = '';
+            let currentInv = JSON.parse(localStorage.getItem(sportConfig[activeSport].key)) || [];
+            document.getElementById('total-count').innerText = currentInv.length;
+
+            if (currentInv.length === 0) {
+                grid.innerHTML = `<div class="empty-msg">VAULT EMPTY. RIP A PACK TO INITIALIZE ${activeSport.toUpperCase()} SQUAD.</div>`;
+                return;
+            }
+
+            currentInv.sort((a, b) => b.value - a.value);
+
+            currentInv.forEach(card => {
+                grid.innerHTML += makeCardMarkup(card, sportConfig[activeSport].icon);
+            });
+        }
+
+        function openBoosterPack() {
+            const config = sportConfig[activeSport];
+            let currentInv = JSON.parse(localStorage.getItem(config.key)) || [];
+            let revealRow = document.getElementById('reveal-cards-row');
+            revealRow.innerHTML = '';
+            let freshlyPulled = [];
+
+            for (let i = 0; i < 5; i++) {
+                let template = config.pool[Math.floor(Math.random() * config.pool.length)];
+                let roll = Math.random();
+                let tier = 'base';
+
+                if (roll > 0.96) tier = 'diamond';
+                else if (roll > 0.85) tier = 'platinum';
+                else if (roll > 0.65) tier = 'gold';
+                else if (roll > 0.35) tier = 'silver';
+
+                let newCard = {
+                    id: "c_" + Date.now() + "_" + Math.random(),
+                    name: template.name,
+                    dna: template.dna,
+                    pos: template.pos,
+                    tier: tier,
+                    value: pricingMap[tier],
+                    power: powerMap[tier]
+                };
+                freshlyPulled.push(newCard);
+                currentInv.push(newCard);
+            }
+
+            localStorage.setItem(config.key, JSON.stringify(currentInv));
+            
+            freshlyPulled.sort((a, b) => b.value - a.value);
+            freshlyPulled.forEach(card => revealRow.innerHTML += makeCardMarkup(card, config.icon));
+            
+            document.getElementById('reveal-zone').style.display = 'flex';
+            loadInventory();
+        }
+
+        function closePackScreen() { 
+            document.getElementById('reveal-zone').style.display = 'none'; 
+        }
+
+        initLocker();
+    </script>
+</body>
+</html>

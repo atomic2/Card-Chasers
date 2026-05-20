@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Market | Card Chaser's</title>
+    <style>
+        :root {
+            --primary: #9b59b6;
+            --primary-dark: #8e44ad;
+            --glow: rgba(155, 89, 182, 0.5);
+            --market-bg: linear-gradient(to bottom, #1a1525, #0d0a14);
+        }
+
+        body, html {
+            margin: 0; padding: 0; height: 100%;
+            background: var(--market-bg); font-family: 'Arial Black', sans-serif;
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            color: #fff; padding-top: 2vh; overflow-x: hidden; box-sizing: border-box;
+        }
+        *, *:before, *:after { box-sizing: inherit; }
+
+        .market-container { width: 95vw; max-width: 900px; display: flex; flex-direction: column; gap: 20px; padding-bottom: 40px; }
+
+        /* EXIT BUTTON */
+        .exit-btn { 
+            align-self: flex-start; background: none; border: none; 
+            color: #8892b0; font-weight: 900; font-size: 0.95rem; 
+            cursor: pointer; padding: 0; margin-left: 5px; margin-bottom: -5px;
+            text-transform: uppercase; transition: color 0.2s; 
+        }
+        .exit-btn:hover { color: #fff; text-shadow: 0 0 8px rgba(255,255,255,0.5); }
+
+        /* HEADER & BANK */
+        .market-header {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #000; padding: 15px 25px; border-radius: 16px;
+            border-bottom: 6px solid var(--primary); box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+        }
+        .market-title { margin: 0; font-size: 1.6rem; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px var(--glow); }
+        .bank-readout { display: flex; gap: 15px; font-size: 0.9rem; color: #8892b0; }
+        .bank-readout span { font-weight: 900; margin-left: 5px; }
+        .stat-pts span { color: var(--primary); }
+        .stat-cash span { color: #2ecc71; }
+
+        .price-capsule {
+            background: #111318; border: 1px solid #2e3646; border-radius: 6px;
+            padding: 4px 10px; font-family: monospace; color: #dddddd;
+            display: inline-flex; align-items: center; gap: 4px; font-size: 0.9rem; font-weight: bold;
+        }
+
+        /* TOGGLE TABS */
+        .tab-bar { display: flex; gap: 10px; width: 100%; margin-top: 5px; }
+        .tab-btn { 
+            flex: 1; padding: 12px; font-family: 'Arial Black', sans-serif; font-size: 1.1rem; 
+            background: #0b0c10; border: 2px solid #1f232d; border-radius: 8px; color: #8892b0; 
+            cursor: pointer; text-transform: uppercase; transition: 0.1s; 
+        }
+        .tab-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 0 15px var(--glow); }
+
+        /* MARKET LISTINGS (BUY) */
+        .listing-board { display: flex; flex-direction: column; gap: 15px; width: 100%; }
+        
+        .trade-offer {
+            display: flex; flex-direction: column; background: #0b0c10;
+            border-left: 6px solid var(--primary); padding: 20px; border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5); border-right: 1px solid #1f232d;
+            border-top: 1px solid #1f232d; border-bottom: 1px solid #1f232d;
+            transition: transform 0.2s;
+        }
+        .trade-offer:hover { transform: translateY(-3px); box-shadow: 0 12px 25px var(--glow); }
+        
+        .seller-info { font-size: 0.8rem; color: #a5b1c2; margin-bottom: 15px; display: flex; justify-content: space-between; border-bottom: 1px solid #1f232d; padding-bottom: 10px; }
+        .trade-details { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        
+        .trade-item { 
+            background: #11141a; padding: 12px 20px; border-radius: 8px; 
+            border: 2px solid #2c3e50; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 5px;
+        }
+        .item-dna { font-size: 1.1rem; color: #00ff66; font-family: monospace; font-weight: bold; }
+        .item-name { font-size: 0.75rem; color: #fff; }
+        
+        .tier-badge { font-size: 0.7rem; padding: 3px 8px; border-radius: 4px; color: #000; font-weight: bold; text-transform: uppercase; }
+        .tier-base { background: #7f8c8d; border-color: #7f8c8d; color:#fff;}
+        .tier-silver { background: #bdc3c7; border-color: #bdc3c7; }
+        .tier-gold { background: #f1c40f; border-color: #f1c40f; }
+        .tier-platinum { background: #e5e4e2; border-color: #e5e4e2; box-shadow: 0 0 10px #e5e4e2; }
+        .tier-diamond { background: #00ffff; border-color: #00ffff; box-shadow: 0 0 10px #00ffff; }
+
+        /* INVENTORY LISTINGS (SELL) */
+        .sell-grid { 
+            display: none; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
+            gap: 15px; width: 100%; 
+        }
+        .sell-card {
+            background: #0b0c10; border-radius: 12px; padding: 15px; display: flex; flex-direction: column;
+            align-items: center; box-shadow: 0 8px 16px rgba(0,0,0,0.8); transition: 0.2s;
+            border-top: 1px solid #1f232d; border-right: 1px solid #1f232d; border-bottom: 1px solid #1f232d;
+        }
+        .sell-card:hover { transform: translateY(-3px); box-shadow: 0 12px 20px var(--glow); }
+
+        .action-buttons { display: flex; gap: 15px; width: 100%; }
+        .btn {
+            flex: 1; padding: 12px; font-family: 'Arial Black', sans-serif; font-size: 0.95rem;
+            border: none; border-radius: 8px; color: #fff; cursor: pointer; text-transform: uppercase;
+            transition: all 0.1s; border-bottom: 4px solid rgba(0,0,0,0.5); width: 100%;
+        }
+        .btn-buy { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+        .btn-haggle { background: linear-gradient(135deg, #3498db, #2980b9); }
+        .btn-sell { background: linear-gradient(135deg, #e74c3c, #c0392b); border-bottom-color: #922b21; margin-top: 10px; font-size: 0.85rem;}
+        .btn:active { transform: translateY(3px); border-bottom-width: 1px; }
+        .btn:disabled { filter: grayscale(1); opacity: 0.5; cursor: not-allowed; }
+
+        .terminal-log { margin-top: 15px; background: #000; padding: 12px; border-radius: 8px; font-family: monospace; color: #00e676; font-size: 0.95rem; text-align: center; border: 1px solid #1f232d; }
+    </style>
+</head>
+<body>
+
+    <div class="market-container">
+        
+        <button class="exit-btn" onclick="window.location.href='game_room.html'">◀ Back to Clubhouse</button>
+
+        <div class="market-header">
+            <h1 class="market-title" id="market-title">DIGITAL MARKET</h1>
+            <div class="bank-readout">
+                <div class="stat-cash">CASH: <span id="bank-cash">$0</span></div>
+            </div>
+        </div>
+
+        <div class="tab-bar">
+            <button class="tab-btn active" id="tab-buy" onclick="switchTab('buy')">🛒 BUY CARDS</button>
+            <button class="tab-btn" id="tab-sell" onclick="switchTab('sell')">💰 SELL ASSETS</button>
+        </div>
+
+        <div class="terminal-log" id="terminal-log">SECURE CONNECTION ESTABLISHED. BROWSE PEER-TO-PEER LISTINGS BELOW.</div>
+
+        <div class="listing-board" id="listings-container">
+            </div>
+
+        <div class="sell-grid" id="sell-container">
+            </div>
+
+    </div>
+
+    <script>
+        let currentSport = localStorage.getItem('selectedSport') || 'default';
+        let playerCash = parseInt(localStorage.getItem('playerMoney')) || 0;
+
+        const sportData = {
+            nhl: { title: "HOCKEY EXCHANGE", primary: "#3498db", bg: "linear-gradient(to bottom, #0a1922, #030a0e)", key: "nhl_inventory", icon: "🏒", pool: [
+                {name: "Game Changer", dna: "Kirill Kaprizov (MIN)", pos: "LW"}, {name: "Rink Rat", dna: "Connor McDavid (EDM)", pos: "C"}, {name: "The Great One", dna: "Wayne Gretzky (LEG)", pos: "C"}, {name: "The Sidkid", dna: "Sidney Crosby (PIT)", pos: "C"}, {name: "Matts Magic", dna: "Auston Matthews (TOR)", pos: "C"}, {name: "Ice Wall", dna: "Andrei Vasilevskiy (TB)", pos: "G"}, {name: "Blueline Boss", dna: "Cale Makar (COL)", pos: "LD"}
+            ]},
+            mlb: { title: "BASEBALL EXCHANGE", primary: "#2ecc71", bg: "linear-gradient(to bottom, #0d1f13, #040d07)", key: "mlb_inventory", icon: "⚾", pool: [
+                {name: "Diamond King", dna: "Shohei Ohtani (LAD)", pos: "P"}, {name: "The Captain", dna: "Aaron Judge (NYY)", pos: "CF"}, {name: "Mookie Magic", dna: "Mookie Betts (LAD)", pos: "2B"}, {name: "Soto Shuffle", dna: "Juan Soto (NYY)", pos: "LF"}
+            ]},
+            nba: { title: "HOOPS EXCHANGE", primary: "#e67e22", bg: "linear-gradient(to bottom, #241105, #0a0401)", key: "nba_inventory", icon: "🏀", pool: [
+                {name: "Crossover Master", dna: "Stephen Curry (GSW)", pos: "PG"}, {name: "King James", dna: "LeBron James (LAL)", pos: "SF"}, {name: "The Joker", dna: "Nikola Jokic (DEN)", pos: "C"}, {name: "Greek Freak", dna: "Giannis Antetokounmpo (MIL)", pos: "PF"}
+            ]},
+            nfl: { title: "GRIDIRON EXCHANGE", primary: "#f1c40f", bg: "linear-gradient(to bottom, #1f1505, #0d0902)", key: "nfl_inventory", icon: "🏈", pool: [
+                {name: "Showtime", dna: "Patrick Mahomes (KC)", pos: "QB"}, {name: "Run CMC", dna: "Christian McCaffrey (SF)", pos: "RB"}, {name: "Action Jackson", dna: "Lamar Jackson (BAL)", pos: "QB"}, {name: "Cheetah", dna: "Tyreek Hill (MIA)", pos: "WR"}
+            ]}
+        };
+
+        const activeSport = sportData[currentSport] || sportData['nhl'];
+        document.documentElement.style.setProperty('--primary', activeSport.primary);
+        document.documentElement.style.setProperty('--market-bg', activeSport.bg);
+        document.getElementById('market-title').innerText = activeSport.title;
+
+        const pricingMap = { "base": 50, "silver": 250, "gold": 1000, "platinum": 1500, "diamond": 2500 };
+        const powerMap = { "base": "1x", "silver": "2x", "gold": "3x", "platinum": "6x", "diamond": "10x" };
+        const sellers = ["@IronLung", "@Tony_TopShelf", "@CardFather", "@Sniper99", "@GloveSave"];
+
+        function updateBankUI() {
+            document.getElementById('bank-cash').innerText = "$" + playerCash;
+            localStorage.setItem('playerMoney', playerCash);
+        }
+        updateBankUI();
+
+        function switchTab(tab) {
+            document.getElementById('tab-buy').classList.remove('active');
+            document.getElementById('tab-sell').classList.remove('active');
+            document.getElementById('tab-' + tab).classList.add('active');
+            
+            if (tab === 'buy') {
+                document.getElementById('listings-container').style.display = 'flex';
+                document.getElementById('sell-container').style.display = 'none';
+                document.getElementById('terminal-log').innerText = "BROWSE PEER-TO-PEER LISTINGS BELOW.";
+                document.getElementById('terminal-log').style.color = "#00e676";
+            } else {
+                document.getElementById('listings-container').style.display = 'none';
+                document.getElementById('sell-container').style.display = 'grid';
+                document.getElementById('terminal-log').innerText = "SELECT ASSETS FROM YOUR LOCKER TO LIQUIDATE FOR CASH.";
+                document.getElementById('terminal-log').style.color = "#f1c40f";
+                renderSellInventory();
+            }
+        }
+
+        let activeListings = [];
+        function generateListings() {
+            for(let i=0; i<6; i++) {
+                let template = activeSport.pool[Math.floor(Math.random() * activeSport.pool.length)];
+                let roll = Math.random();
+                let tier = roll > 0.9 ? 'diamond' : roll > 0.6 ? 'platinum' : roll > 0.3 ? 'gold' : 'silver';
+                let price = pricingMap[tier];
+                
+                let variance = Math.floor(price * (Math.random() * 0.2 - 0.1));
+                let askPrice = price + variance;
+
+                activeListings.push({
+                    id: 'list_' + i,
+                    seller: sellers[Math.floor(Math.random() * sellers.length)],
+                    rating: "⭐".repeat(Math.floor(Math.random() * 2) + 4),
+                    card: { name: template.name, dna: template.dna, pos: template.pos, tier: tier, power: powerMap[tier], value: price },
+                    askPrice: askPrice
+                });
+            }
+            renderListings();
+        }
+
+        function renderListings() {
+            const container = document.getElementById('listings-container');
+            container.innerHTML = '';
+            
+            activeListings.forEach(listing => {
+                let bColor = listing.card.tier === 'gold' ? '#f1c40f' : listing.card.tier === 'silver' ? '#bdc3c7' : listing.card.tier === 'platinum' ? '#e5e4e2' : '#00ffff';
+                
+                let html = `
+                <div class="trade-offer" id="${listing.id}" style="border-left-color: ${bColor};">
+                    <div class="seller-info">
+                        <span>SELLER: ${listing.seller}</span>
+                        <span>RATING: ${listing.rating}</span>
+                    </div>
+                    <div class="trade-details">
+                        <div class="trade-item" style="border-color: ${bColor};">
+                            <span class="tier-badge tier-${listing.card.tier}">${listing.card.tier}</span>
+                            <span class="item-dna">${listing.card.dna}</span>
+                            <span class="item-name">[ ${listing.card.pos} ] ${listing.card.name}</span>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 0.75rem; color:#8892b0; margin-bottom: 4px;">ASKING PRICE</div>
+                            <span class="price-capsule">${listing.askPrice} <span style="color:#2ecc71;">💵</span></span>
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-buy" onclick="buyOutright('${listing.id}', ${listing.askPrice})">BUY NOW</button>
+                        <button class="btn btn-haggle" onclick="haggleOffer('${listing.id}', ${listing.askPrice})">MAKE OFFER</button>
+                    </div>
+                </div>`;
+                container.innerHTML += html;
+            });
+        }
+
+        function addToInventory(cardData) {
+            let inventory = JSON.parse(localStorage.getItem(activeSport.key)) || [];
+            inventory.push({
+                id: "c_" + Date.now(),
+                name: cardData.name, dna: cardData.dna, pos: cardData.pos,
+                tier: cardData.tier, value: cardData.value, power: cardData.power
+            });
+            localStorage.setItem(activeSport.key, JSON.stringify(inventory));
+        }
+
+        function removeListing(listingId, message, color) {
+            let itemIndex = activeListings.findIndex(l => l.id === listingId);
+            if (itemIndex > -1) {
+                activeListings.splice(itemIndex, 1);
+                renderListings();
+                document.getElementById('terminal-log').innerText = message;
+                document.getElementById('terminal-log').style.color = color;
+            }
+        }
+
+        function buyOutright(listingId, price) {
+            if (playerCash < price) {
+                document.getElementById('terminal-log').innerText = "ERROR: INSUFFICIENT CASH FOR THIS TRANSACTION.";
+                document.getElementById('terminal-log').style.color = "#ff4757";
+                return;
+            }
+            
+            let listing = activeListings.find(l => l.id === listingId);
+            playerCash -= price;
+            updateBankUI();
+            addToInventory(listing.card);
+            removeListing(listingId, `TRANSACTION COMPLETE! PURCHASED ${listing.card.dna} FOR $${price}. ASSET MOVED TO LOCKER ROOM.`, "#2ecc71");
+        }
+
+        function haggleOffer(listingId, askPrice) {
+            let listing = activeListings.find(l => l.id === listingId);
+            let offerInput = prompt(`Market Ask for ${listing.card.dna} is $${askPrice}.\n\nEnter your counter-offer amount:`);
+            
+            if (offerInput === null) return;
+            let offer = parseInt(offerInput);
+            
+            if (isNaN(offer) || offer <= 0) {
+                alert("Invalid offer amount."); return;
+            }
+            if (offer > playerCash) {
+                alert("You don't have enough cash to make that offer!"); return;
+            }
+
+            if (offer >= askPrice) {
+                buyOutright(listingId, offer);
+            } else if (offer < (askPrice * 0.75)) {
+                removeListing(listingId, `OFFER REJECTED! ${listing.seller} WAS INSULTED BY YOUR $${offer} LOWBALL AND BLOCKED YOU.`, "#ff4757");
+            } else {
+                let chanceToAccept = (offer / askPrice) - 0.2; 
+                if (Math.random() < chanceToAccept) {
+                    playerCash -= offer;
+                    updateBankUI();
+                    addToInventory(listing.card);
+                    removeListing(listingId, `NEGOTIATION SUCCESSFUL! ${listing.seller} ACCEPTED YOUR OFFER OF $${offer}.`, "#3498db");
+                } else {
+                    let counter = Math.floor((offer + askPrice) / 2);
+                    let acceptCounter = confirm(`OFFER DECLINED.\n\n${listing.seller} countered with: $${counter}.\n\nDo you accept?`);
+                    if (acceptCounter) {
+                        if (playerCash < counter) { alert("Not enough cash to accept counter."); return; }
+                        playerCash -= counter;
+                        updateBankUI();
+                        addToInventory(listing.card);
+                        removeListing(listingId, `COUNTER-OFFER ACCEPTED! PURCHASED FOR $${counter}.`, "#2ecc71");
+                    } else {
+                        document.getElementById('terminal-log').innerText = "YOU WALKED AWAY FROM THE DEAL.";
+                        document.getElementById('terminal-log').style.color = "#f1c40f";
+                    }
+                }
+            }
+        }
+
+        function renderSellInventory() {
+            const container = document.getElementById('sell-container');
+            container.innerHTML = '';
+            let inventory = JSON.parse(localStorage.getItem(activeSport.key)) || [];
+            
+            if (inventory.length === 0) {
+                container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #a5b1c2; padding: 40px; font-size: 1.2rem;">YOUR VAULT IS EMPTY. NO ASSETS TO SELL.</div>`;
+                return;
+            }
+
+            inventory.sort((a,b) => b.value - a.value);
+
+            inventory.forEach(card => {
+                let bColor = card.tier === 'gold' ? '#f1c40f' : card.tier === 'silver' ? '#bdc3c7' : card.tier === 'platinum' ? '#e5e4e2' : card.tier === 'diamond' ? '#00ffff' : '#7f8c8d';
+                let trueVal = card.value || 50; 
+                let fee = Math.floor(trueVal * 0.05);
+                let payout = trueVal - fee;
+                let realName = card.dna ? card.dna.split(' (')[0].substring(0, 15) : card.name.substring(0, 15);
+
+                container.innerHTML += `
+                    <div class="sell-card" style="border-left: 4px solid ${bColor};">
+                        <div style="font-size: 0.7rem; color: #8892b0; margin-bottom: 5px; font-weight:bold;">[ ${card.pos} ]</div>
+                        <div style="font-size: 2.2rem; margin-bottom: 8px;">${activeSport.icon}</div>
+                        <div style="font-size: 0.85rem; font-weight: 900; color: #00ff66; text-align:center; margin-bottom: 3px; line-height: 1.2;">${realName}</div>
+                        <div style="font-size: 0.65rem; color: #fff; text-align:center; margin-bottom: 6px;">${card.name}</div>
+                        <div style="font-size: 0.65rem; color: ${bColor}; font-weight:bold; letter-spacing: 1px;">${card.tier.toUpperCase()}</div>
+                        
+                        <div style="margin-top: 10px; width: 100%; border-top: 1px solid #1f232d; padding-top: 10px; text-align: center;">
+                            <div style="font-size: 0.65rem; color: #e74c3c;">-5% Broker Fee</div>
+                            <button class="btn btn-sell" onclick="sellCard('${card.id}', ${payout})">SELL FOR $${payout}</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function sellCard(cardId, payout) {
+            let inventory = JSON.parse(localStorage.getItem(activeSport.key)) || [];
+            let cardIndex = inventory.findIndex(c => c.id === cardId);
+            
+            if(cardIndex > -1) {
+                let card = inventory[cardIndex];
+                inventory.splice(cardIndex, 1);
+                localStorage.setItem(activeSport.key, JSON.stringify(inventory));
+                
+                playerCash += payout;
+                updateBankUI();
+                renderSellInventory(); 
+                
+                let realName = card.dna ? card.dna.split(' (')[0] : card.name;
+                document.getElementById('terminal-log').innerText = `ASSET LIQUIDATED! ${realName} SOLD FOR $${payout}.`;
+                document.getElementById('terminal-log').style.color = "#2ecc71";
+            }
+        }
+
+        generateListings();
+    </script>
+</body>
+</html>

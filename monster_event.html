@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Monster Event | Mutation Chamber</title>
+    <style>
+        :root {
+            --primary: #ff4757;
+            --primary-dark: #c0392b;
+            --glow: rgba(255, 71, 87, 0.4);
+            --chamber-bg: radial-gradient(circle at center, #1a0f0f 0%, #050202 100%);
+        }
+
+        body, html {
+            margin: 0; padding: 0; height: 100%;
+            background: var(--chamber-bg); font-family: 'Arial Black', -apple-system, sans-serif;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: #fff; overflow: hidden; box-sizing: border-box;
+        }
+        *, *:before, *:after { box-sizing: inherit; }
+
+        .chamber-mainframe {
+            background: linear-gradient(to bottom, #2c3e50, #1a252f);
+            border: 10px solid #455a64; border-bottom: 30px solid #0b0c10;
+            border-radius: 40px; padding: 30px; width: 95vw; max-width: 500px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.9), 0 0 50px var(--glow);
+            display: flex; flex-direction: column; align-items: center; perspective: 1000px;
+        }
+
+        .danger-marquee {
+            width: 100%; background: #000; border: 3px solid var(--primary);
+            border-radius: 12px; padding: 10px 0; text-align: center; margin-bottom: 15px;
+        }
+        .marquee-alert { margin: 0; font-size: 1.6rem; letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 2px 8px var(--primary); }
+
+        .clock-display {
+            width: 100%; background: #050608; border-radius: 14px; border: 2px solid #37474f;
+            padding: 10px; text-align: center; margin-bottom: 15px; box-sizing: border-box;
+        }
+        .clock-digits { font-family: monospace; font-size: 2rem; font-weight: bold; color: var(--primary); text-shadow: 0 0 15px var(--glow); }
+
+        /* THE JAW CAGE */
+        .monster-containment {
+            width: 150px; height: 150px; background: #000; border: 6px solid #37474f; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 4.5rem; margin-bottom: 15px;
+            box-shadow: inset 0 0 35px #000, 0 0 25px var(--glow); z-index: 2;
+        }
+        .chomping-loop { animation: jawSlam 0.12s infinite alternate linear; }
+        @keyframes jawSlam { 0% { transform: scale(1); } 100% { transform: scale(0.85); } }
+
+        /* MECHANICAL INTAKE CARD SLOT */
+        .intake-slot-bracket {
+            width: 220px; height: 50px; background: linear-gradient(#1e272e, #0f141c);
+            border: 4px solid #546e7a; border-radius: 10px; position: relative;
+            box-shadow: inset 0 10px 15px #000, 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 20px;
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+        }
+        .intake-slot-bracket::before {
+            content: ''; position: absolute; left: 0; right: 0; height: 3px; background: var(--primary);
+            box-shadow: 0 0 8px var(--primary); animation: laserFlicker 0.3s infinite alternate;
+        }
+        @keyframes laserFlicker { 0% { opacity: 0.6; } 100% { opacity: 1; } }
+
+        /* THE ANIMATED SLIDING TRADING CARD */
+        .sliding-card {
+            width: 90px; height: 120px; background: linear-gradient(135deg, #2c3e50, #1a252f);
+            border: 3px solid #7f8c8d; border-radius: 8px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; font-size: 0.6rem; font-weight: bold; text-align: center;
+            position: absolute; top: -130px; transition: transform 0.6s cubic-bezier(0.6, -0.28, 0.735, 0.04);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 1; padding: 5px;
+        }
+        .sliding-card .req-badge { background: #ff4757; padding: 3px 6px; border-radius: 12px; font-size: 0.7rem; color: #fff; margin-bottom: 2px; }
+        .sliding-card .icon { font-size: 1.8rem; margin: 3px 0; }
+        .slide-down-action { transform: translateY(155px) scale(0.7); opacity: 0.2; }
+
+        /* HEAVY SLAMMER CRANK BUTTON */
+        .feed-trigger-3d {
+            width: 100%; height: 70px; border-radius: 16px; border: none; outline: none; cursor: pointer;
+            font-family: 'Arial Black', sans-serif; font-size: 1.2rem; font-weight: 900; color: #fff;
+            text-transform: uppercase; transition: all 0.05s ease;
+        }
+        .slammer-locked { background: linear-gradient(135deg, #455a64, #263238); border-bottom: 10px solid #1c2529; opacity: 0.5; cursor: not-allowed; transform: translateY(4px); border-bottom-width: 2px; }
+        .slammer-ready { background: linear-gradient(135deg, #ff4757, #ff6b81); border-bottom: 12px solid #c0392b; transform: translateY(-6px); box-shadow: 0 8px 20px var(--glow); }
+        .slammer-ready:active { transform: translateY(4px); border-bottom-width: 2px; }
+
+        .terminal-log {
+            margin-top: 15px; background: #000; width: 100%; padding: 12px; border-radius: 8px;
+            font-family: monospace; color: #00e676; font-size: 0.85rem; text-align: center; min-height: 55px; box-sizing: border-box; border: 1px solid #263238;
+        }
+        .abort-link { background: none; border: none; color: #546e7a; cursor: pointer; font-weight: bold; font-size: 0.85rem; margin-top: 15px; text-transform: uppercase; }
+        .abort-link:hover { color: #d8dee9; }
+    </style>
+</head>
+<body>
+
+    <div class="chamber-mainframe">
+        
+        <div class="danger-marquee">
+            <h1 class="marquee-alert" id="marquee-header">MUTATION ISOLATOR</h1>
+        </div>
+
+        <div class="clock-display">
+            <div id="clock-status-text" style="font-size:0.75rem; color:#90a4ae; margin-bottom:4px; font-weight:bold;">LOCKDOWN RADAR COUNTDOWN:</div>
+            <div class="clock-digits" id="time-readout">00d 00h 00m 00s</div>
+        </div>
+
+        <div class="monster-containment" id="containment-mouth">👹</div>
+
+        <div class="intake-slot-bracket">
+            <div class="sliding-card" id="physical-card">
+                <div class="req-badge" id="card-req-badge">REQ: 0</div>
+                <div style="color:#7f8c8d; margin-top:2px;" id="card-tier-text">TARGET TIER</div>
+                <div class="icon" id="card-sport-icon">🃏</div>
+                <div id="card-name-text">FEEDING ASSET</div>
+            </div>
+        </div>
+
+        <button class="feed-trigger-3d slammer-locked" id="feed-btn" onclick="executeFeeding()" disabled>MONSTER DORMANT</button>
+
+        <div style="font-size:0.75rem; color:#90a4ae; margin-top:15px; letter-spacing:1px; text-align:center;">
+            AVAILABLE FEED STACKS (5 Base, 4 Silver, 3 Gold): <br>
+            <span id="combo-qty" style="color:var(--primary); font-weight:bold; font-size:1rem;">0</span> STACKS READY
+        </div>
+        
+        <div class="terminal-log" id="terminal-screen">TERMINAL COLD BOOT PROTOCOL STANDBY...</div>
+
+        <button class="abort-link" onclick="window.location.href='game_room.html'">◀ Exit Chamber</button>
+
+    </div>
+
+    <script>
+        let currentSport = localStorage.getItem('selectedSport') || 'default';
+        let audioCtx = null; 
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        function playSound(type) {
+            initAudio();
+            if (!audioCtx) return;
+            let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            let now = audioCtx.currentTime;
+
+            if (type === 'slide') {
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(600, now); osc.frequency.exponentialRampToValueAtTime(80, now + 0.5);
+                gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.5);
+                osc.start(now); osc.stop(now + 0.5);
+            } else if (type === 'crunch') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(90, now); osc.frequency.linearRampToValueAtTime(30, now + 0.3);
+                gain.gain.setValueAtTime(0.4, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now); osc.stop(now + 0.3);
+            } else if (type === 'jackpot') {
+                let notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, idx) => {
+                    let o = audioCtx.createOscillator(); let g = audioCtx.createGain();
+                    o.connect(g); g.connect(audioCtx.destination); o.type = 'square';
+                    o.frequency.setValueAtTime(freq, now + (idx * 0.1)); g.gain.setValueAtTime(0.1, now + (idx * 0.1));
+                    g.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.1) + 0.15);
+                    o.start(now + (idx * 0.1)); o.stop(now + (idx * 0.1) + 0.15);
+                });
+            }
+        }
+
+        const sportConfig = {
+            nhl: { title: "NHL Hockey Monster", primary: "#3498db", dark: "#21618c", glow: "rgba(52,152,219,0.5)", bg: "radial-gradient(circle at center, #11222e 0%, #03070a 100%)", icon: "🏒", key: "nhl_inventory" },
+            mlb: { title: "MLB Baseball Monster", primary: "#2ecc71", dark: "#196f3d", glow: "rgba(46,204,113,0.5)", bg: "radial-gradient(circle at center, #0e2916 0%, #020804 100%)", icon: "⚾", key: "mlb_inventory" },
+            nba: { title: "NBA Basketball Monster", primary: "#e67e22", dark: "#b03a2e", glow: "rgba(230,126,34,0.5)", bg: "radial-gradient(circle at center, #2e160a 0%, #0a0502 100%)", icon: "🏀", key: "nba_inventory" },
+            nfl: { title: "NFL Football Monster", primary: "#f1c40f", dark: "#b7950b", glow: "rgba(241,196,15,0.4)", bg: "radial-gradient(circle at center, #261c08 0%, #0a0702 100%)", icon: "🏈", key: "nfl_inventory" },
+            default: { title: "Card Devourer Tank", primary: "#ff4757", dark: "#c0392b", glow: "rgba(255,71,87,0.4)", bg: "radial-gradient(circle at center, #1e0f0f 0%, #050202 100%)", icon: "🃏", key: "default_inventory" }
+        };
+
+        const activeChamber = sportConfig[currentSport] || sportConfig['default'];
+        document.documentElement.style.setProperty('--primary', activeChamber.primary);
+        document.documentElement.style.setProperty('--glow', activeChamber.glow);
+        document.documentElement.style.setProperty('--chamber-bg', activeChamber.bg);
+        document.getElementById('marquee-header').innerText = activeChamber.title;
+        document.getElementById('card-sport-icon').innerText = activeChamber.icon;
+
+        let globalInventory = JSON.parse(localStorage.getItem(activeChamber.key)) || [];
+        let availableFeedStacks = [];
+
+        function scanForCombos() {
+            let counts = {};
+            availableFeedStacks = [];
+            
+            globalInventory.forEach(card => {
+                if (!counts[card.name]) counts[card.name] = { count: 0, ref: card };
+                counts[card.name].count++;
+            });
+
+            for (let name in counts) {
+                let item = counts[name];
+                if (item.ref.tier === 'base' && item.count >= 5) availableFeedStacks.push({ card: item.ref, req: 5 });
+                else if (item.ref.tier === 'silver' && item.count >= 4) availableFeedStacks.push({ card: item.ref, req: 4 });
+                else if (item.ref.tier === 'gold' && item.count >= 3) availableFeedStacks.push({ card: item.ref, req: 3 });
+            }
+
+            document.getElementById('combo-qty').innerText = availableFeedStacks.length;
+        }
+        scanForCombos();
+
+        function getNextMonsterFeeding() {
+            let now = new Date(); let target = new Date(now);
+            target.setUTCHours(20, 0, 0, 0);
+            let daysUntilSunday = (7 - target.getUTCDay()) % 7;
+            target.setUTCDate(target.getUTCDate() + daysUntilSunday);
+            if (target.getTime() <= now.getTime()) target.setUTCDate(target.getUTCDate() + 7);
+            return target.getTime(); 
+        }
+
+        let clockLoop = setInterval(calculateTimeMetrics, 1000);
+        calculateTimeMetrics();
+
+        function calculateTimeMetrics() {
+            let distance = getNextMonsterFeeding() - Date.now();
+            let readout = document.getElementById('time-readout');
+            let descriptor = document.getElementById('clock-status-text');
+            let slammer = document.getElementById('feed-btn');
+
+            let oneHour = 3600000;
+            if (distance <= 0 && distance > -oneHour) {
+                readout.innerText = "00d 00h 00m 00s";
+                descriptor.innerText = "SECURITY OVERRIDE: FEED GATE LIVE!";
+                descriptor.style.color = activeChamber.primary;
+                slammer.disabled = false;
+                slammer.className = "feed-trigger-3d slammer-ready";
+                slammer.innerText = "FEED CARD STACK";
+                return;
+            }
+
+            let d = Math.floor(distance / (1000 * 60 * 60 * 24));
+            let h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            let m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            let s = Math.floor((distance % (1000 * 60)) / 1000);
+            readout.innerText = `${d}d ${h < 10 ? '0'+h : h}h ${m < 10 ? '0'+m : m}m ${s < 10 ? '0'+s : s}s`;
+        }
+
+        function executeFeeding() {
+            if (availableFeedStacks.length === 0) {
+                document.getElementById('terminal-screen').innerText = "DENIED: NO COMPLETE CARD STACKS IN VAULT! (Need 5 Base, 4 Silver, or 3 Gold)";
+                document.getElementById('terminal-screen').style.color = "#ff4757";
+                return;
+            }
+
+            const button = document.getElementById('feed-btn');
+            const cardElement = document.getElementById('physical-card');
+            const tankMouth = document.getElementById('containment-mouth');
+            const terminal = document.getElementById('terminal-screen');
+
+            let targetStack = availableFeedStacks[0];
+
+            document.getElementById('card-req-badge').innerText = targetStack.req + "x STACK";
+            document.getElementById('card-tier-text').innerText = targetStack.card.tier.toUpperCase();
+            document.getElementById('card-name-text').innerText = targetStack.card.name;
+            
+            if (targetStack.card.tier === 'base') cardElement.style.borderColor = "#7f8c8d";
+            if (targetStack.card.tier === 'silver') cardElement.style.borderColor = "#bdc3c7";
+            if (targetStack.card.tier === 'gold') cardElement.style.borderColor = "#f1c40f";
+
+            button.disabled = true;
+            terminal.innerText = `SLIDING ${targetStack.req}x [${targetStack.card.name.toUpperCase()}] INTO INTAKE...`;
+            terminal.style.color = "#ff9f43";
+
+            playSound('slide');
+            cardElement.classList.add('slide-down-action');
+
+            for (let i = 0; i < targetStack.req; i++) {
+                let indexToRemove = globalInventory.findIndex(card => card.name === targetStack.card.name);
+                if (indexToRemove !== -1) globalInventory.splice(indexToRemove, 1);
+            }
+
+            setTimeout(() => {
+                playSound('crunch');
+                tankMouth.className = "monster-containment chomping-loop";
+                tankMouth.innerText = "👅";
+                terminal.innerText = `SHREDDING ${targetStack.req} CARDS FOR DNA RECONSTRUCTION...`;
+                terminal.style.color = "#ff4757";
+
+                setTimeout(() => {
+                    tankMouth.className = "monster-containment";
+                    tankMouth.innerText = "🤮";
+
+                    let roll = Math.floor(Math.random() * 3); 
+
+                    if (targetStack.card.tier === 'base') {
+                        if (roll === 0) payoutBase(terminal);
+                        else if (roll === 1) payoutSilver(terminal);
+                        else payoutGold(terminal);
+                    } else if (targetStack.card.tier === 'silver') {
+                        if (roll === 0) payoutSilver(terminal);
+                        else if (roll === 1) payoutGold(terminal);
+                        else payoutPlatinum(terminal);
+                    } else if (targetStack.card.tier === 'gold') {
+                        if (roll === 0) payoutSilver(terminal);
+                        else if (roll === 1) payoutGold(terminal);
+                        else payoutPlatinum(terminal);
+                    }
+
+                    localStorage.setItem(activeChamber.key, JSON.stringify(globalInventory));
+                    scanForCombos(); 
+
+                    setTimeout(() => {
+                        tankMouth.innerText = "👹";
+                        cardElement.classList.remove('slide-down-action');
+                        button.className = "feed-trigger-3d slammer-ready";
+                        button.disabled = false; 
+                        terminal.innerText = "STABILIZED. READY TO CONSUME NEXT STACK.";
+                        terminal.style.color = "#00e676";
+                    }, 3500);
+
+                }, 2000);
+            }, 600); 
+        }
+
+        function payoutBase(terminal) {
+            globalInventory.push({ id: Date.now(), name: "Slag Base", tier: "base", value: 100 });
+            terminal.innerText = "MUTATION FAILED: SPAT OUT 1 BASE CARD BACK.";
+            terminal.style.color = "#90a4ae";
+        }
+        function payoutSilver(terminal) {
+            playSound('jackpot');
+            globalInventory.push({ id: Date.now(), name: "Mutated Silver", tier: "silver", value: 450 });
+            terminal.innerText = "MUTATION SUCCESS: SPAT OUT 1 SILVER CARD!";
+            terminal.style.color = "#bdc3c7";
+        }
+        function payoutGold(terminal) {
+            playSound('jackpot');
+            globalInventory.push({ id: Date.now(), name: "Premium Gold", tier: "gold", value: 1400 });
+            terminal.innerText = "MUTATION CRITICAL: SPAT OUT 1 GOLD CARD!";
+            terminal.style.color = "#ffd700";
+        }
+        function payoutPlatinum(terminal) {
+            playSound('jackpot');
+            globalInventory.push({ id: Date.now(), name: "Mythic Platinum", tier: "platinum", value: 5000 });
+            terminal.innerText = "GOD-TIER MUTATION: SPAT OUT 1 PLATINUM CARD!!!";
+            terminal.style.color = "#e5e4e2"; 
+        }
+    </script>
+</body>
+</html>

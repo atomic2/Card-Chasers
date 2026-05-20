@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Blackjack | Card Chaser's</title>
+    <style>
+        :root {
+            --primary: #ff9f43;
+            --table-felt: radial-gradient(circle at center, #1b4f31 0%, #0a2113 100%);
+            --table-border: #3e2723;
+            --glow: rgba(255, 159, 67, 0.5);
+        }
+
+        /* LOCKED TO VIEWPORT TO PREVENT SCROLLING */
+        body, html {
+            margin: 0; padding: 0; height: 100vh; width: 100vw;
+            background: #050608; font-family: 'Arial Black', sans-serif;
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            color: #fff; overflow: hidden; box-sizing: border-box; user-select: none;
+        }
+        *, *:before, *:after { box-sizing: inherit; }
+
+        .room-container { 
+            width: 95vw; max-width: 900px; height: 100%; 
+            display: flex; flex-direction: column; padding: 2vh 0; gap: 2vh; 
+        }
+
+        /* HEADER & BANK */
+        .header-panel {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #000; padding: 1.5vh 20px; border-radius: 16px;
+            border-bottom: 4px solid var(--primary); box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+            flex-shrink: 0;
+        }
+        .title { margin: 0; font-size: clamp(1rem, 3vh, 1.4rem); text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px var(--glow); }
+        .bank-readout { display: flex; gap: 15px; font-size: clamp(0.7rem, 2vh, 0.9rem); color: #8892b0; }
+        .bank-readout span { font-weight: 900; margin-left: 5px; }
+        .stat-pts span { color: var(--primary); }
+        .stat-cash span { color: #2ecc71; }
+
+        /* THE BLACKJACK TABLE */
+        .table-area {
+            background: var(--table-felt); border: 6px solid var(--table-border); border-radius: 150px 150px 30px 30px;
+            padding: 2vh 20px; box-shadow: inset 0 0 50px rgba(0,0,0,0.8), 0 10px 30px rgba(0,0,0,0.7);
+            display: flex; flex-direction: column; align-items: center; justify-content: space-between; 
+            flex: 1; min-height: 0; 
+        }
+
+        /* Hand Areas */
+        .hand-zone { display: flex; flex-direction: column; align-items: center; width: 100%; min-height: 25vh; justify-content: center; }
+        .zone-label { color: rgba(255,255,255,0.6); font-size: clamp(0.7rem, 2vh, 0.9rem); letter-spacing: 2px; margin-bottom: 5px; }
+        .cards-container { display: flex; gap: -3vw; justify-content: center; height: 18vh; }
+        
+        .score-bubble { 
+            background: rgba(0,0,0,0.7); padding: 4px 15px; border-radius: 12px; 
+            font-size: clamp(1rem, 2.5vh, 1.2rem); color: #f1c40f; margin-top: 5px; 
+            border: 1px solid rgba(255,255,255,0.2); opacity: 0; transition: opacity 0.2s;
+        }
+
+        /* Playing Card UI */
+        .playing-card {
+            width: 12.5vh; height: 18vh; background: #fff; border-radius: 6px;
+            border: 1px solid #ccc; box-shadow: -2px 5px 10px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column; justify-content: space-between; padding: 4px;
+            font-family: -apple-system, sans-serif; font-weight: bold; font-size: 2.5vh;
+            margin-left: -4vh; position: relative; color: #000;
+        }
+        .playing-card:first-child { margin-left: 0; }
+        .card-red { color: #e74c3c; }
+        .card-black { color: #2c3e50; }
+        
+        .card-top { align-self: flex-start; line-height: 1; }
+        .card-center { align-self: center; font-size: 5vh; line-height: 1; }
+        .card-bottom { align-self: flex-end; line-height: 1; transform: rotate(180deg); }
+
+        .card-hidden { background: repeating-linear-gradient(45deg, var(--table-border), var(--table-border) 10px, var(--primary) 10px, var(--primary) 20px); border: 2px solid #fff; color: transparent; }
+        .card-hidden .card-top, .card-hidden .card-center, .card-hidden .card-bottom { display: none; }
+
+        .terminal-log {
+            background: #000; padding: 8px 15px; border-radius: 8px; border: 1px solid #1f232d;
+            font-family: monospace; color: #00e676; font-size: clamp(0.8rem, 2vh, 1rem); 
+            text-align: center; margin: 1vh 0; box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+            width: 90%; max-width: 400px;
+        }
+
+        /* CONTROLS AREA */
+        .control-wrapper { height: 8vh; min-height: 50px; display: flex; align-items: center; justify-content: center; width: 100%; margin-top: auto; }
+        .bet-controls { display: flex; gap: 10px; align-items: center; width: 100%; justify-content: center; }
+        .action-controls { display: flex; gap: 15px; width: 100%; justify-content: center; display: none; }
+        
+        /* CHIPS */
+        .chip {
+            width: clamp(45px, 8vh, 60px); height: clamp(45px, 8vh, 60px); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            border: 4px dashed rgba(255,255,255,0.7); font-size: clamp(0.7rem, 2vh, 0.9rem);
+            font-weight: 900; box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.6);
+            transition: transform 0.1s; color: #fff; text-shadow: 0 1px 2px #000;
+        }
+        .chip:active { transform: scale(0.9); }
+        .chip-5 { background: #e74c3c; }
+        .chip-10 { background: #3498db; }
+        .chip-25 { background: #2c3e50; }
+
+        .bet-display { background: #000; border: 2px solid #f1c40f; color: #f1c40f; padding: 0 15px; border-radius: 8px; height: clamp(40px, 7vh, 50px); display: flex; align-items: center; justify-content: center; font-size: clamp(1rem, 2.5vh, 1.3rem); min-width: 80px; }
+
+        .btn {
+            padding: 0 20px; height: clamp(40px, 7vh, 50px); font-family: 'Arial Black', sans-serif; font-size: clamp(0.8rem, 2vh, 1rem);
+            border: none; border-radius: 8px; color: #fff; cursor: pointer; text-transform: uppercase;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.4); transition: transform 0.1s;
+        }
+        .btn:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+        .btn:disabled { filter: grayscale(1); opacity: 0.5; cursor: not-allowed; transform: translateY(4px); box-shadow: none; }
+        
+        .btn-deal { background: var(--primary); color: #000; display: none; }
+        .btn-hit { background: #3498db; width: 120px; }
+        .btn-stand { background: #e74c3c; width: 120px; }
+        .btn-clear { background: #7f8c8d; font-size: 0.7rem; padding: 0 10px; height: clamp(30px, 5vh, 40px); }
+
+        .exit-btn { background: none; border: none; color: #4c566a; font-weight: bold; font-size: clamp(0.7rem, 2vh, 0.9rem); cursor: pointer; text-transform: uppercase; flex-shrink: 0; padding-bottom: 1vh; }
+        .exit-btn:hover { color: var(--primary); }
+
+    </style>
+</head>
+<body>
+
+    <div class="room-container">
+        
+        <div class="header-panel">
+            <h1 class="title" id="table-title">BLACKJACK</h1>
+            <div class="bank-readout">
+                <div class="stat-cash">CASH: <span id="bank-cash">$0</span></div>
+                <div class="stat-pts">PTS: <span id="bank-pts">0</span></div>
+            </div>
+        </div>
+
+        <div class="table-area">
+            
+            <div class="hand-zone">
+                <div class="zone-label">DEALER</div>
+                <div class="cards-container" id="dealer-cards"></div>
+                <div class="score-bubble" id="dealer-score-ui">0</div>
+            </div>
+
+            <div class="terminal-log" id="terminal-log">PLACE BET TO START.</div>
+
+            <div class="hand-zone">
+                <div class="zone-label">YOUR HAND</div>
+                <div class="cards-container" id="player-cards"></div>
+                <div class="score-bubble" id="player-score-ui">0</div>
+            </div>
+
+            <div class="control-wrapper">
+                <div class="bet-controls" id="bet-controls">
+                    <button class="btn btn-clear" onclick="clearBet()">CLEAR</button>
+                    <div class="chip chip-5" onclick="addBet(5)">$5</div>
+                    <div class="chip chip-10" onclick="addBet(10)">$10</div>
+                    <div class="chip chip-25" onclick="addBet(25)">$25</div>
+                    <div class="bet-display" id="bet-display">$0</div>
+                    <button class="btn btn-deal" id="btn-deal" onclick="dealHand()">DEAL</button>
+                </div>
+
+                <div class="action-controls" id="action-controls">
+                    <button class="btn btn-hit" id="hit-btn" onclick="hit()">HIT</button>
+                    <button class="btn btn-stand" id="stand-btn" onclick="stand()">STAND</button>
+                </div>
+            </div>
+
+        </div>
+
+        <button class="exit-btn" onclick="window.location.href='game_room.html'">◀ Exit Table</button>
+    </div>
+
+    <script>
+        // ========================================================
+        // THEME & LEDGER INJECTION
+        // ========================================================
+        let playerCash = parseInt(localStorage.getItem('playerMoney')) || 1000;
+        let playerPoints = parseInt(localStorage.getItem('playerPoints')) || 0;
+        let currentSport = localStorage.getItem('selectedSport') || 'default';
+
+        const tableThemes = {
+            nhl: { title: "ICE BLACKJACK", primary: "#3498db", felt: "radial-gradient(circle at center, #1b3d4f 0%, #0a1721 100%)", border: "#112631", glow: "rgba(52, 152, 219, 0.5)" },
+            mlb: { title: "DIAMOND BLACKJACK", primary: "#2ecc71", felt: "radial-gradient(circle at center, #1b4f31 0%, #0a2113 100%)", border: "#102f1d", glow: "rgba(46, 204, 113, 0.5)" },
+            nba: { title: "COURT BLACKJACK", primary: "#e67e22", felt: "radial-gradient(circle at center, #4f2d1b 0%, #21130a 100%)", border: "#351e12", glow: "rgba(230, 126, 34, 0.5)" },
+            nfl: { title: "GRIDIRON BLACKJACK", primary: "#f1c40f", felt: "radial-gradient(circle at center, #2e2417 0%, #171109 100%)", border: "#3e2723", glow: "rgba(241, 196, 15, 0.5)" },
+            default: { title: "CASINO BLACKJACK", primary: "#ff9f43", felt: "radial-gradient(circle at center, #1b4f31 0%, #0a2113 100%)", border: "#3e2723", glow: "rgba(255, 159, 67, 0.5)" }
+        };
+
+        const activeTheme = tableThemes[currentSport] || tableThemes['default'];
+        document.documentElement.style.setProperty('--primary', activeTheme.primary);
+        document.documentElement.style.setProperty('--table-felt', activeTheme.felt);
+        document.documentElement.style.setProperty('--table-border', activeTheme.border);
+        document.documentElement.style.setProperty('--glow', activeTheme.glow);
+        document.getElementById('table-title').innerText = activeTheme.title;
+        
+        function updateBankUI() {
+            document.getElementById('bank-cash').innerText = "$" + playerCash;
+            document.getElementById('bank-pts').innerText = playerPoints;
+            localStorage.setItem('playerMoney', playerCash);
+            localStorage.setItem('playerPoints', playerPoints);
+        }
+        updateBankUI();
+
+        // ========================================================
+        // WEB AUDIO SYNTHESIZER
+        // ========================================================
+        let audioCtx = null;
+        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+        function playSound(type) {
+            initAudio(); if (!audioCtx) return;
+            let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination); let now = audioCtx.currentTime;
+
+            if (type === 'chip') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(1200, now);
+                osc.frequency.exponentialRampToValueAtTime(300, now + 0.1);
+                gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+                osc.start(now); osc.stop(now + 0.1);
+            } else if (type === 'card') {
+                let bufferSize = audioCtx.sampleRate * 0.1;
+                let buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                let data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
+                let noise = audioCtx.createBufferSource(); noise.buffer = buffer;
+                let filter = audioCtx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 1000;
+                noise.connect(filter); filter.connect(gain);
+                gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                noise.start(now);
+            } else if (type === 'win') {
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(440, now); osc.frequency.setValueAtTime(554, now + 0.1); osc.frequency.setValueAtTime(659, now + 0.2);
+                gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0, now + 0.4);
+                osc.start(now); osc.stop(now + 0.4);
+            } else if (type === 'bust') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, now); osc.frequency.exponentialRampToValueAtTime(40, now + 0.4);
+                gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0, now + 0.4);
+                osc.start(now); osc.stop(now + 0.4);
+            }
+        }
+
+        // ========================================================
+        // DECK ENGINE & GAME LOGIC
+        // ========================================================
+        const suits = ['♥', '♦', '♣', '♠'];
+        const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+        let deck = []; let playerHand = []; let dealerHand = [];
+        let currentBet = 0; let gameActive = false;
+
+        function buildDeck() {
+            deck = [];
+            for (let suit of suits) {
+                for (let value of values) {
+                    let weight = parseInt(value);
+                    if (value === 'J' || value === 'Q' || value === 'K') weight = 10;
+                    if (value === 'A') weight = 11;
+                    let color = (suit === '♥' || suit === '♦') ? 'card-red' : 'card-black';
+                    deck.push({ value, suit, weight, color });
+                }
+            }
+            for (let i = deck.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+        }
+
+        function calculateScore(hand) {
+            let score = 0; let aces = 0;
+            for (let card of hand) {
+                score += card.weight;
+                if (card.value === 'A') aces += 1;
+            }
+            while (score > 21 && aces > 0) { score -= 10; aces -= 1; }
+            return score;
+        }
+
+        function renderCard(card, isHidden = false) {
+            if (isHidden) return `<div class="playing-card card-hidden"></div>`;
+            return `
+                <div class="playing-card ${card.color}">
+                    <div class="card-top">${card.value}${card.suit}</div>
+                    <div class="card-center">${card.suit}</div>
+                    <div class="card-bottom">${card.value}${card.suit}</div>
+                </div>
+            `;
+        }
+
+        function updateBoard(hideDealerCard = true) {
+            let pDiv = document.getElementById('player-cards');
+            let dDiv = document.getElementById('dealer-cards');
+            
+            pDiv.innerHTML = '';
+            playerHand.forEach(card => pDiv.innerHTML += renderCard(card));
+            
+            dDiv.innerHTML = '';
+            dealerHand.forEach((card, index) => {
+                if (index === 1 && hideDealerCard) dDiv.innerHTML += renderCard(card, true);
+                else dDiv.innerHTML += renderCard(card);
+            });
+
+            let pScore = calculateScore(playerHand);
+            let pScoreUI = document.getElementById('player-score-ui');
+            let dScoreUI = document.getElementById('dealer-score-ui');
+            
+            if (playerHand.length > 0) {
+                pScoreUI.innerText = pScore; pScoreUI.style.opacity = '1';
+            } else { pScoreUI.style.opacity = '0'; }
+
+            if (!hideDealerCard && dealerHand.length > 0) {
+                dScoreUI.innerText = calculateScore(dealerHand); dScoreUI.style.opacity = '1';
+            } else { dScoreUI.style.opacity = '0'; }
+        }
+
+        function addBet(amount) {
+            initAudio(); // Required here to wake up browser audio on first tap
+            if (gameActive) return;
+            if (playerCash < amount) {
+                document.getElementById('terminal-log').innerText = "INSUFFICIENT FUNDS.";
+                document.getElementById('terminal-log').style.color = "#ff4757";
+                return;
+            }
+            playerCash -= amount;
+            currentBet += amount;
+            updateBankUI();
+            playSound('chip');
+            
+            document.getElementById('bet-display').innerText = "$" + currentBet;
+            document.getElementById('btn-deal').style.display = 'block';
+            document.getElementById('terminal-log').innerText = "BET PLACED. DEAL WHEN READY.";
+            document.getElementById('terminal-log').style.color = "#00e676";
+        }
+
+        function clearBet() {
+            if (gameActive || currentBet === 0) return;
+            playerCash += currentBet;
+            currentBet = 0;
+            updateBankUI();
+            playSound('chip');
+            document.getElementById('bet-display').innerText = "$0";
+            document.getElementById('btn-deal').style.display = 'none';
+            document.getElementById('terminal-log').innerText = "BET CLEARED.";
+        }
+
+        function dealHand() {
+            gameActive = true;
+            document.getElementById('bet-controls').style.display = 'none';
+            document.getElementById('action-controls').style.display = 'flex';
+            document.getElementById('hit-btn').disabled = false;
+            document.getElementById('stand-btn').disabled = false;
+            document.getElementById('terminal-log').innerText = "GOOD LUCK. HIT OR STAND?";
+            document.getElementById('terminal-log').style.color = "#f1c40f";
+
+            buildDeck();
+            playerHand = [deck.pop(), deck.pop()];
+            dealerHand = [deck.pop(), deck.pop()];
+            
+            playSound('card'); setTimeout(() => playSound('card'), 200);
+            updateBoard(true);
+            checkInitialBlackjack();
+        }
+
+        function checkInitialBlackjack() {
+            let pScore = calculateScore(playerHand);
+            if (pScore === 21) {
+                gameActive = false;
+                updateBoard(false);
+                let winnings = currentBet * 2.5; 
+                playerCash += winnings; playerPoints += 25;
+                updateBankUI();
+                playSound('win');
+                document.getElementById('terminal-log').innerText = `BLACKJACK! YOU WIN $${winnings}!`;
+                document.getElementById('terminal-log').style.color = "#2ecc71";
+                resetTable();
+            }
+        }
+
+        function hit() {
+            if (!gameActive) return;
+            playSound('card');
+            playerHand.push(deck.pop());
+            updateBoard(true);
+
+            if (calculateScore(playerHand) > 21) {
+                gameActive = false;
+                updateBoard(false);
+                playSound('bust');
+                document.getElementById('terminal-log').innerText = "BUST! OVER 21. DEALER WINS.";
+                document.getElementById('terminal-log').style.color = "#ff4757";
+                resetTable();
+            } else if (calculateScore(playerHand) === 21) {
+                stand();
+            }
+        }
+
+        function stand() {
+            if (!gameActive) return;
+            gameActive = false;
+            document.getElementById('hit-btn').disabled = true;
+            document.getElementById('stand-btn').disabled = true;
+            document.getElementById('terminal-log').innerText = "DEALER's TURN...";
+
+            updateBoard(false); 
+
+            let dealerLoop = setInterval(() => {
+                if (calculateScore(dealerHand) < 17) {
+                    playSound('card');
+                    dealerHand.push(deck.pop());
+                    updateBoard(false);
+                } else {
+                    clearInterval(dealerLoop);
+                    resolveGame();
+                }
+            }, 800);
+        }
+
+        function resolveGame() {
+            let pScore = calculateScore(playerHand);
+            let dScore = calculateScore(dealerHand);
+            const log = document.getElementById('terminal-log');
+
+            if (dScore > 21) {
+                let winnings = currentBet * 2; playerCash += winnings; playSound('win');
+                log.innerText = `DEALER BUSTS! YOU WIN $${winnings}!`; log.style.color = "#2ecc71";
+            } else if (pScore > dScore) {
+                let winnings = currentBet * 2; playerCash += winnings; playSound('win');
+                log.innerText = `YOU WIN $${winnings}!`; log.style.color = "#2ecc71";
+            } else if (pScore < dScore) {
+                playSound('bust');
+                log.innerText = `DEALER WINS ${dScore} TO ${pScore}.`; log.style.color = "#ff4757";
+            } else {
+                playerCash += currentBet; 
+                log.innerText = "PUSH. TIE GAME. BET REFUNDED."; log.style.color = "#f1c40f";
+            }
+            
+            updateBankUI();
+            resetTable();
+        }
+
+        function resetTable() {
+            document.getElementById('hit-btn').disabled = true;
+            document.getElementById('stand-btn').disabled = true;
+            setTimeout(() => {
+                document.getElementById('action-controls').style.display = 'none';
+                document.getElementById('bet-controls').style.display = 'flex';
+                document.getElementById('terminal-log').innerText = "PLACE NEW BET.";
+                document.getElementById('terminal-log').style.color = "#00e676";
+                
+                playerHand = []; dealerHand = []; currentBet = 0;
+                document.getElementById('bet-display').innerText = "$0";
+                document.getElementById('btn-deal').style.display = 'none';
+                updateBoard(true);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
