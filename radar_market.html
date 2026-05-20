@@ -2,27 +2,68 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Radar Market | Card Chaser's</title>
     <style>
         :root {
-            --primary: #9b59b6; --room-bg: radial-gradient(circle at center, #1a1525 0%, #0a0811 100%);
-            --glow: rgba(155, 89, 182, 0.4); --radar: #00d2d3;
+            --primary: #9b59b6; 
+            --room-bg: radial-gradient(circle at center, #1a1525 0%, #0a0811 100%);
+            --glow: rgba(155, 89, 182, 0.4); 
+            --radar: #00d2d3;
         }
 
-        body, html { margin: 0; padding: 0; min-height: 100vh; background: var(--room-bg); font-family: 'Arial Black', sans-serif; display: flex; flex-direction: column; align-items: center; color: #fff; overflow: hidden; }
-        .market-container { width: 95vw; max-width: 1200px; display: flex; flex-direction: column; align-items: center; padding: 2vh 0; height: 100vh; }
+        /* 1. FIXED BODY: Allows natural scrolling on mobile */
+        body, html { 
+            margin: 0; padding: 0; min-height: 100vh; 
+            background: var(--room-bg); font-family: 'Arial Black', sans-serif; 
+            color: #fff; overflow-x: hidden; box-sizing: border-box; display: block; 
+        }
+        *, *:before, *:after { box-sizing: inherit; }
+
+        /* 2. MASTER CONTAINERS */
+        .room-container {
+            width: 100%; 
+            padding: 15px;
+            box-sizing: border-box;
+            margin: 0 auto;
+        }
+
+        .market-container { 
+            width: 100%; 
+            max-width: 1200px; 
+            display: flex; 
+            flex-direction: column; 
+            margin: 0 auto;
+            gap: 10px; 
+            padding-bottom: 40px; 
+        }
         
-        .header-panel { display: flex; justify-content: space-between; align-items: center; width: 100%; background: #000; padding: 15px 25px; border-radius: 16px; border-bottom: 4px solid var(--primary); }
+        .header-panel { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; width: 100%; background: #000; padding: 15px 25px; border-radius: 16px; border-bottom: 4px solid var(--primary); }
         .ui-btn { background: #000; border: 2px solid var(--primary); color: #fff; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: 900; font-size: 0.7rem; text-transform: uppercase; }
         .ui-btn:hover { border-color: #fff; color: var(--primary); }
 
-        .market-layout { display: grid; grid-template-columns: 300px 1fr; gap: 20px; width: 100%; margin-top: 20px; height: 80vh; }
+        /* 3. RESPONSIVE GRID LAYOUT */
+        .market-layout { 
+            display: grid; 
+            grid-template-columns: 300px 1fr; /* Desktop sidebar */
+            gap: 20px; 
+            width: 100%; 
+            margin-top: 10px; 
+            align-items: start; /* Prevents sidebar from stretching infinitely */
+        }
+        
         .dashboard-panel { background: #0b0c10; border-radius: 16px; padding: 20px; border: 2px solid #1f232d; display: flex; flex-direction: column; gap: 15px; }
         .search-input { width: 100%; background: #000; border: 2px solid #2e3440; color: #fff; padding: 10px; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; }
         
-        .premium-upgrade { background: #161920; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid var(--radar); margin-top: auto; }
+        .premium-upgrade { background: #161920; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid var(--radar); margin-top: 10px; }
         .btn-real-money { background: #000; color: #2ecc71; border: 2px solid #2ecc71; padding: 10px; width: 100%; border-radius: 8px; font-family: 'Arial Black', sans-serif; cursor: pointer; }
+
+        #showcase-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); 
+            gap: 20px; 
+            justify-items: center; 
+        }
 
         /* CARD THUMBNAIL WRAPPER */
         .card-wrapper { display: flex; flex-direction: column; align-items: center; width: 120px; cursor: pointer; }
@@ -37,27 +78,24 @@
         .card-label { font-size: 0.7rem; margin-top: 8px; text-transform: uppercase; color: #fff; text-align: center; }
 
         /* MODALS */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 5000; display: none; align-items: center; justify-content: center; flex-direction: column; }
-        .meta-form { background: #0b0c10; border: 2px solid var(--primary); padding: 20px; border-radius: 16px; width: 320px; max-height: 80vh; overflow-y: auto; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 5000; display: none; align-items: center; justify-content: center; flex-direction: column; overflow-y: auto; padding: 20px 0; box-sizing: border-box; }
+        .meta-form { background: #0b0c10; border: 2px solid var(--primary); padding: 20px; border-radius: 16px; width: 90vw; max-width: 320px; }
         .form-input { width: 100%; background: #1a1c23; border: 1px solid #4c566a; color: #fff; padding: 8px; margin: 5px 0; border-radius: 6px; box-sizing: border-box; }
         
         /* FIXED INSPECTOR SLOTS WITH ZOOM */
-        .modal-content { display: flex; flex-direction: column; align-items: center; max-width: 90vw; width: 100%; }
+        .modal-content { display: flex; flex-direction: column; align-items: center; max-width: 90vw; width: 100%; margin-top: auto; margin-bottom: auto;}
         .modal-images-holder { display: flex; gap: 20px; justify-content: center; align-items: center; flex-wrap: wrap; margin-bottom: 20px; width: 100%; }
         
         .inspector-card-frame {
             width: 380px;
             height: 500px;
-            max-width: 42vw;
-            max-height: 55vh;
-            min-width: 260px;
-            min-height: 340px;
+            max-width: 100%;
             border-radius: 12px;
             border: 4px solid #fff;
             box-shadow: 0 0 20px rgba(255,255,255,0.2);
             overflow: hidden;
             background: #11141a;
-            cursor: crosshair; /* Changes cursor to indicate inspection mode */
+            cursor: crosshair; 
             position: relative;
         }
         
@@ -66,12 +104,33 @@
             height: 100%;
             object-fit: cover; 
             object-position: center;
-            /* Smooth snap back when mouse leaves */
             transition: transform 0.2s ease-out; 
-            pointer-events: none; /* Prevents image dragging from interfering with zoom */
+            pointer-events: none; 
         }
 
         .modal-info-box { width: 100%; max-width: 780px; font-size: 1.1rem; background: #0b0c10; border: 2px solid var(--primary); padding: 20px; border-radius: 12px; text-align: center; box-sizing: border-box; }
+        
+        .selected-for-trade {
+            outline: 4px solid #f1c40f !important;
+            box-shadow: 0 0 20px rgba(241, 196, 15, 0.6) !important;
+            transform: scale(1.05);
+        }
+
+        /* 4. THE MOBILE MAGIC (Media Query) */
+        @media (max-width: 768px) {
+            .market-layout {
+                grid-template-columns: 1fr; /* Stacks dashboard on top of cards */
+            }
+            .header-panel {
+                justify-content: center; /* Centers header items on small screens */
+            }
+            .inspector-card-frame {
+                width: 85vw; /* Keeps the zoom modal from blowing out the screen */
+                height: auto;
+                aspect-ratio: 2.5 / 3.5; /* Maintains standard card proportions */
+                min-width: 0; min-height: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -83,7 +142,8 @@
             <input type="number" id="p-year" class="form-input" placeholder="Year">
             <input type="text" id="p-num" class="form-input" placeholder="Card #">
             <select id="p-cond" class="form-input">
-                <option value="Mint">Mint</option><option value="Near Mint">Near Mint</option>
+                <option value="Mint">Mint</option>
+                <option value="Near Mint">Near Mint</option>
                 <option value="Good">Good</option>
             </select>
             <div style="font-size:0.7rem; color:#8892b0; margin-top:10px;">FRONT IMAGE:</div>
@@ -98,70 +158,67 @@
 
     <div class="modal-overlay" id="high-res-modal" onclick="this.style.display='none'">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <div class="modal-images-holder" id="modal-images-container">
-                </div>
-            <div class="modal-info-box" id="modal-info">
-                </div>
+            <div class="modal-images-holder" id="modal-images-container"></div>
+            <div class="modal-info-box" id="modal-info"></div>
             <button class="ui-btn" style="margin-top: 20px; padding: 10px 20px;" onclick="document.getElementById('high-res-modal').style.display='none'">CLOSE INSPECTOR</button>
         </div>
     </div>
 
-    <div class="market-container">
-        <div class="header-panel">
-            <div style="display:flex; align-items:center; gap:10px;">
-                <button class="ui-btn" onclick="window.location.href='game_room.html'">◀ Exit</button>
-                <h1 style="margin:0; font-size:1.2rem;">RADAR MARKET</h1>
+    <div class="room-container">
+        <div class="market-container">
+            
+            <div id="trade-banner" style="display:none; background: #f1c40f; color: #000; padding: 10px; width: 100%; text-align: center; font-weight: 900; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box;">
+                TRADING MODE ACTIVE
             </div>
-            <button class="ui-btn" onclick="window.location.href='playground.html'">🏟️ Arena</button>
-        </div>
 
-        <div class="market-layout">
-            <div class="dashboard-panel">
-                <h2 style="font-size: 0.9rem; margin:0;">MY SHOWCASE</h2>
-                <input type="text" class="search-input" id="player-search" placeholder="🔍 Find Player..." onkeyup="filterCards()">
-                <button class="ui-btn" style="width:100%; padding:15px;" onclick="document.getElementById('upload-form-modal').style.display='flex'">+ UPLOAD</button>
-                
-                <div style="margin-top: 20px;">
-                    <h3 style="font-size: 0.7rem; color: var(--radar); margin: 0 0 5px 0;">RADAR SCANNER</h3>
-                    <input type="text" class="search-input" id="zip-search" placeholder="📍 Postal Code...">
-                    <button class="ui-btn" style="width:100%;" onclick="updateRadar()">LOCAL TRADERS</button>
+            <div class="header-panel">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <button class="ui-btn" onclick="window.location.href='game_room.html'">◀ Exit</button>
+                    <h1 style="margin:0; font-size:1.2rem;">RADAR MARKET</h1>
+                </div>
+                <button class="ui-btn" onclick="window.location.href='playground.html'">🏟️ Arena</button>
+            </div>
+
+            <div class="market-layout">
+                <div class="dashboard-panel">
+                    <h2 style="font-size: 0.9rem; margin:0;">MY SHOWCASE</h2>
+                    <input type="text" class="search-input" id="player-search" placeholder="🔍 Find Player..." onkeyup="filterCards()">
+                    <button class="ui-btn" style="width:100%; padding:15px;" onclick="document.getElementById('upload-form-modal').style.display='flex'">+ UPLOAD</button>
+                    
+                    <div style="margin-top: 20px;">
+                        <h3 style="font-size: 0.7rem; color: var(--radar); margin: 0 0 5px 0;">RADAR SCANNER</h3>
+                        <input type="text" class="search-input" id="zip-search" placeholder="📍 Postal Code...">
+                        <button class="ui-btn" style="width:100%;" onclick="updateRadar()">LOCAL TRADERS</button>
+                    </div>
+
+                    <div class="premium-upgrade">
+                        <div style="font-size:0.7rem; margin-bottom:5px;">GET 100 SLOTS</div>
+                        <button class="btn-real-money" onclick="alert('Redirecting...')">UNLOCK - $1.99</button>
+                    </div>
                 </div>
 
-                <div class="premium-upgrade">
-                    <div style="font-size:0.7rem; margin-bottom:5px;">GET 100 SLOTS</div>
-                    <button class="btn-real-money" onclick="alert('Redirecting...')">UNLOCK - $1.99</button>
-                </div>
+                <div id="showcase-grid"></div>
             </div>
 
-            <div id="showcase-grid" style="display:grid; grid-template-columns:repeat(auto-fill, 120px); gap:20px; overflow-y: auto;">
-            </div>
-        </div>
-    </div>
-
-    <script>
+        </div> </div> <script>
         // eBay-Style Magnifier Logic
         function zoomIn(event, element) {
             const img = element.querySelector('img');
             const rect = element.getBoundingClientRect();
             
-            // Calculate mouse position relative to the image frame
             const x = event.clientX - rect.left;
             const y = event.clientY - rect.top;
             
-            // Convert to percentages for transform-origin
             const xPercent = (x / rect.width) * 100;
             const yPercent = (y / rect.height) * 100;
 
-            // Remove transition so it tracks the mouse instantly without lag
             img.style.transition = 'none';
-            // Lock focal point to mouse and scale up 3x
-            img.style.transformOrigin = `${xPercent} ${yPercent}%`;
+            img.style.transformOrigin = `${xPercent}% ${yPercent}%`;
             img.style.transform = 'scale(3)';
         }
 
         function zoomOut(element) {
             const img = element.querySelector('img');
-            // Re-apply transition for a smooth snap-back to center
             img.style.transition = 'transform 0.2s ease-out';
             img.style.transformOrigin = 'center center';
             img.style.transform = 'scale(1)';
@@ -232,7 +289,6 @@
         function showHighRes(frontSrc, backSrc, name, year, num, cond) {
             const imgContainer = document.getElementById('modal-images-container');
             
-            // Added onmousemove and onmouseleave triggers to the frames
             let imagesHtml = `<div class="inspector-card-frame" onmousemove="zoomIn(event, this)" onmouseleave="zoomOut(this)"><img src="${frontSrc}"></div>`;
             if (backSrc && backSrc !== 'null') {
                 imagesHtml += `<div class="inspector-card-frame" onmousemove="zoomIn(event, this)" onmouseleave="zoomOut(this)"><img src="${backSrc}"></div>`;
@@ -259,6 +315,7 @@
         }
 
         function updateRadar() { alert("Scanning local area..."); }
+
     </script>
 </body>
 </html>

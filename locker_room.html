@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>The Locker Room | Card Chaser's</title>
     <style>
         :root {
@@ -13,16 +13,31 @@
         }
 
         body, html {
-            margin: 0; padding: 0; height: 100%;
+            margin: 0; padding: 0; min-height: 100vh;
             background: var(--vault-bg); font-family: 'Arial Black', sans-serif;
-            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-            color: #fff; padding-top: 2vh; box-sizing: border-box; overflow-x: hidden;
+            color: #fff; box-sizing: border-box; overflow-x: hidden;
+            display: block; 
         }
         *, *:before, *:after { box-sizing: inherit; }
 
-        .vault-container { width: 95vw; max-width: 1000px; display: flex; flex-direction: column; gap: 15px; padding-bottom: 40px; }
+        .room-container {
+            width: 100%; 
+            padding: 15px;
+            box-sizing: border-box;
+            margin: 0 auto;
+        }
 
-        /* EXIT BUTTON MOVED TO TOP */
+        .vault-container { 
+            width: 100%; 
+            max-width: 1000px; 
+            margin: 0 auto;
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            padding-bottom: 40px; 
+        }
+
+        /* EXIT BUTTON */
         .exit-btn { 
             align-self: flex-start; background: none; border: none; 
             color: #8892b0; font-weight: 900; font-size: 0.95rem; 
@@ -38,7 +53,7 @@
         }
         .vault-title { margin: 0; font-size: 1.6rem; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px var(--glow); }
 
-        /* THE DYNAMIC CARD VIEW WITH THE GRAPHIC VALUE CAPSULES */
+        /* DYNAMIC CARD VIEW */
         .locker-card {
             background: #11141a; border-radius: 16px; padding: 12px; width: 165px; height: 245px;
             display: flex; flex-direction: column; align-items: center;
@@ -53,14 +68,14 @@
         .card-art-box { width: 45px; height: 45px; background: #232936; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-top: 25px; margin-bottom: 10px; }
         .card-name { font-size: 0.95rem; color: #fff; font-weight: 900; margin-bottom: 2px; letter-spacing: -0.5px; }
         
-        /* SLEEK PERFORMANCE DNA MATCH DISPLAY */
+        /* PERFORMANCE DNA */
         .dna-box { background: rgba(0,0,0,0.4); border: 1px solid #2e3646; border-radius: 8px; padding: 5px; width: 100%; margin-top: 4px; box-sizing: border-box; }
         .dna-label { font-size: 0.5rem; color: #66758c; letter-spacing: 0.5px; text-transform: uppercase; font-family: sans-serif; font-weight: bold; }
         .dna-match-name { font-size: 0.7rem; color: #00ff66; font-weight: bold; font-family: monospace; margin-top: 1px; }
 
         .power-metric { font-size: 0.75rem; color: #fff; margin-top: auto; display: flex; align-items: center; gap: 3px; font-weight: bold; }
 
-        /* THE DARK VALUE CAPSULE PILL FROM THE PHOTO EXAMPLES */
+        /* VALUE CAPSULE */
         .price-capsule {
             background: #1a1c23; border: 1px solid #2e3646; border-radius: 6px;
             padding: 3px 8px; font-family: monospace; color: #dddddd; margin-top: 6px;
@@ -85,33 +100,36 @@
 
         .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 20px; background: rgba(0,0,0,0.2); border: 2px solid #1f232d; border-radius: 20px; padding: 25px; min-height: 350px; }
         .empty-msg { grid-column: 1 / -1; text-align: center; color: #4c566a; font-size: 1.2rem; padding-top: 100px; }
+
     </style>
 </head>
 <body>
+    
+    <div class="room-container">
+        <div class="vault-container">
+            
+            <button class="exit-btn" onclick="window.location.href='game_room.html'">◀ Back to Clubhouse</button>
+            
+            <div class="vault-header">
+                <h1 class="vault-title" id="vault-title">THE LOCKER ROOM</h1>
+                <div style="font-size: 0.9rem; color: #8892b0;">TOTAL ASSETS: <span id="total-count" style="color:#fff; font-weight:900;">0</span></div>
+            </div>
 
-    <div class="vault-container">
-        
-        <button class="exit-btn" onclick="window.location.href='game_room.html'">◀ Back to Clubhouse</button>
-        
-        <div class="vault-header">
-            <h1 class="vault-title" id="vault-title">THE LOCKER ROOM</h1>
-            <div style="font-size: 0.9rem; color: #8892b0;">TOTAL ASSETS: <span id="total-count" style="color:#fff; font-weight:900;">0</span></div>
-        </div>
+            <div class="utility-bar">
+                <div style="font-size:0.85rem; color:#a5b1c2;">VAULT LEDGER: AUTOMATICALLY ORGANIZED HIGHEST TO LOWEST VALUE.</div>
+                <button class="pack-btn" id="pack-pull-btn" onclick="openBoosterPack()">🎁 RIP PACK</button>
+            </div>
 
-        <div class="utility-bar">
-            <div style="font-size:0.85rem; color:#a5b1c2;">VAULT LEDGER: AUTOMATICALLY ORGANIZED HIGHEST TO LOWEST VALUE.</div>
-            <button class="pack-btn" id="pack-pull-btn" onclick="openBoosterPack()">🎁 RIP PACK</button>
-        </div>
+            <div class="pack-reveal-zone" id="reveal-zone">
+                <div style="color: #f1c40f; font-size: 1.1rem; letter-spacing: 1px;">PACK PULL INTEL REVEALED:</div>
+                <div class="pack-cards-display" id="reveal-cards-row"></div>
+                <button class="send-btn" onclick="closePackScreen()">SEND TO VAULT</button>
+            </div>
 
-        <div class="pack-reveal-zone" id="reveal-zone">
-            <div style="color: #f1c40f; font-size: 1.1rem; letter-spacing: 1px;">PACK PULL INTEL REVEALED:</div>
-            <div class="pack-cards-display" id="reveal-cards-row"></div>
-            <button class="send-btn" onclick="closePackScreen()">SEND TO VAULT</button>
-        </div>
+            <div class="card-grid" id="display-grid"></div>
 
-        <div class="card-grid" id="display-grid"></div>
-
-    </div>
+        </div> 
+    </div> 
 
     <script>
         let activeSport = localStorage.getItem('selectedSport') || 'nhl';

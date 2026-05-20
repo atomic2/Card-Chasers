@@ -2,43 +2,87 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>The Clubhouse | Card Chaser's</title>
     <style>
         :root { --primary: #ff9f43; --primary-dark: #b1601a; --room-bg: radial-gradient(circle at center, #232731 0%, #0f1115 100%); --glow: rgba(255, 159, 67, 0.4); }
-        body, html { margin: 0; padding: 0; min-height: 100vh; background: var(--room-bg); font-family: 'Arial Black', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; color: #fff; box-sizing: border-box; overflow-x: hidden; }
-        .hub-container { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; padding: 60px 0 40px 0; min-height: 100vh; }
+        
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            min-height: 100vh; 
+            background: var(--room-bg); 
+            font-family: 'Arial Black', sans-serif; 
+            display: block; 
+            color: #fff; 
+            box-sizing: border-box; 
+            overflow-x: hidden; 
+        }
+
+        .room-container {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            margin: 0 auto;
+        }
+
+        .hub-container { 
+            position: relative; 
+            width: 100%; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 60px 0 40px 0; 
+        }
+
         .change-arena-btn { position: absolute; top: 20px; right: 20px; background: #000; border: 2px solid var(--primary); color: #fff; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: 900; text-transform: uppercase; z-index: 1000; transition: all 0.2s; }
         .change-arena-btn:hover { background: var(--primary); color: #000; transform: translateY(-2px); }
+        
         .clubhouse-banner { text-align: center; margin-bottom: 25px; transform: rotateX(5deg); }
         .clubhouse-title { font-size: clamp(2rem, 6vw, 3.8rem); font-weight: 900; color: #ffffff; text-transform: uppercase; letter-spacing: 2px; margin: 0; text-shadow: 0 4px 15px rgba(0,0,0,0.8); }
+        
         .scoreboard-panel { background: #050608; border: 3px solid rgba(255,255,255,0.05); padding: 12px 25px; border-radius: 12px; margin-top: 15px; display: inline-flex; gap: 20px; font-size: 1rem; color: #8892b0; }
+        
         .console-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; width: 100%; max-width: 930px; padding: 0 20px; }
-        .cabinet-housing { flex: 1 1 400px; max-width: 435px; background: #0b0c10; padding: 8px; border-radius: 24px; box-shadow: inset 0 4px 10px rgba(0,0,0,1), 0 10px 25px rgba(0,0,0,0.5); }
+        .cabinet-housing { flex: 1 1 300px; max-width: 435px; background: #0b0c10; padding: 8px; border-radius: 24px; box-shadow: inset 0 4px 10px rgba(0,0,0,1), 0 10px 25px rgba(0,0,0,0.5); }
+        
         .game-link-btn { width: 100%; height: 110px; cursor: pointer; outline: none; border: none; font-family: 'Arial Black', sans-serif; font-size: 1.2rem; font-weight: 900; color: #ffffff; border-radius: 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; background: linear-gradient(135deg, #2e3440, #1f232d); border-bottom: 8px solid var(--primary); transform: translateY(-4px); transition: all 0.1s ease; text-transform: uppercase; }
         .game-link-btn:hover { transform: translateY(-6px); background: linear-gradient(135deg, #3b4252, #232834); box-shadow: 0 10px 20px rgba(0,0,0,0.6); }
         .game-link-btn:active { transform: translateY(4px); border-bottom-width: 2px; }
+        
         .btn-icon { font-size: 2rem; }
         .monster-gate { border-bottom-color: #ff4757; }
         .monster-gate:hover { box-shadow: 0 10px 20px rgba(255, 71, 87, 0.4); }
+
+        @media (max-width: 600px) {
+            .room-container { max-width: 100%; }
+        }
     </style>
 </head>
 <body>
-    <div class="hub-container">
-        <button class="change-arena-btn" onclick="window.location.href='playground.html'">🏟️ Change Arena</button>
-        <div class="clubhouse-banner">
-            <h1 class="clubhouse-title" id="room-title">CLUBHOUSE</h1>
-            <div class="scoreboard-panel">
-                <div class="stat-box">CASH: <span id="bank-cash">$0</span></div>
-                <div class="stat-box">COINS: <span id="bank-coins">0</span></div>
-                <div class="stat-box">LEADERBOARD: <span id="bank-pts">0</span> PTS</div>
+
+    <div class="room-container">
+        <div class="hub-container">
+            
+            <button class="change-arena-btn" onclick="window.location.href='playground.html'">🏟️ Change Arena</button>
+            
+            <div class="clubhouse-banner">
+                <h1 class="clubhouse-title" id="room-title">CLUBHOUSE</h1>
+                <div class="scoreboard-panel">
+                    <div class="stat-box">CASH: <span id="bank-cash">$0</span></div>
+                    <div class="stat-box">COINS: <span id="bank-coins">0</span></div>
+                    <div class="stat-box">LEADERBOARD: <span id="bank-pts">0</span> PTS</div>
+                </div>
             </div>
+            
+            <div class="console-grid" id="main-hub-grid"></div>
+            
         </div>
-        <div class="console-grid" id="main-hub-grid"></div>
     </div>
+
     <script>
         let currentSport = localStorage.getItem('selectedSport') || 'default';
-        
         let playerCash = parseInt(localStorage.getItem('playerMoney')) || 1000; 
         let playerCoins = parseInt(localStorage.getItem('playerCoins')) || 10;  
         let playerPoints = parseInt(localStorage.getItem('playerPoints')) || 0; 
@@ -60,19 +104,18 @@
         document.documentElement.style.setProperty('--room-bg', activeTheme.bg);
         document.getElementById('room-title').innerText = activeTheme.title;
 
-        // The master configuration connecting your Hub buttons to the new files
-  const masterButtons = [
+        const masterButtons = [
             { label: "Arena Slots", icon: "🎰", action: "slots.html", color: "var(--primary)" },
             { label: "Blackjack", icon: "♠️", action: "blackjack.html", color: "#9b59b6" },
             { label: "The Pro Shop", icon: "🛒", action: "trading_platform.html", color: "#2ecc71" },
             { label: "Digital Market", icon: "🤝", action: "digital_market.html", color: "#1abc9c" },
             { label: "My Locker Room", icon: "🗄️", action: "locker_room.html", color: "#3498db" },
-            { label: "Live Stadium", icon: "🏟️", action: "stadium (1).html", color: "#f1c40f" },
+            { label: "Live Stadium", icon: "🏟️", action: "stadium.html", color: "#f1c40f" },
             { label: "Local Traders", icon: "📡", action: "radar_market.html", color: "#00d2d3" },
             { label: "Mutation Chamber", icon: "👹", action: "monster_event.html", color: "#ff4757", extraClass: "monster-gate" }
         ];
+
         const grid = document.getElementById('main-hub-grid');
-        
         masterButtons.forEach(btn => {
             grid.innerHTML += `
                 <div class="cabinet-housing">

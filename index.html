@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Card Chaser's | Welcome</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
         body, html {
             margin: 0; padding: 0; height: 100%;
@@ -37,9 +38,27 @@
         .enter-btn-3d { cursor: pointer; outline: none; border: none; font-family: 'Arial Black', sans-serif; font-size: 2.2rem; font-weight: 900; color: #ffffff; background: linear-gradient(135deg, #2d323f, #1b1e26); padding: 20px 60px; border-radius: 12px; position: relative; border-bottom: 12px solid #ff9f43; transform: translateY(-6px); transition: all 0.1s ease; box-shadow: 0 8px 20px rgba(255, 159, 67, 0.3), 0 12px 0px #b1601a; }
         .enter-btn-3d:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(255, 159, 67, 0.4), 0 14px 0px #c26b1f; }
         .enter-btn-3d:active { transform: translateY(4px); border-bottom-width: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.5), 0 2px 0px #5c2807; }
+
+.room-container {
+    width: 100%;       /* Full width by default */
+    padding: 10px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    margin: 0 auto;
+}
+
+/* Only trigger the phone-style layout when the screen is narrow */
+@media (max-width: 600px) {
+    .room-container {
+        max-width: 600px; /* Force the 600px limit ONLY on phones */
+    }
+}
     </style>
 </head>
 <body>
+
+    <div class="room-container"></div>
+
     <div class="jumbotron-box" id="jumbo-box"><div class="scanlines"></div><div class="alert-header">=== GLOBAL EVENT FEED ===</div><div class="marquee-container"><div class="marquee-content" id="alert-marquee">SYSTEM BOOT SEQUENCE INITIATED...</div></div></div>
     <div class="welcome-container"><h1 class="logo-text">Card<br>Chaser's</h1><div class="btn-3d-container"><button class="enter-btn-3d" onclick="window.location.href='playground.html'">ENTER NOW</button></div></div>
     <script>

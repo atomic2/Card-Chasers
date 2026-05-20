@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chaser's Playground</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
         body, html { margin: 0; padding: 0; height: 100%; background-color: #000; font-family: 'Arial Black', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .banner-text { font-size: clamp(1.8rem, 6vw, 4rem); font-weight: 900; color: #ffffff; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 40px; text-shadow: 0 2px 10px rgba(255,255,255,0.2); }
@@ -19,9 +20,26 @@
         @media (max-width: 600px) { .games-grid { grid-template-columns: 1fr; max-width: 340px; } .sport-btn { height: 90px; flex-direction: row; font-size: 1.3rem; } }
         .exit-link { position: absolute; top: 20px; left: 20px; background: #000; border: 2px solid #4c566a; color: #fff; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: 900; font-size: 0.9rem; text-transform: uppercase; z-index: 1000; transition: all 0.2s; }
         .exit-link:hover { border-color: #d8dee9; color: #ff9f43; transform: translateY(-2px); }
+
+.room-container {
+    width: 100%;       /* Full width by default */
+    padding: 10px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    margin: 0 auto;
+}
+
+/* Only trigger the phone-style layout when the screen is narrow */
+@media (max-width: 600px) {
+    .room-container {
+        max-width: 600px; /* Force the 600px limit ONLY on phones */
+    }
+}
     </style>
 </head>
 <body>
+    <div class="room-container"></div>
+
     <button class="exit-link" onclick="window.location.href='index.html'">◀ Home</button>
     <h1 class="banner-text">CHASER'S PLAYGROUND</h1>
     <div class="games-grid">
