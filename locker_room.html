@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>The Locker Room | Card Chaser's</title>
+    <script src="data.js"></script>
     
     <style>
         :root {
@@ -163,47 +164,72 @@
     </div> 
 
     <script>
+
+// --- BRIDGE TO DATA.JS ---
+const sportConfig = {
+    nhl: { 
+        key: 'nhl_inv', 
+        title: 'NHL VAULT', 
+        btnText: 'RIP NHL PACK', 
+        icon: '🏒', 
+        primary: '#1A73E8', 
+        bg: '#0A0D10', 
+        pool: window.SportsData.nhl.list.map(name => ({
+            name: name.split(' (')[0], 
+            dna: name, 
+            pos: window.SportsData.nhl.positions[name.split(' (')[0]] || "UTIL"
+        }))
+    },
+    mlb: { 
+        key: 'mlb_inv', 
+        title: 'MLB VAULT', 
+        btnText: 'RIP MLB PACK', 
+        icon: '⚾', 
+        primary: '#E74C3C', 
+        bg: '#100A0A', 
+        pool: window.SportsData.mlb.list.map(name => ({
+            name: name.split(' (')[0], 
+            dna: name, 
+            pos: window.SportsData.mlb.positions[name.split(' (')[0]] || "UTIL"
+        }))
+    },
+    nba: { 
+        key: 'nba_inv', 
+        title: 'NBA VAULT', 
+        btnText: 'RIP NBA PACK', 
+        icon: '🏀', 
+        primary: '#F39C12', 
+        bg: '#1A1C21', 
+        pool: window.SportsData.nba.list.map(name => ({
+            name: name.split(' (')[0], 
+            dna: name, 
+            pos: window.SportsData.nba.positions[name.split(' (')[0]] || "UTIL"
+        }))
+    },
+    nfl: { 
+        key: 'nfl_inv', 
+        title: 'NFL VAULT', 
+        btnText: 'RIP NFL PACK', 
+        icon: '🏈', 
+        primary: '#8E44AD', 
+        bg: '#1A1C21', 
+        pool: window.SportsData.nfl.list.map(name => ({
+            name: name.split(' (')[0], 
+            dna: name, 
+            pos: window.SportsData.nfl.positions[name.split(' (')[0]] || "UTIL"
+        }))
+    }
+};
+
+
+
+
         let activeSport = localStorage.getItem('selectedSport') || 'nhl';
         
         const pricingMap = { "base": 50, "silver": 250, "gold": 1000, "platinum": 1500, "diamond": 2500 };
         const powerMap = { "base": "1x", "silver": "2x", "gold": "3x", "platinum": "6x", "diamond": "10x" };
         
-        const sportConfig = {
-            nhl: { 
-                title: "HOCKEY LOCKER", primary: "#1A73E8", bg: "#0A0D10", key: "nhl_inventory", icon: "🏒", btnText: "🎁 RIP HOCKEY PACK",
-                pool: [
-                    {name: "The Brick Wall", dna: "Igor Shesterkin (NYR)", pos: "G"},
-                    {name: "Game Changer", dna: "Kirill Kaprizov (MIN)", pos: "LW"},
-                    {name: "Rink Rat", dna: "Connor McDavid (EDM)", pos: "C"},
-                    {name: "The Great 8", dna: "Alex Ovechkin (WSH)", pos: "RW"},
-                    {name: "Blueline Boss", dna: "Cale Makar (COL)", pos: "LD"},
-                    {name: "Backstop", dna: "Moritz Seider (DET)", pos: "RD"}
-                ]
-            },
-            mlb: { 
-                title: "BASEBALL LOCKER", primary: "#2ECC71", bg: "#0A0D10", key: "mlb_inventory", icon: "⚾", btnText: "🎁 RIP BASEBALL PACK", 
-                pool: [
-                    {name: "Diamond King", dna: "Shohei Ohtani (LAD)", pos: "P1"},
-                    {name: "The Captain", dna: "Aaron Judge (NYY)", pos: "OF"}
-                ] 
-            },
-            nba: { 
-                title: "BASKETBALL LOCKER", primary: "#E67E22", bg: "#0A0D10", key: "nba_inventory", icon: "🏀", btnText: "🎁 RIP BASKETBALL PACK", 
-                pool: [
-                    {name: "Crossover Master", dna: "Stephen Curry (GSW)", pos: "PG"},
-                    {name: "King James", dna: "LeBron James (LAL)", pos: "SF"}
-                ] 
-            },
-            nfl: { 
-                title: "FOOTBALL LOCKER", primary: "#F1C40F", bg: "#0A0D10", key: "nfl_inventory", icon: "🏈", btnText: "🎁 RIP FOOTBALL PACK", 
-                pool: [
-                    {name: "Showtime", dna: "Patrick Mahomes (KC)", pos: "QB"},
-                    {name: "Run CMC", dna: "Christian McCaffrey (SF)", pos: "RB"}
-                ] 
-            }
-        };
-
-        function initLocker() {
+               function initLocker() {
             const config = sportConfig[activeSport];
             document.documentElement.style.setProperty('--primary', config.primary);
             document.documentElement.style.setProperty('--vault-bg', config.bg);
