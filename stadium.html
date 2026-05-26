@@ -5,177 +5,154 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Live Stadium 6v6 | Card Chaser's</title>
     <style>
-        :root {
-            --primary: #ff9f43;
-            --primary-dark: #b1601a;
-            --glow: rgba(255, 159, 67, 0.5);
-            --turf-bg: linear-gradient(to bottom, #111a22, #060a0d);
+        :root { 
+            --brand-primary: #1A73E8; 
+            --brand-secondary: #2ECC71; 
+            --brand-danger: #E74C3C; 
+            --bg-dark: #0A0D10; 
+            --panel-dark: #1A1C21; 
+            --border-subtle: #3D424A; 
+            --text-main: #FFFFFF; 
+            --primary: #1A73E8; 
+            --glow: rgba(26, 115, 232, 0.4); 
+            --turf-bg: var(--bg-dark);
         }
 
-        body, html {
-            margin: 0; padding: 0; min-height: 100vh;
-            background: var(--turf-bg); font-family: 'Arial Black', sans-serif;
-            color: #fff; overflow-x: hidden; box-sizing: border-box;
-            display: block; 
-        }
-        *, *:before, *:after { box-sizing: inherit; }
+        body, html { margin: 0; padding: 0; min-height: 100vh; background: var(--turf-bg); font-family: 'Arial', sans-serif; color: var(--text-main); overflow-x: hidden; }
+        .room-container { width: 100%; padding: 15px; box-sizing: border-box; }
+        .stadium-container { width: 100%; max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
 
-        .room-container { width: 100%; padding: 15px; box-sizing: border-box; margin: 0 auto; }
-        .stadium-container { width: 100%; max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; padding-bottom: 40px; position: relative; }
-
-        /* EXIT BUTTON */
-        .exit-btn { align-self: flex-start; background: none; border: none; color: #8892b0; font-weight: 900; font-size: 0.95rem; cursor: pointer; padding: 0; margin-left: 5px; margin-bottom: -5px; text-transform: uppercase; transition: color 0.2s; }
+        .exit-btn { align-self: flex-start; background: none; border: none; color: #8892b0; font-weight: 900; font-size: 0.95rem; cursor: pointer; padding: 0; margin-bottom: 10px; text-transform: uppercase; font-family: 'Arial Black', sans-serif;}
         .exit-btn:hover { color: #fff; text-shadow: 0 0 8px rgba(255,255,255,0.5); }
+        
+        .stadium-header { display: flex; justify-content: space-between; align-items: center; background: var(--panel-dark); padding: 15px 25px; border-radius: 16px; border-bottom: 6px solid var(--primary); box-shadow: 0 10px 20px rgba(0,0,0,0.6); }
+        .stadium-title { margin: 0; font-size: 1.4rem; text-transform: uppercase; font-family: 'Arial Black', sans-serif; }
+        .bank-readout { font-size: 0.9rem; color: #8892b0; font-weight: 900; font-family: 'Arial Black', sans-serif; }
+        .bank-readout span { color: var(--brand-secondary); margin-left: 5px; }
 
-        /* HEADER & BANK */
-        .stadium-header { display: flex; justify-content: space-between; align-items: center; background: #000; padding: 15px 25px; border-radius: 16px; border-bottom: 6px solid var(--primary); box-shadow: 0 10px 20px rgba(0,0,0,0.6); flex-wrap: wrap; gap: 10px; }
-        .stadium-title { margin: 0; font-size: clamp(1.2rem, 4vw, 1.6rem); text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px var(--glow); text-align: center; }
-        .bank-readout { display: flex; gap: 15px; font-size: clamp(0.8rem, 2vw, 0.9rem); color: #8892b0; justify-content: center; width: 100%; }
-        .bank-readout span { font-weight: 900; margin-left: 5px; }
-        .stat-pts span { color: var(--primary); }
-        .stat-cash span { color: #2ecc71; }
-
-        @media (min-width: 600px) { .bank-readout { width: auto; } }
-
-        /* DFS SCOREBOARD JUMBOTRON */
-        .jumbotron { background: #0b0c10; border: 4px solid #1f232d; border-radius: 20px; padding: 15px; box-shadow: inset 0 0 30px rgba(0,0,0,1); text-align: center; }
+        .jumbotron { background: #0b0c10; border: 4px solid var(--border-subtle); border-radius: 20px; padding: 15px; text-align: center; }
         .score-board { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
-        .team-score { font-size: clamp(2.5rem, 8vw, 3.5rem); font-family: monospace; color: #fff; text-shadow: 0 0 15px var(--primary); width: clamp(80px, 20vw, 120px); }
-        .vs-text { font-size: clamp(0.8rem, 3vw, 1.2rem); color: #4c566a; }
-        .odds-tape { background: #000; padding: 8px; border-radius: 8px; margin-top: 10px; font-size: clamp(0.7rem, 2vw, 0.9rem); color: #f1c40f; border: 1px solid #4c566a; letter-spacing: 1px; }
+        .team-score { font-size: 3rem; font-family: monospace; font-weight: bold; width: 100px; text-shadow: 0 0 15px var(--primary); }
+        .vs-text { font-size: 1.2rem; color: #4c566a; font-family: 'Arial Black', sans-serif;}
+        .odds-tape { background: #000; padding: 8px; border-radius: 8px; margin-top: 10px; color: #f1c40f; border: 1px solid var(--border-subtle); font-family: 'Arial Black', sans-serif; font-size: 0.9rem; letter-spacing: 1px;}
 
-        /* HORIZONTAL BROADCAST RINK */
-        .draft-arena { 
-            display: flex; justify-content: space-between; align-items: center; 
-            margin-top: 10px; background: rgba(0,0,0,0.3); border: 3px solid #1f232d;
-            border-radius: 24px; padding: 30px 20px; position: relative; min-height: 450px;
-            overflow: hidden; 
-        }
+        .draft-arena { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; background: rgba(0,0,0,0.3); border: 3px solid var(--border-subtle); border-radius: 24px; padding: 30px; min-height: 450px; position: relative; }
+        .draft-arena::before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 6px; background: rgba(231, 76, 60, 0.4); transform: translateX(-50%); z-index: 0; }
         
-        .draft-arena::before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 6px; background: rgba(255, 71, 87, 0.4); transform: translateX(-50%); z-index: 0; }
+        .team-label-left { position: absolute; top: 15px; left: 25px; color: var(--brand-secondary); font-size: 1.2rem; z-index: 2; letter-spacing: 1px; text-shadow: 0 2px 4px #000; font-family: 'Arial Black', sans-serif;}
+        .team-label-right { position: absolute; top: 15px; right: 25px; color: var(--brand-danger); font-size: 1.2rem; z-index: 2; letter-spacing: 1px; text-shadow: 0 2px 4px #000; font-family: 'Arial Black', sans-serif;}
 
-        .team-label-left { position: absolute; top: 15px; left: 25px; color: #2ecc71; font-size: clamp(0.9rem, 2vw, 1.2rem); z-index: 2; letter-spacing: 1px; text-shadow: 0 2px 4px #000; }
-        .team-label-right { position: absolute; top: 15px; right: 25px; color: #ff4757; font-size: clamp(0.9rem, 2vw, 1.2rem); z-index: 2; letter-spacing: 1px; text-shadow: 0 2px 4px #000; }
-
-        .rink-zone { display: flex; gap: 10px; width: 45%; justify-content: space-around; align-items: center; z-index: 1; }
-        .pos-group { display: flex; flex-direction: column; gap: 15px; justify-content: center; }
-
-        .mini-card {
-            background: #050608; border: 2px dashed #4c566a; border-radius: 10px;
-            width: clamp(70px, 18vw, 85px); height: clamp(90px, 24vw, 110px); 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            gap: 6px; padding: 5px; box-shadow: 0 6px 12px rgba(0,0,0,0.6); transition: all 0.2s; text-align: center;
-        }
+        .rink-zone { display: flex; gap: 10px; width: 45%; justify-content: space-around; align-items: center; z-index: 1;}
+        .pos-group { display: flex; flex-direction: column; gap: 15px; justify-content: center;}
+        
+        .mini-card { background: #1c1c1e; border: 1px solid #3a3a3c; border-radius: 8px; width: 90px; height: 120px; display: flex; flex-direction: column; align-items: center; padding: 5px; cursor: pointer; position: relative; box-shadow: 0 6px 12px rgba(0,0,0,0.6); transition: transform 0.2s;}
         .mini-card:hover { transform: scale(1.05); }
-        .pos-badge { background: #2c3e50; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: clamp(0.6rem, 2vw, 0.75rem); border: 1px solid #546e7a; }
-        .name-text { font-size: clamp(0.55rem, 1.5vw, 0.65rem); color: #00ff66; text-align: center; font-weight: bold; line-height: 1.2; }
-        
-        .tier-badge { padding: 3px 6px; border-radius: 4px; font-size: 0.6rem; text-transform: uppercase; color: #000; font-weight: 900;}
+        .mini-pos-badge { position: absolute; top: 6px; left: 6px; border: 1px solid #5a5a5e; border-radius: 3px; padding: 1px 4px; font-size: 0.55rem; font-weight: 900; color: #fff; font-family: 'Arial Black', sans-serif;}
+        .mini-art-box { background: #121213; width: 40px; height: 40px; border-radius: 6px; display: flex; justify-content: center; align-items: center; margin: 15px 0 5px 0; font-size: 1.5rem; }
+        .name-text { font-size: 0.6rem; color: #00ff00; font-weight: bold; text-align: center; font-family: 'Arial Black', sans-serif; line-height: 1.2;}
+        .tier-badge { margin-top: auto; padding: 2px 6px; border-radius: 4px; font-size: 0.55rem; text-transform: uppercase; color: #000; font-weight: 900; font-family: 'Arial Black', sans-serif;}
+
         .tier-base { background: #7f8c8d; color: #fff; }
         .tier-silver { background: #bdc3c7; }
         .tier-gold { background: #f1c40f; }
-        .tier-platinum { background: #e5e4e2; box-shadow: 0 0 10px #e5e4e2; }
-        .tier-diamond { background: #00ffff; box-shadow: 0 0 10px #00ffff; }
+        .tier-platinum { background: #e5e4e2; box-shadow: 0 0 8px #e5e4e2; }
+        .tier-diamond { background: #00ffff; box-shadow: 0 0 8px #00ffff; }
 
         .center-stage { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2; }
-        .vs-circle { background: #000; border: 4px solid #1f232d; border-radius: 50%; width: clamp(40px, 10vw, 60px); height: clamp(40px, 10vw, 60px); display: flex; align-items: center; justify-content: center; font-size: clamp(0.9rem, 2vw, 1.2rem); font-weight: 900; color: #4c566a; }
-        
+        .vs-circle { background: #000; border: 4px solid var(--border-subtle); border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 900; color: #4c566a; font-family: 'Arial Black', sans-serif;}
         .coin-flip { font-size: 2.5rem; position: absolute; top: 10px; animation: flipAnim 0.5s infinite linear; display: none; z-index: 3; }
         @keyframes flipAnim { 0% { transform: rotateY(0deg) scale(1.2); } 100% { transform: rotateY(360deg) scale(1.2); } }
 
-        /* ACTION CONSOLE */
-        .control-panel { display: flex; gap: 15px; margin-top: 10px; flex-wrap: wrap; }
-        .action-btn { flex: 1 1 200px; padding: 15px; font-family: 'Arial Black', sans-serif; font-size: clamp(0.8rem, 2vw, 1rem); border: none; border-radius: 12px; color: #fff; cursor: pointer; text-transform: uppercase; transition: all 0.1s; border-bottom: 6px solid rgba(0,0,0,0.5); }
-        .btn-draft { background: linear-gradient(135deg, #3498db, #2980b9); }
-        .btn-sim { background: linear-gradient(135deg, #2ecc71, #27ae60); }
-        .btn-tie { background: linear-gradient(135deg, #e74c3c, #c0392b); display: none; }
+        .control-panel { display: flex; gap: 15px; margin-top: 20px; align-items: center; justify-content: center; flex-wrap: wrap;}
+        .action-btn { flex: 1 1 200px; padding: 15px; border: none; border-radius: 12px; color: #fff; font-weight: 900; cursor: pointer; text-transform: uppercase; border-bottom: 6px solid rgba(0,0,0,0.5); font-family: 'Arial Black', sans-serif;}
+        .btn-draft { background: var(--brand-primary); border-bottom-color: #1557b0;}
+        .btn-sim { background: var(--brand-secondary); color: #000; border-bottom-color: #27ae60;}
+        .btn-reset { background: var(--brand-primary); border-bottom-color: #1557b0; }
         .action-btn:active { transform: translateY(4px); border-bottom-width: 2px; }
-        .action-btn:disabled { filter: grayscale(1); opacity: 0.5; cursor: not-allowed; transform: translateY(4px); border-bottom-width: 2px; }
+        .action-btn:disabled { filter: grayscale(1); opacity: 0.5; cursor: not-allowed; }
 
-        .terminal-log { margin-top: 15px; background: #000; padding: 12px; border-radius: 8px; font-family: monospace; color: #00e676; font-size: clamp(0.8rem, 2vw, 0.95rem); text-align: center; min-height: 45px; }
+        .betting-console { background: rgba(0,0,0,0.6); padding: 15px; border-radius: 12px; border: 1px solid var(--brand-secondary); display: none; width: 100%; max-width: 400px; flex-direction: column; align-items: center; gap: 10px; margin-top: 10px; }
+        .wager-input { width: 100%; max-width: 200px; background: #000; border: 2px solid var(--border-subtle); color: #fff; padding: 12px; border-radius: 8px; font-size: 1.2rem; text-align: center; font-family: 'Arial Black', sans-serif; }
+        .wager-input:focus { border-color: var(--brand-secondary); outline: none; }
+        .payout-text { font-size: 1.1rem; color: #fff; font-weight: bold; }
 
-        /* MODALS */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); backdrop-filter: blur(5px); z-index: 1000; display: none; flex-direction: column; align-items: center; padding-top: 50px; overflow-y: auto; }
-        .modal-title { color: var(--primary); font-size: clamp(1.5rem, 5vw, 2rem); margin-bottom: 10px; text-transform: uppercase; text-align: center;}
-        .close-modal { background: #e74c3c; padding: 10px 30px; border-radius: 8px; color: #fff; border: none; border-bottom: 4px solid #c0392b; cursor: pointer; font-family: 'Arial Black'; font-size: 1.1rem; margin-bottom: 20px; transition: 0.1s; }
+        .terminal-log { margin-top: 15px; background: #000; padding: 15px; border-radius: 8px; font-family: monospace; color: var(--brand-secondary); text-align: center; font-weight: bold; border: 1px solid var(--border-subtle);}
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 13, 16, 0.95); backdrop-filter: blur(5px); display: none; flex-direction: column; align-items: center; padding-top: 50px; z-index: 1000; overflow-y: auto; }
+        .modal-title { color: var(--primary); font-size: 2rem; margin-bottom: 10px; text-transform: uppercase; font-family: 'Arial Black', sans-serif; text-shadow: 0 0 15px var(--glow);}
+        .close-modal { background: var(--brand-danger); padding: 10px 30px; border-radius: 8px; color: #fff; border: none; font-family: 'Arial Black'; font-size: 1.1rem; margin-bottom: 20px; cursor: pointer; border-bottom: 4px solid #c0392b;}
         .close-modal:active { transform: translateY(3px); border-bottom-width: 1px; }
-        .modal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 20px; width: 95%; max-width: 900px; padding: 20px; padding-bottom: 50px; }
-        .draft-card { background: #11141a; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; align-items: center; box-shadow: 0 8px 16px rgba(0,0,0,0.8); cursor: pointer; transition: 0.2s; }
-        .draft-card:hover { transform: translateY(-5px); box-shadow: 0 12px 20px var(--glow); }
+        .modal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; width: 90%; max-width: 1000px; padding-bottom: 50px;}
+        
+        .card-core { background: #1c1c1e; border-radius: 12px; padding: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; width: 200px; cursor: pointer; position: relative; margin: 0 auto;}
+        .card-core:hover { transform: translateY(-5px); box-shadow: 0 12px 25px var(--glow); border-color: var(--primary); }
+        .pos-badge { position: absolute; top: 12px; left: 12px; border: 1px solid #5a5a5e; border-radius: 4px; padding: 3px 6px; font-size: 0.75rem; font-weight: 900; color: #ffffff; font-family: 'Arial Black', sans-serif; }
+        .art-box { background: #121213; width: 110px; height: 110px; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 3.5rem; margin-top: 25px; margin-bottom: 15px; }
+        .card-title { font-size: 1.25rem; font-weight: 900; color: #FFFFFF; margin-bottom: 2px; text-align: center; }
+        .card-descriptive-text { font-size: 0.7rem; color: #8e8e93; margin-bottom: 15px; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; font-weight: bold;}
+        .data-panel-core { background: #242426; border: 1px solid #3a3a3c; border-radius: 8px; padding: 10px; width: 100%; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
+        .data-title-gray { font-size: 0.6rem; color: #7a7a7e; text-transform: uppercase; font-weight: 600; margin-bottom: 4px; }
+        .data-detail-green { font-size: 0.9rem; color: #00ff00; font-weight: bold; }
 
-        /* MOBILE MAGIC: STACKS ARENA VERTICALLY ON PHONES */
         @media (max-width: 768px) {
-            .stadium-header { flex-direction: column; text-align: center; }
             .draft-arena { flex-direction: column; padding: 50px 10px; gap: 50px; }
             .draft-arena::before { left: 0; right: 0; top: 50%; bottom: auto; width: 100%; height: 6px; transform: translateY(-50%); }
-            .rink-zone { width: 100%; justify-content: space-evenly; }
             .team-label-left { top: 10px; left: 50%; transform: translateX(-50%); }
             .team-label-right { bottom: 10px; top: auto; right: auto; left: 50%; transform: translateX(-50%); }
+            .rink-zone { width: 100%; justify-content: space-evenly;}
         }
     </style>
 </head>
 <body>
-
-    <div class="room-container">      
+    <div class="room-container">
         <div class="stadium-container">
-        
-            <button class="exit-btn" onclick="window.location.href='game_room.html'">◀ Back to Clubhouse</button>
-
+            <button class="exit-btn" onclick="window.location.href='game_room.html'">◀ BACK TO CLUBHOUSE</button>
+            
             <div class="stadium-header">
-                <h1 class="stadium-title" id="stadium-title">DFS 6v6 ARENA</h1>
-                <div class="bank-readout">
-                    <div class="stat-cash">CASH: <span id="bank-cash">$0</span></div>
-                    <div class="stat-pts">LEADERBOARD: <span id="bank-pts">0 PTS</span></div>
-                </div>
+                <h1 class="stadium-title" id="stadium-title">DFS 6V6 ARENA</h1>
+                <div class="bank-readout">CASH: <span id="bank-cash">$0</span></div>
             </div>
-
+            
             <div class="jumbotron">
-                <div style="color:#ff4757; font-size:0.85rem; font-weight:bold; letter-spacing:2px; animation:blink 1.5s infinite;">🔴 LIVE DFS TRACKER</div>
+                <div style="color:var(--brand-danger); font-size:0.85rem; font-weight:bold; letter-spacing:2px; font-family: 'Arial Black', sans-serif;">🔴 LIVE DFS TRACKER</div>
                 <div class="score-board">
                     <div class="team-score" id="user-score">00</div>
-                    <div class="vs-text">TOTAL FANTASY PTS</div>
-                    <div class="team-score" id="ai-score" style="text-shadow: 0 0 15px #ff4757;">00</div>
+                    <div class="vs-text">PERIOD SCORES</div>
+                    <div class="team-score" id="ai-score" style="text-shadow: 0 0 15px var(--brand-danger);">00</div>
                 </div>
                 <div class="odds-tape" id="odds-display">AMERICAN ODDS: AWAITING DRAFT SELECTIONS</div>
             </div>
-
+            
             <div class="draft-arena">
-                <div class="team-label-left">YOUR STARTING 6</div>
+                <div class="team-label-left">YOUR ROSTER</div>
                 <div class="team-label-right">CPU CHALLENGER</div>
-
-                <div class="rink-zone" id="user-zone"></div>
-
+                
+                <div id="user-zone" class="rink-zone"></div>
+                
                 <div class="center-stage">
                     <div class="vs-circle">VS</div>
                     <div class="coin-flip" id="coin-visual">🪙</div>
                 </div>
-
-                <div class="rink-zone" id="cpu-zone">
-                    <div class="pos-group">
-                        <div class="mini-card"><div class="pos-badge">LW</div><div class="name-text" style="color:#fff;">WAITING...</div></div>
-                        <div class="mini-card"><div class="pos-badge">C</div><div class="name-text" style="color:#fff;">WAITING...</div></div>
-                        <div class="mini-card"><div class="pos-badge">RW</div><div class="name-text" style="color:#fff;">WAITING...</div></div>
-                    </div>
-                    <div class="pos-group">
-                        <div class="mini-card"><div class="pos-badge">LD</div><div class="name-text" style="color:#fff;">WAITING...</div></div>
-                        <div class="mini-card"><div class="pos-badge">RD</div><div class="name-text" style="color:#fff;">WAITING...</div></div>
-                    </div>
-                    <div class="pos-group">
-                        <div class="mini-card"><div class="pos-badge">G</div><div class="name-text" style="color:#fff;">WAITING...</div></div>
-                    </div>
-                </div>
+                
+                <div id="cpu-zone" class="rink-zone"></div>
             </div>
-
-            <div class="control-panel">
-                <button class="action-btn btn-draft" id="draft-btn" onclick="lockInFormation()">1. LOCK IN FORMATION</button>
-                <button class="action-btn btn-sim" id="sim-btn" onclick="simulateLiveGames()" disabled>2. SIMULATE NIGHTLY GAMES</button>
-                <button class="action-btn btn-tie" id="tie-btn" onclick="executeOvertime()">🚨 INITIATE OVERTIME COIN FLIP</button>
-            </div>
-
-            <div class="terminal-log" id="terminal-log">TAP THE EMPTY SLOTS ABOVE TO MANUALLY DRAFT YOUR ROSTER.</div>
             
+            <div class="control-panel">
+                <button class="action-btn btn-draft" id="draft-btn" onclick="startDraft()">1. INITIATE DRAFT (COIN FLIP)</button>
+                
+                <div class="betting-console" id="betting-console">
+                    <div style="color:#f1c40f; font-weight:bold; text-transform:uppercase;">Enter Hobby Cash Wager</div>
+                    <input type="number" id="wager-input" class="wager-input" placeholder="Wager 💵" oninput="calculatePayout()">
+                    <div class="payout-text">To Win: <span id="payout-projection" style="color:var(--brand-secondary);">0</span> 💵</div>
+                </div>
+
+                <button class="action-btn btn-sim" id="sim-btn" onclick="simulateLiveGames()" style="display:none;">2. SIMULATE MATCH</button>
+                <button class="action-btn btn-reset" id="reset-btn" onclick="resetArena()" style="display:none;">3. PLAY AGAIN</button>
+            </div>
+            
+            <div class="terminal-log" id="terminal-log">HIT 'INITIATE DRAFT' TO FLIP FOR THE FIRST PICK.</div>
         </div>
-    </div> 
+    </div>
 
     <div class="modal-overlay" id="roster-modal">
         <h2 class="modal-title" id="modal-pos-title">SELECT PLAYER</h2>
@@ -189,91 +166,223 @@
         let playerPoints = parseInt(localStorage.getItem('playerPoints')) || 0;
 
         const sportData = {
-            nhl: { title: "ICE ARENA", primary: "#3498db", bg: "linear-gradient(to bottom, #0a1922, #030a0e)", key: "nhl_inventory", icon: "🏒" },
-            mlb: { title: "BALLPARK", primary: "#2ecc71", bg: "linear-gradient(to bottom, #0d1f13, #040d07)", key: "mlb_inventory", icon: "⚾" },
-            nba: { title: "HARDWOOD", primary: "#e67e22", bg: "linear-gradient(to bottom, #241105, #0a0401)", key: "nba_inventory", icon: "🏀" },
-            nfl: { title: "GRIDIRON", primary: "#f1c40f", bg: "linear-gradient(to bottom, #1f1505, #0d0902)", key: "nfl_inventory", icon: "🏈" },
-            default: { title: "BATTLE STADIUM", primary: "#ff9f43", bg: "linear-gradient(to bottom, #111a22, #060a0d)", key: "default_inventory", icon: "🃏" }
+            nhl: { title: "ICE ARENA", primary: "#1A73E8", bg: "#0A0D10", key: "nhl_inventory", icon: "🏒", positions: ['LW','C','RW','LD','RD','G'] },
+            mlb: { title: "BALLPARK", primary: "#2ECC71", bg: "#0A0D10", key: "mlb_inventory", icon: "⚾", positions: ['OF','DH','IF','C','P1','P2'] },
+            nba: { title: "HARDWOOD", primary: "#E67E22", bg: "#0A0D10", key: "nba_inventory", icon: "🏀", positions: ['PG','SG','SF','PF','C1','C2'] },
+            nfl: { title: "GRIDIRON", primary: "#F1C40F", bg: "#0A0D10", key: "nfl_inventory", icon: "🏈", positions: ['WR','TE','RB','FLEX','DEF','QB'] },
+            default: { title: "BATTLE STADIUM", primary: "#1A73E8", bg: "#0A0D10", key: "default_inventory", icon: "🃏", positions: ['1','2','3','4','5','6'] }
         };
 
         const activeSport = sportData[currentSport] || sportData['default'];
         document.documentElement.style.setProperty('--primary', activeSport.primary);
         document.documentElement.style.setProperty('--turf-bg', activeSport.bg);
-        document.getElementById('stadium-title').innerText = activeSport.title + " 6v6 DFS";
+        document.getElementById('stadium-title').innerText = activeSport.title + " 6V6 DFS";
 
         let inventory = JSON.parse(localStorage.getItem(activeSport.key)) || [];
-        
         let userRoster = [null, null, null, null, null, null]; 
-        let aiRoster = [];
-        let userPower = 0;
-        let aiPower = 0;
+        let aiRoster = [null, null, null, null, null, null];
         
-        const tierPower = { 'base': 10, 'silver': 25, 'gold': 50, 'platinum': 85, 'diamond': 150 };
-        
+        let userPower = 0; let aiPower = 0;
+        let currentMatchMultiplier = 1;
+        let draftPhase = 'inactive'; 
+        let isUserTurn = false; 
+        let activeDraftIndex = -1;
+
+        // --- NEW SAFE SORTING MAPS ---
+        const pricingMap = { "base": 50, "silver": 250, "gold": 1000, "platinum": 1500, "diamond": 2500 };
+        const rankMap = { "diamond": 5, "platinum": 4, "gold": 3, "silver": 2, "base": 1 };
+
+        function getSafeCardValue(card) {
+            if (!card) return 0;
+            if (card.value) return Number(card.value);
+            if (card.tier) {
+                let tierString = card.tier.toLowerCase();
+                return pricingMap[tierString] || 0;
+            }
+            return 0;
+        }
+
         function updateBankUI() {
-            document.getElementById('bank-cash').innerText = "$" + playerCash;
-            document.getElementById('bank-pts').innerText = playerPoints + " PTS";
+            document.getElementById('bank-cash').innerText = "$" + playerCash.toLocaleString();
             localStorage.setItem('playerMoney', playerCash);
-            localStorage.setItem('playerPoints', playerPoints);
         }
         updateBankUI();
 
-        function genClickableCard(card, pos, index) {
-            if (!card) return `<div class="mini-card" style="cursor:pointer; border: 2px dashed var(--primary);" onclick="openRosterSelection(${index}, '${pos}')"><div class="pos-badge">${pos}</div><div class="name-text" style="color:var(--primary); margin-top:5px;">TAP TO<br>DRAFT</div></div>`;
+        function renderRosters() {
+            const uZone = document.getElementById('user-zone');
+            const cZone = document.getElementById('cpu-zone');
+            const posNames = activeSport.positions;
+
+            uZone.innerHTML = `
+                <div class="pos-group">${genCardUI(userRoster[5], posNames[5], 5, false)}</div>
+                <div class="pos-group">${genCardUI(userRoster[3], posNames[3], 3, false)}${genCardUI(userRoster[4], posNames[4], 4, false)}</div>
+                <div class="pos-group">${genCardUI(userRoster[0], posNames[0], 0, false)}${genCardUI(userRoster[1], posNames[1], 1, false)}${genCardUI(userRoster[2], posNames[2], 2, false)}</div>
+            `;
+            
+            cZone.innerHTML = `
+                <div class="pos-group">${genCardUI(aiRoster[0], posNames[0], 0, true)}${genCardUI(aiRoster[1], posNames[1], 1, true)}${genCardUI(aiRoster[2], posNames[2], 2, true)}</div>
+                <div class="pos-group">${genCardUI(aiRoster[3], posNames[3], 3, true)}${genCardUI(aiRoster[4], posNames[4], 4, true)}</div>
+                <div class="pos-group">${genCardUI(aiRoster[5], posNames[5], 5, true)}</div>
+            `;
+        }
+
+        function genCardUI(card, pos, index, isCPU) {
+            if (!card) {
+                if(isCPU) {
+                    return `
+                        <div class="mini-card" style="border: 2px dashed #4c566a; background: transparent;">
+                            <div class="mini-pos-badge">${pos}</div>
+                            <div class="mini-art-box" style="background: rgba(255,255,255,0.05);">🤖</div>
+                            <div class="name-text" style="color:#5a5a5e; margin-top:5px;">WAITING...</div>
+                        </div>`;
+                } else {
+                    return `
+                        <div class="mini-card" style="cursor:pointer; border: 2px dashed var(--primary); background: transparent;" onclick="openRosterSelection(${index}, '${pos}')">
+                            <div class="mini-pos-badge">${pos}</div>
+                            <div class="mini-art-box" style="background: rgba(255,255,255,0.05);">➕</div>
+                            <div class="name-text" style="color:var(--text-sub); margin-top:5px;">TAP TO<br>DRAFT</div>
+                        </div>`;
+                }
+            }
             
             let badgeClass = `tier-${card.tier}`;
             let bColor = card.tier === 'gold' ? '#f1c40f' : card.tier === 'silver' ? '#bdc3c7' : card.tier === 'platinum' ? '#e5e4e2' : card.tier === 'diamond' ? '#00ffff' : '#7f8c8d';
-            
             let realName = card.dna ? card.dna.split(' (')[0].substring(0, 15) : card.name.substring(0, 15);
+            let pwrString = card.power || "1x";
             
             return `
-                <div class="mini-card" style="cursor:pointer; border-style: solid; border-color: ${bColor}; background: #111318;" onclick="openRosterSelection(${index}, '${pos}')">
-                    <div class="pos-badge">${pos}</div>
-                    <div class="name-text" style="color:#00ff66;">${realName}</div>
-                    <div class="tier-badge ${badgeClass}">${card.tier}</div>
+                <div class="mini-card" style="${!isCPU ? 'cursor:pointer;' : ''} border-color: ${bColor};" ${!isCPU ? `onclick="openRosterSelection(${index}, '${pos}')"` : ''}>
+                    <div class="mini-pos-badge">${pos}</div>
+                    <div class="mini-art-box">${isCPU ? '🤖' : activeSport.icon}</div>
+                    <div class="name-text" style="color:${isCPU ? '#fff' : '#00ff00'}">${realName}</div>
+                    <div class="tier-badge ${badgeClass}">${pwrString} PWR</div>
                 </div>
             `;
         }
 
-        function renderUserRoster() {
-            const container = document.getElementById('user-zone');
-            let fwdCol = `<div class="pos-group">${genClickableCard(userRoster[0], 'LW', 0)}${genClickableCard(userRoster[1], 'C', 1)}${genClickableCard(userRoster[2], 'RW', 2)}</div>`;
-            let defCol = `<div class="pos-group">${genClickableCard(userRoster[3], 'LD', 3)}${genClickableCard(userRoster[4], 'RD', 4)}</div>`;
-            let golCol = `<div class="pos-group">${genClickableCard(userRoster[5], 'G', 5)}</div>`;
-            container.innerHTML = golCol + defCol + fwdCol;
-            
-            userPower = userRoster.reduce((sum, card) => sum + (card ? tierPower[card.tier] : 0), 0);
+        function isDuplicate(card) {
+            let allDrafted = [...userRoster, ...aiRoster].filter(c => c !== null);
+            return allDrafted.some(c => c.name === card.name && c.tier === card.tier);
         }
-        
-        renderUserRoster(); 
 
-        let activeDraftIndex = -1;
+        function resetArena() {
+            draftPhase = 'inactive';
+            userRoster = [null, null, null, null, null, null];
+            aiRoster = [null, null, null, null, null, null];
+            userPower = 0; aiPower = 0;
+            
+            document.getElementById('user-score').innerText = "00";
+            document.getElementById('ai-score').innerText = "00";
+            document.getElementById('odds-display').innerText = "AMERICAN ODDS: AWAITING DRAFT SELECTIONS";
+            document.getElementById('odds-display').style.color = "#f1c40f";
+            
+            document.getElementById('terminal-log').innerText = "HIT 'INITIATE DRAFT' TO FLIP FOR THE FIRST PICK.";
+            document.getElementById('terminal-log').style.color = "var(--brand-secondary)";
+            
+            document.getElementById('draft-btn').style.display = 'block';
+            document.getElementById('draft-btn').disabled = false;
+            document.getElementById('sim-btn').style.display = 'none';
+            document.getElementById('reset-btn').style.display = 'none';
+            document.getElementById('betting-console').style.display = 'none';
+            document.getElementById('wager-input').value = '';
+            document.getElementById('payout-projection').innerText = '0';
+            
+            renderRosters();
+        }
 
-        function openRosterSelection(slotIndex, posStr) {
+        function startDraft() {
+            if(draftPhase !== 'inactive') return;
+            
+            document.getElementById('draft-btn').style.display = 'none';
+            document.getElementById('terminal-log').innerText = "FLIPPING COIN FOR 1ST PICK...";
+            
+            const coin = document.getElementById('coin-visual');
+            coin.style.display = 'block';
+
+            setTimeout(() => {
+                coin.style.display = 'none';
+                draftPhase = 'active';
+                
+                if (Math.random() > 0.5) {
+                    isUserTurn = true;
+                    document.getElementById('terminal-log').innerText = "YOU WON THE TOSS! TAP AN EMPTY SLOT TO DRAFT FIRST.";
+                    document.getElementById('terminal-log').style.color = "#2ECC71";
+                } else {
+                    isUserTurn = false;
+                    document.getElementById('terminal-log').innerText = "CPU WON THE TOSS. CPU IS DRAFTING...";
+                    document.getElementById('terminal-log').style.color = "#E74C3C";
+                    setTimeout(cpuDraftTurn, 1500);
+                }
+            }, 1500);
+        }
+
+        function cpuDraftTurn() {
+            if (draftPhase !== 'active') return;
+            
+            let emptyIndices = [];
+            aiRoster.forEach((c, i) => { if(!c) emptyIndices.push(i); });
+            if (emptyIndices.length === 0) { checkDraftComplete(); return; }
+
+            let pickIndex = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+            let currentPos = activeSport.positions[pickIndex];
+            
+            let tiers = ['base', 'silver', 'gold', 'platinum'];
+            let powers = {'base': 1, 'silver': 2, 'gold': 3, 'platinum': 6, 'diamond': 10};
+            
+            let t = tiers[Math.floor(Math.random() * tiers.length)];
+            let newCard = { name: `CPU ${currentPos}`, tier: t, power: `${powers[t]}x` };
+
+            aiRoster[pickIndex] = newCard;
+            renderRosters();
+            
+            let userDone = !userRoster.includes(null);
+            let aiDone = !aiRoster.includes(null);
+
+            if (userDone && aiDone) {
+                draftPhase = 'complete';
+                finalizeDraftMath();
+            } else if (!userDone) {
+                isUserTurn = true;
+                document.getElementById('terminal-log').innerText = "CPU SELECTED. YOUR TURN TO DRAFT.";
+                document.getElementById('terminal-log').style.color = "#2ECC71";
+            }
+        }
+
+        // --- UPDATED MODAL GENERATOR (SAFE SORT) ---
+function openRosterSelection(slotIndex, posStr) {
+            if (draftPhase === 'inactive') return alert("Hit 'Initiate Draft' to start!");
+            if (draftPhase === 'complete') return alert("Draft is complete!");
+            if (!isUserTurn) return alert("Wait for the CPU to pick!");
+            
             activeDraftIndex = slotIndex;
             document.getElementById('modal-pos-title').innerText = `DRAFTING: [ ${posStr} ] SLOT`;
             const grid = document.getElementById('modal-card-grid');
             grid.innerHTML = '';
             
-            let selectedIds = userRoster.filter(c => c !== null).map(c => c.id);
-            let availableCards = inventory.filter(c => !selectedIds.includes(c.id) && c.pos === posStr);
+            // 1. Filter the inventory
+            let availableCards = inventory.filter(c => c.pos === posStr && !isDuplicate(c));
+            
+            // 2. Sort the available cards using the safe rank map
+            availableCards.sort((a, b) => (rankMap[b.tier.toLowerCase()] || 0) - (rankMap[a.tier.toLowerCase()] || 0));
             
             if (availableCards.length === 0) {
-                grid.innerHTML = `<div style="color:#fff; text-align:center; grid-column: 1/-1; font-size: 1.2rem; margin-top: 50px;">NO ELIGIBLE [ ${posStr} ] CARDS IN VAULT.<br>HEAD TO THE PRO SHOP TO BUY PACKS!</div>`;
+                grid.innerHTML = `<div style="color:var(--text-sub); text-align:center; grid-column: 1/-1; font-size: 1.2rem; margin-top: 50px; font-family: 'Arial Black', sans-serif;">NO ELIGIBLE [ ${posStr} ] CARDS.<br>YOUR OTHER CARDS MAY BE BLOCKED BY THE DUPLICATE GUARD!</div>`;
             } else {
-                availableCards.sort((a,b) => b.value - a.value);
-                
                 availableCards.forEach(card => {
                     let bColor = card.tier === 'gold' ? '#f1c40f' : card.tier === 'silver' ? '#bdc3c7' : card.tier === 'platinum' ? '#e5e4e2' : card.tier === 'diamond' ? '#00ffff' : '#7f8c8d';
+                    let pwr = card.power || "1x";
                     
                     grid.innerHTML += `
-                        <div class="draft-card" style="border: 2px solid ${bColor};" onclick="selectPlayer('${card.id}')">
-                            <div style="font-size: 0.7rem; color: #8892b0; margin-bottom: 5px; font-weight:bold;">[ ${card.pos} ]</div>
-                            <div style="font-size: 2.2rem; margin-bottom: 8px;">${activeSport.icon}</div>
-                            <div style="font-size: 0.85rem; font-weight: 900; color: #00ff66; text-align:center; margin-bottom: 3px; line-height: 1.2;">${card.dna}</div>
-                            <div style="font-size: 0.65rem; color: #fff; text-align:center; margin-bottom: 6px;">${card.name}</div>
-                            <div style="font-size: 0.65rem; color: ${bColor}; font-weight:bold; letter-spacing: 1px;">${card.tier.toUpperCase()}</div>
-                            <div style="font-size: 0.7rem; color: #fff; margin-top: 8px;">⚡ ${card.power} Power</div>
+                        <div class="card-core" style="border: 2px solid ${bColor};" onclick="selectPlayer('${card.id}')">
+                            <div class="pos-badge">${card.pos}</div>
+                            <div class="art-box">${activeSport.icon}</div>
+                            <div class="card-title">${card.name}</div>
+                            <div class="card-descriptive-text">LOCKER 88 ${card.tier.toUpperCase()}</div>
+                            <div class="data-panel-core">
+                                <div class="data-title-gray">STAT DNA MATCH</div>
+                                <div class="data-detail-green">${card.dna || "N/A"}</div>
+                            </div>
+                            <div style="margin-top: 15px; font-size: 0.8rem; color: #fff; font-weight: bold;">⚡ ${pwr} Power</div> 
                         </div>
                     `;
                 });
@@ -281,167 +390,140 @@
             
             document.getElementById('roster-modal').style.display = 'flex';
         }
-
-        function closeModal() {
-            document.getElementById('roster-modal').style.display = 'none';
-        }
+        function closeModal() { document.getElementById('roster-modal').style.display = 'none'; }
 
         function selectPlayer(cardId) {
             let card = inventory.find(c => c.id === cardId);
             if (card && activeDraftIndex !== -1) {
                 userRoster[activeDraftIndex] = card;
-                renderUserRoster();
+                renderRosters();
+                closeModal();
+                
+                isUserTurn = false;
+                
+                let userDone = !userRoster.includes(null);
+                let aiDone = !aiRoster.includes(null);
+
+                if (userDone && aiDone) {
+                    draftPhase = 'complete';
+                    finalizeDraftMath();
+                } else {
+                    document.getElementById('terminal-log').innerText = "PLAYER LOCKED. CPU IS DRAFTING...";
+                    document.getElementById('terminal-log').style.color = "#E74C3C";
+                    setTimeout(cpuDraftTurn, 800);
+                }
             }
-            closeModal();
         }
 
-        function genCPUCard(card, pos) {
-            let badgeClass = `tier-${card.tier}`;
-            let bColor = card.tier === 'gold' ? '#f1c40f' : card.tier === 'silver' ? '#bdc3c7' : '#7f8c8d';
-            return `
-                <div class="mini-card" style="border-style: solid; border-color: ${bColor}; background: #111318;">
-                    <div class="pos-badge">${pos}</div>
-                    <div class="name-text" style="color:#fff;">${card.name.substring(0, 15)}</div>
-                    <div class="tier-badge ${badgeClass}">${card.tier}</div>
-                </div>
-            `;
+        function checkDraftComplete() {
+            let userDone = !userRoster.includes(null);
+            let aiDone = !aiRoster.includes(null);
+            
+            if (userDone && aiDone) {
+                draftPhase = 'complete';
+                finalizeDraftMath();
+            }
         }
 
-        function renderCPURoster(roster, containerId) {
-            const container = document.getElementById(containerId);
-            let fwdCol = `<div class="pos-group">${genCPUCard(roster[0], 'LW')}${genCPUCard(roster[1], 'C')}${genCPUCard(roster[2], 'RW')}</div>`;
-            let defCol = `<div class="pos-group">${genCPUCard(roster[3], 'LD')}${genCPUCard(roster[4], 'RD')}</div>`;
-            let golCol = `<div class="pos-group">${genCPUCard(roster[5], 'G')}</div>`;
-            container.innerHTML = fwdCol + defCol + golCol;
-        }
+        function finalizeDraftMath() {
+            userPower = userRoster.reduce((sum, c) => sum + parseInt((c.power || "1x").replace('x','')), 0);
+            aiPower = aiRoster.reduce((sum, c) => sum + parseInt((c.power || "1x").replace('x','')), 0);
 
-        function lockInFormation() {
-            if (userRoster.includes(null)) {
-                document.getElementById('terminal-log').innerText = "ERROR: YOU MUST TAP AND FILL ALL 6 SLOTS BEFORE LOCKING IN THE FORMATION!";
-                document.getElementById('terminal-log').style.color = "#ff4757";
-                return;
+            let decimalOdds = (aiPower / userPower) * 2.0;
+            if (decimalOdds < 1.1) decimalOdds = 1.1;
+            if (decimalOdds > 10.0) decimalOdds = 10.0;
+            
+            currentMatchMultiplier = decimalOdds.toFixed(2);
+            
+            let americanLine = "";
+            if (decimalOdds >= 2.0) {
+                americanLine = "+" + Math.round((decimalOdds - 1) * 100);
+            } else {
+                americanLine = "-" + Math.round(100 / (decimalOdds - 1));
             }
-
-            aiRoster = [];
-            for(let i=0; i<6; i++) {
-                let r = Math.random();
-                if(r < 0.6) aiRoster.push({name: "CPU Base Player", tier: "base"});
-                else if (r < 0.9) aiRoster.push({name: "CPU Silver Elite", tier: "silver"});
-                else aiRoster.push({name: "CPU Gold Star", tier: "gold"});
-            }
-
-            renderCPURoster(aiRoster, 'cpu-zone');
-
-            userPower = userRoster.reduce((sum, card) => sum + tierPower[card.tier], 0);
-            aiPower = aiRoster.reduce((sum, card) => sum + tierPower[card.tier], 0);
 
             let oddsUI = document.getElementById('odds-display');
-            let powerDiff = userPower - aiPower;
-            
-            if (powerDiff > 25) {
-                oddsUI.innerText = `AMERICAN ODDS: YOU -${Math.floor(powerDiff * 4.5)} | CPU +${Math.floor(powerDiff * 3.5)}`;
-                oddsUI.style.color = "#2ecc71"; 
-            } else if (powerDiff < -25) {
-                oddsUI.innerText = `AMERICAN ODDS: YOU +${Math.floor(Math.abs(powerDiff) * 3.5)} | CPU -${Math.floor(Math.abs(powerDiff) * 4.5)}`;
-                oddsUI.style.color = "#e74c3c"; 
-            } else {
-                oddsUI.innerText = `AMERICAN ODDS: EVEN MATCH (-110 / -110)`;
-                oddsUI.style.color = "#f1c40f"; 
-            }
+            oddsUI.innerText = `AMERICAN ODDS: YOU ${americanLine}`;
+            oddsUI.style.color = decimalOdds >= 2.0 ? "#2ECC71" : "#E74C3C"; 
 
-            document.getElementById('user-zone').style.pointerEvents = "none";
-            document.getElementById('draft-btn').disabled = true;
+            document.getElementById('betting-console').style.display = 'flex';
+            document.getElementById('sim-btn').style.display = 'block';
             document.getElementById('sim-btn').disabled = false;
             
-            document.getElementById('terminal-log').innerText = "FORMATION LOCKED. ODDS POSTED. READY TO SIMULATE DFS POINTS.";
-            document.getElementById('terminal-log').style.color = "#00e676";
+            document.getElementById('terminal-log').innerText = "DRAFT COMPLETE. ENTER WAGER AND SIMULATE.";
+            document.getElementById('terminal-log').style.color = "#F1C40F";
+        }
+
+        function calculatePayout() {
+            let w = parseInt(document.getElementById('wager-input').value) || 0;
+            document.getElementById('payout-projection').innerText = Math.floor(w * currentMatchMultiplier).toLocaleString();
         }
 
         function simulateLiveGames() {
+            let wagerInput = parseInt(document.getElementById('wager-input').value) || 0;
+            if (wagerInput > playerCash) return alert("❌ Insufficient Hobby Cash for this wager.");
+
+            playerCash -= wagerInput;
+            updateBankUI();
+            
             document.getElementById('sim-btn').disabled = true;
-            document.getElementById('terminal-log').innerText = "FAST-FORWARDING TONIGHT'S GAMES...";
-            document.getElementById('terminal-log').style.color = "#ff9f43";
+            document.getElementById('betting-console').style.display = 'none';
+            document.getElementById('user-score').innerText = "0";
+            document.getElementById('ai-score').innerText = "0";
             
-            let uScore = 0; let aScore = 0;
-
-            userRoster.forEach(card => {
-                if (card.tier === 'base') uScore += Math.floor(Math.random() * 15) + 5;
-                if (card.tier === 'silver') uScore += Math.floor(Math.random() * 20) + 15;
-                if (card.tier === 'gold') uScore += Math.floor(Math.random() * 25) + 30;
-                if (card.tier === 'platinum') uScore += Math.floor(Math.random() * 30) + 50;
-                if (card.tier === 'diamond') uScore += Math.floor(Math.random() * 40) + 80;
-            });
-
-            aiRoster.forEach(card => {
-                if (card.tier === 'base') aScore += Math.floor(Math.random() * 15) + 5;
-                if (card.tier === 'silver') aScore += Math.floor(Math.random() * 20) + 15;
-                if (card.tier === 'gold') aScore += Math.floor(Math.random() * 25) + 30;
-            });
-
-            let ticks = 0;
-            let ticker = setInterval(() => {
-                document.getElementById('user-score').innerText = Math.floor(Math.random() * 100);
-                document.getElementById('ai-score').innerText = Math.floor(Math.random() * 100);
-                ticks++;
-                if (ticks > 20) {
-                    clearInterval(ticker);
-                    document.getElementById('user-score').innerText = uScore;
-                    document.getElementById('ai-score').innerText = aScore;
-                    evaluateMatch(uScore, aScore);
+            let myGoals = 0; let oppGoals = 0;
+            let totalStrength = userPower + aiPower; 
+            let myWinProb = userPower / totalStrength; 
+            let period = 1;
+            
+            let simInterval = setInterval(() => {
+                document.getElementById('terminal-log').innerText = `SIMULATING PERIOD ${period}...`;
+                document.getElementById('terminal-log').style.color = "#BDC3C7";
+                
+                let myRoll = Math.random(); let oppRoll = Math.random();
+                if(myRoll < (0.2 + (myWinProb * 0.4))) myGoals++;
+                if(oppRoll < (0.2 + ((1 - myWinProb) * 0.4))) oppGoals++;
+                
+                document.getElementById('user-score').innerText = myGoals; 
+                document.getElementById('ai-score').innerText = oppGoals;
+                period++;
+                
+                if (period > 3) {
+                    clearInterval(simInterval);
+                    if (myGoals === oppGoals) {
+                        document.getElementById('terminal-log').innerText = `🚨 SUDDEN DEATH OVERTIME 🚨`; 
+                        document.getElementById('terminal-log').style.color = "#ff4444";
+                        
+                        setTimeout(() => {
+                            if (Math.random() < myWinProb) { myGoals++; } else { oppGoals++; }
+                            document.getElementById('user-score').innerText = myGoals; 
+                            document.getElementById('ai-score').innerText = oppGoals; 
+                            evaluateMatch(myGoals, oppGoals, wagerInput);
+                        }, 1500);
+                    } else { evaluateMatch(myGoals, oppGoals, wagerInput); }
                 }
-            }, 50);
+            }, 1200); 
         }
 
-        function evaluateMatch(uScore, aScore) {
+        function evaluateMatch(myGoals, oppGoals, wager) {
             const log = document.getElementById('terminal-log');
-            document.getElementById('user-zone').style.pointerEvents = "auto";
-
-            if (uScore > aScore) {
-                playerPoints += 150;
-                log.innerText = `DFS VICTORY! YOUR FORMATION OUT-SCORED THE CPU. +150 LEADERBOARD PTS.`;
-                log.style.color = "#2ecc71";
-                updateBankUI();
-                document.getElementById('draft-btn').disabled = false;
-            } else if (aScore > uScore) {
-                log.innerText = `DFS DEFEAT. THE CPU SQUAD PERFORMED BETTER TONIGHT.`;
-                log.style.color = "#e74c3c";
-                document.getElementById('draft-btn').disabled = false;
+            if (myGoals > oppGoals) {
+                playerPoints += 1; 
+                let payout = wager === 0 ? 50 : Math.floor(wager * currentMatchMultiplier);
+                playerCash += payout;
+                
+                log.innerText = `VICTORY! +${payout.toLocaleString()} CASH SECURED.`;
+                log.style.color = "#2ECC71";
             } else {
-                log.innerText = `STALEMATE DETECTED! DFS POINTS TIED AT ${uScore}. INITIATING OVERTIME PROTOCOL!`;
-                log.style.color = "#f1c40f";
-                document.getElementById('tie-btn').style.display = "block";
+                log.innerText = wager === 0 ? "FRIENDLY DEFEAT. NO CASH LOST." : `DEFEAT. YOU LOST YOUR ${wager} CASH STAKE.`;
+                log.style.color = "#E74C3C";
             }
-        }
-
-        function executeOvertime() {
-            document.getElementById('tie-btn').disabled = true;
-            document.getElementById('terminal-log').innerText = "SIMULATING OVERTIME COIN FLIP...";
+            updateBankUI();
             
-            const coin = document.getElementById('coin-visual');
-            coin.style.display = "block";
-
-            setTimeout(() => {
-                coin.style.display = "none";
-                let winChance = 0.5; let powerDiff = userPower - aiPower;
-                if (powerDiff > 0) winChance += 0.20; 
-                if (powerDiff < 0) winChance -= 0.15; 
-
-                let roll = Math.random();
-                if (roll <= winChance) {
-                    playerCash += 1500; updateBankUI();
-                    document.getElementById('terminal-log').innerText = `COIN FLIP WON! YOUR TEAM CLUTCHED THE OVERTIME!\n+$1500 CASH PRIZE AWARDED!`;
-                    document.getElementById('terminal-log').style.color = "#2ecc71";
-                } else {
-                    document.getElementById('terminal-log').innerText = `COIN FLIP LOST. CPU WON THE OVERTIME. NO PRIZES AWARDED.`;
-                    document.getElementById('terminal-log').style.color = "#e74c3c";
-                }
-                setTimeout(() => {
-                    document.getElementById('tie-btn').style.display = "none";
-                    document.getElementById('tie-btn').disabled = false;
-                    document.getElementById('draft-btn').disabled = false;
-                }, 4000);
-            }, 2000); 
+            document.getElementById('reset-btn').style.display = 'block';
         }
+
+        renderRosters();
     </script>
 </body>
 </html>

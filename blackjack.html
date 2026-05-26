@@ -4,31 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Blackjack | Card Chaser's</title>
+    
     <style>
         :root {
             --primary: #ff9f43;
-            --table-felt: radial-gradient(circle at center, #1b4f31 0%, #0a2113 100%);
+            --table-felt: radial-gradient(circle at center, #1b5e20 0%, #0d3310 100%);
             --table-border: #3e2723;
-            --glow: rgba(255, 159, 67, 0.5);
+            --glow: rgba(12, 10, 8, 0.5);
         }
 
-        /* 1. FIXED BODY: Allows natural scrolling and removes locked heights */
         body, html {
-            margin: 0; padding: 0; min-height: 100vh;
+            margin: 0; padding: 0; height: 100%;
             background: #050608; font-family: 'Arial Black', sans-serif;
             color: #fff; overflow-x: hidden; box-sizing: border-box; user-select: none;
             display: block;
         }
         *, *:before, *:after { box-sizing: inherit; }
 
-        /* 2. THE MASTER CONTAINER */
         .room-container { 
             width: 100%; max-width: 900px; margin: 0 auto; 
             display: flex; flex-direction: column; padding: 15px; gap: 15px; 
-            min-height: 100vh; 
+            height: 100%; 
         }
 
-        /* HEADER & BANK */
         .header-panel {
             display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
             background: #000; padding: 15px 20px; border-radius: 16px;
@@ -41,65 +39,60 @@
         .stat-pts span { color: var(--primary); }
         .stat-cash span { color: #2ecc71; }
 
-        /* THE BLACKJACK TABLE */
         .table-area {
             background: var(--table-felt); border: 6px solid var(--table-border); 
-            border-radius: 100px 100px 30px 30px; /* Softened radius for narrow screens */
+            border-radius: 60px 60px 20px 20px; 
             padding: 20px 10px; box-shadow: inset 0 0 50px rgba(0,0,0,0.8), 0 10px 30px rgba(0,0,0,0.7);
             display: flex; flex-direction: column; align-items: center; justify-content: space-between; 
-            flex: 1; min-height: 65vh; 
+            flex: 1; min-height: 0; 
         }
 
-        /* Hand Areas */
         .hand-zone { display: flex; flex-direction: column; align-items: center; width: 100%; justify-content: center; padding: 10px 0; }
-        .zone-label { color: rgba(255,255,255,0.6); font-size: clamp(0.8rem, 3vw, 0.9rem); letter-spacing: 2px; margin-bottom: 5px; }
-        .cards-container { display: flex; justify-content: center; min-height: 130px; margin-left: 20px; } /* Margin compensates for overlapping cards */
+        .zone-label { color: rgba(255,255,255,0.6); font-size: clamp(0.7rem, 3vw, 0.9rem); letter-spacing: 2px; margin-bottom: 5px; }
+        .cards-container { display: flex; justify-content: center; min-height: 100px; margin-left: 20px; } 
         
         .score-bubble { 
             background: rgba(0,0,0,0.7); padding: 4px 15px; border-radius: 12px; 
-            font-size: clamp(1rem, 4vw, 1.2rem); color: #f1c40f; margin-top: 10px; 
+            font-size: clamp(0.9rem, 4vw, 1.2rem); color: #f1c40f; margin-top: 10px; 
             border: 1px solid rgba(255,255,255,0.2); opacity: 0; transition: opacity 0.2s;
         }
 
-        /* Playing Card UI - Now scales width to Viewport Width (vw) */
         .playing-card {
-            width: clamp(65px, 16vw, 100px); 
-            height: clamp(95px, 24vw, 145px); 
+            width: clamp(55px, 14vw, 90px); 
+            height: clamp(80px, 20vw, 130px); 
             background: #fff; border-radius: 6px;
             border: 1px solid #ccc; box-shadow: -2px 5px 10px rgba(0,0,0,0.5);
             display: flex; flex-direction: column; justify-content: space-between; padding: 4px;
             font-family: -apple-system, sans-serif; font-weight: bold; 
-            font-size: clamp(1rem, 3.5vw, 1.5rem);
-            margin-left: clamp(-40px, -8vw, -25px); position: relative; color: #000;
+            font-size: clamp(0.9rem, 3.5vw, 1.3rem);
+            margin-left: clamp(-30px, -6vw, -20px); position: relative; color: #000;
         }
         .playing-card:first-child { margin-left: 0; }
         .card-red { color: #e74c3c; }
         .card-black { color: #2c3e50; }
         
         .card-top { align-self: flex-start; line-height: 1; }
-        .card-center { align-self: center; font-size: clamp(2rem, 6vw, 3rem); line-height: 1; }
+        .card-center { align-self: center; font-size: clamp(1.5rem, 5vw, 2.5rem); line-height: 1; }
         .card-bottom { align-self: flex-end; line-height: 1; transform: rotate(180deg); }
 
-        .card-hidden { background: repeating-linear-gradient(45deg, var(--table-border), var(--table-border) 10px, var(--primary) 10px, var(--primary) 20px); border: 2px solid #fff; color: transparent; }
+        .card-hidden { background: repeating-linear-gradient(45deg, var(--table-border), var(--table-border) 10px, #1b5e20 10px, #1b5e20 20px); border: 2px solid #fff; color: transparent; }
         .card-hidden .card-top, .card-hidden .card-center, .card-hidden .card-bottom { display: none; }
 
         .terminal-log {
             background: #000; padding: 10px 15px; border-radius: 8px; border: 1px solid #1f232d;
-            font-family: monospace; color: #00e676; font-size: clamp(0.85rem, 3vw, 1rem); 
-            text-align: center; margin: 15px 0; box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+            font-family: monospace; color: #00e676; font-size: clamp(0.75rem, 3vw, 0.95rem); 
+            text-align: center; margin: 10px 0; box-shadow: 0 4px 10px rgba(0,0,0,0.6);
             width: 95%; max-width: 400px;
         }
 
-        /* CONTROLS AREA */
-        .control-wrapper { min-height: 60px; display: flex; align-items: center; justify-content: center; width: 100%; margin-top: 20px; }
+        .control-wrapper { min-height: 60px; display: flex; align-items: center; justify-content: center; width: 100%; margin-top: 10px; }
         .bet-controls { display: flex; gap: clamp(5px, 2vw, 10px); align-items: center; width: 100%; justify-content: center; flex-wrap: wrap; }
-        .action-controls { display: flex; gap: 15px; width: 100%; justify-content: center; display: none; }
+        .action-controls { display: flex; gap: 10px; width: 100%; justify-content: center; display: none; }
         
-        /* CHIPS */
         .chip {
-            width: clamp(50px, 12vw, 65px); height: clamp(50px, 12vw, 65px); border-radius: 50%;
+            width: clamp(45px, 12vw, 60px); height: clamp(45px, 12vw, 60px); border-radius: 50%;
             display: flex; align-items: center; justify-content: center; cursor: pointer;
-            border: 4px dashed rgba(255,255,255,0.7); font-size: clamp(0.8rem, 3vw, 1rem);
+            border: 3px dashed rgba(255,255,255,0.7); font-size: clamp(0.75rem, 3vw, 0.9rem);
             font-weight: 900; box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.6);
             transition: transform 0.1s; color: #fff; text-shadow: 0 1px 2px #000;
         }
@@ -108,10 +101,10 @@
         .chip-10 { background: #3498db; }
         .chip-25 { background: #2c3e50; }
 
-        .bet-display { background: #000; border: 2px solid #f1c40f; color: #f1c40f; padding: 0 15px; border-radius: 8px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; min-width: 80px; font-weight: 900; }
+        .bet-display { background: #000; border: 2px solid #f1c40f; color: #f1c40f; padding: 0 15px; border-radius: 8px; height: 45px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; min-width: 70px; font-weight: 900; }
 
         .btn {
-            padding: 0 20px; height: 50px; font-family: 'Arial Black', sans-serif; font-size: clamp(0.8rem, 3vw, 1rem);
+            padding: 0 20px; height: 45px; font-family: 'Arial Black', sans-serif; font-size: clamp(0.75rem, 3vw, 0.9rem);
             border: none; border-radius: 8px; color: #fff; cursor: pointer; text-transform: uppercase;
             box-shadow: 0 4px 0 rgba(0,0,0,0.4); transition: transform 0.1s;
         }
@@ -119,12 +112,31 @@
         .btn:disabled { filter: grayscale(1); opacity: 0.5; cursor: not-allowed; transform: translateY(4px); box-shadow: none; }
         
         .btn-deal { background: var(--primary); color: #000; display: none; }
-        .btn-hit { background: #3498db; width: 120px; }
-        .btn-stand { background: #e74c3c; width: 120px; }
+        .btn-hit { background: #3498db; width: clamp(90px, 25vw, 120px); }
+        .btn-stand { background: #e74c3c; width: clamp(90px, 25vw, 120px); }
         .btn-clear { background: #7f8c8d; font-size: 0.7rem; padding: 0 10px; height: 40px; }
 
-        .exit-btn { background: none; border: none; color: #4c566a; font-weight: bold; font-size: clamp(0.8rem, 3vw, 0.9rem); cursor: pointer; text-transform: uppercase; padding: 10px 0; align-self: flex-start; margin-left: 10px; }
+        .exit-btn { background: none; border: none; color: #4c566a; font-weight: bold; font-size: clamp(0.8rem, 3vw, 0.9rem); cursor: pointer; text-transform: uppercase; padding: 5px 0; align-self: flex-start; margin-left: 10px; }
         .exit-btn:hover { color: var(--primary); }
+
+        /* ====================================================
+           MODAL & MASTER BLUEPRINT PREMIUM CARD FOR PRIZES
+           ==================================================== */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 13, 16, 0.95); backdrop-filter: blur(5px); z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .modal-title { color: #2ecc71; font-size: clamp(1.5rem, 5vw, 2.5rem); margin-bottom: 20px; text-transform: uppercase; text-align: center; font-family: 'Arial Black', sans-serif; text-shadow: 0 0 15px rgba(46, 204, 113, 0.6);}
+        .close-modal { background: #e74c3c; padding: 12px 30px; border-radius: 8px; color: #fff; border: none; border-bottom: 4px solid #c0392b; cursor: pointer; font-family: 'Arial Black'; font-size: 1.1rem; margin-top: 30px; transition: 0.1s; text-transform: uppercase; }
+        .close-modal:active { transform: translateY(3px); border-bottom-width: 1px; }
+
+        .card-core { background: #1c1c1e; border-radius: 12px; padding: 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8); display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 220px; box-sizing: border-box; position: relative; margin: 0 auto; animation: popIn 0.4s ease-out forwards; }
+        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        
+        .pos-badge { position: absolute; top: 12px; left: 12px; border: 1px solid #5a5a5e; border-radius: 4px; padding: 3px 6px; font-size: 0.75rem; font-weight: 900; color: #ffffff; font-family: 'Arial Black', sans-serif; }
+        .art-box { background: #121213; width: 110px; height: 110px; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 3.5rem; margin-top: 25px; margin-bottom: 15px; }
+        .card-title { font-size: 1.25rem; font-weight: 900; color: #FFFFFF; margin-bottom: 2px; text-align: center; }
+        .card-descriptive-text { font-size: 0.7rem; color: #8e8e93; margin-bottom: 15px; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; font-family: 'Arial', sans-serif; font-weight: bold;}
+        .data-panel-core { background: #242426; border: 1px solid #3a3a3c; border-radius: 8px; padding: 10px; width: 100%; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
+        .data-title-gray { font-size: 0.6rem; color: #7a7a7e; text-transform: uppercase; font-weight: 600; margin-bottom: 4px; text-align: center; letter-spacing: 0.5px; }
+        .data-detail-green { font-size: 0.9rem; color: #00ff00; font-weight: bold; text-align: center; }
 
     </style>
 </head>
@@ -177,39 +189,61 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="prize-modal">
+        <h2 class="modal-title">🚨 BONUS PRIZE PACK 🚨</h2>
+        <div id="prize-card-container"></div>
+        <button class="close-modal" onclick="closePrizeModal()">CLAIM & SEND TO VAULT</button>
+    </div>
+
     <script>
         // ========================================================
-        // THEME & LEDGER INJECTION
+        // THEME & INVENTORY INJECTION
         // ========================================================
         let playerCash = parseInt(localStorage.getItem('playerMoney')) || 1000;
         let playerPoints = parseInt(localStorage.getItem('playerPoints')) || 0;
-        let currentSport = localStorage.getItem('selectedSport') || 'default';
+        let currentSport = localStorage.getItem('selectedSport') || 'nhl'; // Defaults to NHL 
 
         const tableThemes = {
-            nhl: { title: "ICE BLACKJACK", primary: "#3498db", felt: "radial-gradient(circle at center, #1b3d4f 0%, #0a1721 100%)", border: "#112631", glow: "rgba(52, 152, 219, 0.5)" },
-            mlb: { title: "DIAMOND BLACKJACK", primary: "#2ecc71", felt: "radial-gradient(circle at center, #1b4f31 0%, #0a2113 100%)", border: "#102f1d", glow: "rgba(46, 204, 113, 0.5)" },
-            nba: { title: "COURT BLACKJACK", primary: "#e67e22", felt: "radial-gradient(circle at center, #4f2d1b 0%, #21130a 100%)", border: "#351e12", glow: "rgba(230, 126, 34, 0.5)" },
-            nfl: { title: "GRIDIRON BLACKJACK", primary: "#f1c40f", felt: "radial-gradient(circle at center, #2e2417 0%, #171109 100%)", border: "#3e2723", glow: "rgba(241, 196, 15, 0.5)" },
-            default: { title: "CASINO BLACKJACK", primary: "#ff9f43", felt: "radial-gradient(circle at center, #1b4f31 0%, #0a2113 100%)", border: "#3e2723", glow: "rgba(255, 159, 67, 0.5)" }
+            nhl: { title: "ICE BLACKJACK", primary: "#3498db", glow: "rgba(52, 152, 219, 0.5)" },
+            mlb: { title: "DIAMOND BLACKJACK", primary: "#2ecc71", glow: "rgba(46, 204, 113, 0.5)" },
+            nba: { title: "COURT BLACKJACK", primary: "#e67e22", glow: "rgba(230, 126, 34, 0.5)" },
+            nfl: { title: "GRIDIRON BLACKJACK", primary: "#f1c40f", glow: "rgba(241, 196, 15, 0.5)" },
+            default: { title: "CASINO BLACKJACK", primary: "#ff9f43", glow: "rgba(255, 159, 67, 0.5)" }
         };
 
         const activeTheme = tableThemes[currentSport] || tableThemes['default'];
         document.documentElement.style.setProperty('--primary', activeTheme.primary);
-        document.documentElement.style.setProperty('--table-felt', activeTheme.felt);
-        document.documentElement.style.setProperty('--table-border', activeTheme.border);
         document.documentElement.style.setProperty('--glow', activeTheme.glow);
         document.getElementById('table-title').innerText = activeTheme.title;
+
+        // Card Data Pools for Prizes
+        const pricingMap = { "base": 50, "silver": 250, "gold": 1000, "platinum": 1500, "diamond": 2500 };
+        const sportData = {
+            nhl: { key: "nhl_inventory", icon: "🏒", pool: [
+                {name: "The Brick Wall", dna: "Igor Shesterkin (NYR)", pos: "G"}, {name: "Game Changer", dna: "Kirill Kaprizov (MIN)", pos: "LW"}, {name: "Rink Rat", dna: "Connor McDavid (EDM)", pos: "C"}, {name: "The Great 8", dna: "Alex Ovechkin (WSH)", pos: "RW"}, {name: "Blueline Boss", dna: "Cale Makar (COL)", pos: "LD"}
+            ]},
+            mlb: { key: "mlb_inventory", icon: "⚾", pool: [
+                {name: "Diamond King", dna: "Shohei Ohtani (LAD)", pos: "P"}, {name: "The Captain", dna: "Aaron Judge (NYY)", pos: "CF"}
+            ]},
+            nba: { key: "nba_inventory", icon: "🏀", pool: [
+                {name: "Crossover Master", dna: "Stephen Curry (GSW)", pos: "PG"}, {name: "King James", dna: "LeBron James (LAL)", pos: "SF"}
+            ]},
+            nfl: { key: "nfl_inventory", icon: "🏈", pool: [
+                {name: "Showtime", dna: "Patrick Mahomes (KC)", pos: "QB"}, {name: "Run CMC", dna: "Christian McCaffrey (SF)", pos: "RB"}
+            ]}
+        };
+        const activeSportData = sportData[currentSport] || sportData['nhl'];
         
         function updateBankUI() {
-            document.getElementById('bank-cash').innerText = "$" + playerCash;
-            document.getElementById('bank-pts').innerText = playerPoints;
+            document.getElementById('bank-cash').innerText = "$" + playerCash.toLocaleString();
+            document.getElementById('bank-pts').innerText = playerPoints.toLocaleString();
             localStorage.setItem('playerMoney', playerCash);
             localStorage.setItem('playerPoints', playerPoints);
         }
         updateBankUI();
 
         // ========================================================
-        // WEB AUDIO SYNTHESIZER
+        // AUDIO SYNTHESIZER
         // ========================================================
         let audioCtx = null;
         function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
@@ -241,6 +275,10 @@
                 osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, now); osc.frequency.exponentialRampToValueAtTime(40, now + 0.4);
                 gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0, now + 0.4);
                 osc.start(now); osc.stop(now + 0.4);
+            } else if (type === 'prize') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(300, now); osc.frequency.setValueAtTime(600, now + 0.1); osc.frequency.setValueAtTime(1200, now + 0.3);
+                gain.gain.setValueAtTime(0.3, now); gain.gain.linearRampToValueAtTime(0, now + 0.6);
+                osc.start(now); osc.stop(now + 0.6);
             }
         }
 
@@ -317,7 +355,7 @@
         }
 
         function addBet(amount) {
-            initAudio(); // Required here to wake up browser audio on first tap
+            initAudio(); 
             if (gameActive) return;
             if (playerCash < amount) {
                 document.getElementById('terminal-log').innerText = "INSUFFICIENT FUNDS.";
@@ -375,6 +413,8 @@
                 playSound('win');
                 document.getElementById('terminal-log').innerText = `BLACKJACK! YOU WIN $${winnings}!`;
                 document.getElementById('terminal-log').style.color = "#2ecc71";
+                
+                checkPrizeDrop(); // Triggers chance for pack drop
                 resetTable();
             }
         }
@@ -391,6 +431,8 @@
                 playSound('bust');
                 document.getElementById('terminal-log').innerText = "BUST! OVER 21. DEALER WINS.";
                 document.getElementById('terminal-log').style.color = "#ff4757";
+                
+                checkPrizeDrop(); // Triggers chance for pack drop
                 resetTable();
             } else if (calculateScore(playerHand) === 21) {
                 stand();
@@ -438,6 +480,7 @@
             }
             
             updateBankUI();
+            checkPrizeDrop(); // Triggers chance for pack drop
             resetTable();
         }
 
@@ -445,17 +488,92 @@
             document.getElementById('hit-btn').disabled = true;
             document.getElementById('stand-btn').disabled = true;
             setTimeout(() => {
-                document.getElementById('action-controls').style.display = 'none';
-                document.getElementById('bet-controls').style.display = 'flex';
-                document.getElementById('terminal-log').innerText = "PLACE NEW BET.";
-                document.getElementById('terminal-log').style.color = "#00e676";
-                
-                playerHand = []; dealerHand = []; currentBet = 0;
-                document.getElementById('bet-display').innerText = "$0";
-                document.getElementById('btn-deal').style.display = 'none';
-                updateBoard(true);
+                // If prize modal is open, don't clear the bet screen yet so they aren't jarred
+                if (document.getElementById('prize-modal').style.display === 'flex') {
+                    // Just reset variables
+                    playerHand = []; dealerHand = []; currentBet = 0;
+                    document.getElementById('bet-display').innerText = "$0";
+                    updateBoard(true);
+                    return;
+                }
+                showBetScreen();
             }, 3000);
         }
+
+        function showBetScreen() {
+            document.getElementById('action-controls').style.display = 'none';
+            document.getElementById('bet-controls').style.display = 'flex';
+            document.getElementById('terminal-log').innerText = "PLACE NEW BET.";
+            document.getElementById('terminal-log').style.color = "#00e676";
+            
+            playerHand = []; dealerHand = []; currentBet = 0;
+            document.getElementById('bet-display').innerText = "$0";
+            document.getElementById('btn-deal').style.display = 'none';
+            updateBoard(true);
+        }
+
+        // ========================================================
+        // BONUS PRIZE PACK LOGIC
+        // ========================================================
+        function checkPrizeDrop() {
+            // 4% chance exactly averages out to 1 in 25 hands
+            if (Math.random() < 0.04) {
+                setTimeout(() => {
+                    awardPrizeCard();
+                }, 1500); // Pops up slightly after the win/loss text
+            }
+        }
+
+        function awardPrizeCard() {
+            playSound('prize');
+            let template = activeSportData.pool[Math.floor(Math.random() * activeSportData.pool.length)];
+            let roll = Math.random();
+            let tier = 'base';
+
+            // Requested Odds: Base 60%, Silver 25%, Gold 14%, Platinum 1%
+            if (roll > 0.99) tier = 'platinum';
+            else if (roll > 0.85) tier = 'gold';
+            else if (roll > 0.60) tier = 'silver';
+
+            let newCard = {
+                id: "c_" + Date.now() + "_" + Math.random(),
+                name: template.name,
+                dna: template.dna,
+                pos: template.pos,
+                tier: tier,
+                value: pricingMap[tier]
+            };
+
+            // Save to Vault
+            let inventory = JSON.parse(localStorage.getItem(activeSportData.key)) || [];
+            inventory.push(newCard);
+            localStorage.setItem(activeSportData.key, JSON.stringify(inventory));
+
+            // Render the Modal with Master Blueprint styling
+            let bColor = tier === 'gold' ? '#f1c40f' : tier === 'silver' ? '#bdc3c7' : tier === 'platinum' ? '#e5e4e2' : '#7f8c8d';
+            let shortPos = newCard.pos.charAt(0);
+
+            document.getElementById('prize-card-container').innerHTML = `
+                <div class="card-core" style="border: 2px solid ${bColor}; box-shadow: 0 0 30px ${bColor};">
+                    <div class="pos-badge">${shortPos}</div>
+                    <div class="art-box">${activeSportData.icon}</div>
+                    <div class="card-title">${newCard.name}</div>
+                    <div class="card-descriptive-text">LOCKER 88 ${newCard.tier.toUpperCase()}</div>
+                    <div class="data-panel-core">
+                        <div class="data-title-gray">STAT DNA MATCH</div>
+                        <div class="data-detail-green">${newCard.dna}</div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('prize-modal').style.display = 'flex';
+        }
+
+        function closePrizeModal() {
+            document.getElementById('prize-modal').style.display = 'none';
+            showBetScreen(); // Resets the table for the next hand
+        }
+
     </script>
 </body>
 </html>

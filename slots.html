@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arena Slots | Card Chaser's</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Arena Slots | Card Chaser's</title>
+    
     <style>
         :root {
             --primary: #ff9f43;
@@ -24,7 +24,19 @@
         }
         *, *:before, *:after { box-sizing: inherit; }
 
-        /* Cabinet with scaling heights and no thick black bottom cutoff */
+        .room-container {
+            width: 100%;       
+            padding: 10px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 600px) {
+            .room-container { max-width: 600px; }
+        }
+
+        /* Cabinet with scaling heights */
         .slot-cabinet {
             background: var(--cabinet-bg);
             border: 6px var(--border-style) var(--primary);
@@ -129,37 +141,27 @@
         .foil-text-main { font-family: 'Arial Black', sans-serif; font-size: 1.5rem; font-style: italic; transform: skewX(-5deg); margin: 0; }
         .foil-text-sub { font-family: 'Arial Black', sans-serif; font-size: 0.8rem; letter-spacing: 2px; margin-top: 4px; opacity: 0.8; }
         .ripped-open-reveal-row { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; width: 90vw; max-width: 1100px; margin-top: 10px; }
-        .opened-showcase-card { background: #11141a; border-radius: 16px; padding: 12px; width: 175px; height: 255px; display: flex; flex-direction: column; align-items: center; box-shadow: 0 12px 24px rgba(0,0,0,0.8); border: 2px solid #4c566a; text-align: center; position: relative; animation: cardDropIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; transform: scale(0.6); }
-        @keyframes cardDropIn { to { opacity: 1; transform: scale(1); } }
-        .card-pos-badge { position: absolute; top: 12px; right: 12px; color: #8892b0; font-size: 0.75rem; font-weight: bold; }
-        .card-tier-tag { position: absolute; top: 12px; left: 12px; padding: 2px 8px; border-radius: 6px; font-size: 0.6rem; text-transform: uppercase; font-weight: 900; color: #000; }
-        .card-glyph-container { width: 45px; height: 45px; background: #232936; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-top: 25px; margin-bottom: 10px; }
-        .card-headline-name { font-size: 0.95rem; color: #fff; font-weight: 900; margin-bottom: 2px; letter-spacing: -0.5px; font-family: 'Arial Black', sans-serif; }
-        .dna-capsule-box { background: rgba(0,0,0,0.4); border: 1px solid #2e3646; border-radius: 8px; padding: 5px; width: 100%; margin-top: 4px; box-sizing: border-box; }
-        .dna-capsule-label { font-size: 0.5rem; color: #66758c; letter-spacing: 0.5px; text-transform: uppercase; font-weight: bold; }
-        .dna-capsule-target { font-size: 0.7rem; color: #00ff66; font-weight: bold; font-family: monospace; margin-top: 1px; }
-        .card-power-text { font-size: 0.75rem; color: #fff; margin-top: auto; display: flex; align-items: center; gap: 3px; font-weight: bold; }
-        .price-capsule { background: #1a1c23; border: 1px solid #2e3646; border-radius: 6px; padding: 3px 8px; font-family: monospace; color: #dddddd; margin-top: 6px; display: inline-flex; align-items: center; gap: 4px; font-size: 0.75rem; font-weight: bold; }
-        .tier-base { background: #7f8c8d; color: #fff; }
-        .tier-silver { background: #bdc3c7; }
-        .tier-gold { background: #f1c40f; box-shadow: 0 0 8px rgba(241,196,15,0.3); }
-        .tier-platinum { background: #e5e4e2; box-shadow: 0 0 12px rgba(229,228,226,0.4); }
-        .vault-transfer-btn { background: #2ecc71; border: none; border-radius: 12px; padding: 15px 40px; color: #000; font-family: 'Arial Black', sans-serif; font-size: 1.1rem; cursor: pointer; text-transform: uppercase; margin-top: 20px; display: none; box-shadow: 0 0 15px rgba(46,204,113,0.4); }
+        .vault-transfer-btn { background: #2ecc71; border: none; border-radius: 12px; padding: 15px 40px; color: #000; font-family: 'Arial Black', sans-serif; font-size: 1.1rem; cursor: pointer; text-transform: uppercase; margin-top: 20px; display: none; box-shadow: 0 0 15px rgba(46,204,113,0.4); transition: 0.1s; }
+        .vault-transfer-btn:active { transform: translateY(3px); }
 
-.room-container {
-    width: 100%;       /* Full width by default */
-    padding: 10px;
-    box-sizing: border-box;
-    overflow-y: auto;
-    margin: 0 auto;
-}
+        /* ====================================================
+           MASTER BLUEPRINT: PREMIUM CARD DESIGN (For Prize Output)
+           ==================================================== */
+        .card-core { 
+            background: #1c1c1e; border-radius: 12px; padding: 15px; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8); display: flex; flex-direction: column; 
+            align-items: center; width: 100%; max-width: 220px; box-sizing: border-box; 
+            position: relative; margin: 0 auto; animation: popIn 0.4s ease-out forwards; 
+        }
+        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .pos-badge { position: absolute; top: 12px; left: 12px; border: 1px solid #5a5a5e; border-radius: 4px; padding: 3px 6px; font-size: 0.75rem; font-weight: 900; color: #ffffff; font-family: 'Arial Black', sans-serif; }
+        .art-box { background: #121213; width: 110px; height: 110px; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 3.5rem; margin-top: 25px; margin-bottom: 15px; }
+        .card-title { font-size: 1.25rem; font-weight: 900; color: #FFFFFF; margin-bottom: 2px; text-align: center; }
+        .card-descriptive-text { font-size: 0.7rem; color: #8e8e93; margin-bottom: 15px; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; font-family: 'Arial', sans-serif; font-weight: bold;}
+        .data-panel-core { background: #242426; border: 1px solid #3a3a3c; border-radius: 8px; padding: 10px; width: 100%; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
+        .data-title-gray { font-size: 0.6rem; color: #7a7a7e; text-transform: uppercase; font-weight: 600; margin-bottom: 4px; text-align: center; letter-spacing: 0.5px; }
+        .data-detail-green { font-size: 0.9rem; color: #00ff00; font-weight: bold; text-align: center; }
 
-/* Only trigger the phone-style layout when the screen is narrow */
-@media (max-width: 600px) {
-    .room-container {
-        max-width: 600px; /* Force the 600px limit ONLY on phones */
-    }
-}
     </style>
 </head>
 <body>
@@ -199,8 +201,6 @@
     </div>
 
     <script>
-
-        // FIXED: Bankroll initializes to 1000 so the machine actually lets you spin!
         let playerCash = parseInt(localStorage.getItem('playerMoney')) || 1000;
         let playerPoints = parseInt(localStorage.getItem('playerPoints')) || 0;
         let currentSport = localStorage.getItem('selectedSport') || 'default';
@@ -314,9 +314,10 @@
             let roll = Math.random(); 
             let tier = 'base'; 
             
+            // Adjusted Odds: Base 60%, Silver 25%, Gold 14%, Platinum 1%
             if (roll > 0.99) tier = 'platinum'; 
-            else if (roll > 0.87) tier = 'gold'; 
-            else if (roll > 0.55) tier = 'silver'; 
+            else if (roll > 0.85) tier = 'gold'; 
+            else if (roll > 0.60) tier = 'silver'; 
             else tier = 'base'; 
             
             const pricingMap = { "base": 50, "silver": 250, "gold": 1000, "platinum": 1500 }; 
@@ -437,19 +438,23 @@
                     playSound('jackpot'); // Play triumph sound on reveal
                     actor.classList.remove('active-ripping-pack'); actor.style.display = 'none'; 
                     document.getElementById('theater-banner-msg').innerText = "ASSET ACQUIRED:"; 
+                    
+                    // Injected Master Blueprint Premium Card Layout
+                    let bColor = pulledCardData.tier === 'gold' ? '#f1c40f' : pulledCardData.tier === 'silver' ? '#bdc3c7' : pulledCardData.tier === 'platinum' ? '#e5e4e2' : '#7f8c8d';
+                    let shortPos = pulledCardData.pos.charAt(0);
+                    
                     row.innerHTML = ` 
-                        <div class="opened-showcase-card tier-${pulledCardData.tier}"> 
-                            <div class="card-tier-tag tier-${pulledCardData.tier}">${pulledCardData.tier}</div> 
-                            <div class="card-pos-badge">[ ${pulledCardData.pos} ]</div> 
-                            <div class="card-glyph-container">${activeConfig.symbols[2]}</div> 
-                            <div class="card-headline-name">${pulledCardData.name}</div> 
-                            <div class="dna-capsule-box"> 
-                                <div class="dna-capsule-label">Performance DNA Match:</div> 
-                                <div class="dna-capsule-target">${pulledCardData.dna}</div> 
-                            </div> 
-                            <div class="card-power-text">⚡ ${pulledCardData.power} Power</div> 
-                            <div class="price-capsule capsule-sm">${pulledCardData.value.toLocaleString()} <span style="color:#2ecc71;">💵</span></div> 
-                        </div> `; 
+                        <div class="card-core" style="border: 2px solid ${bColor}; box-shadow: 0 0 30px ${bColor};">
+                            <div class="pos-badge">${shortPos}</div>
+                            <div class="art-box">${activeConfig.symbols[2]}</div>
+                            <div class="card-title">${pulledCardData.name}</div>
+                            <div class="card-descriptive-text">LOCKER 88 ${pulledCardData.tier.toUpperCase()}</div>
+                            <div class="data-panel-core">
+                                <div class="data-title-gray">STAT DNA MATCH</div>
+                                <div class="data-detail-green">${pulledCardData.dna}</div>
+                            </div>
+                        </div>
+                    `; 
                     setTimeout(() => { transferTrigger.style.display = 'block'; }, 500); 
                 }, 800); 
             }; 

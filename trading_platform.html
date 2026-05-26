@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Pro Shop | Card Chaser's</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
     <style>
         :root {
             --primary: #ff9f43;
@@ -21,6 +22,18 @@
         }
         *, *:before, *:after { box-sizing: inherit; }
 
+        .room-container {
+            width: 100%;       
+            padding: 10px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 600px) {
+            .room-container { max-width: 600px; }
+        }
+
         .shop-container {
             position: relative; width: 100%; max-width: 1200px; 
             display: flex; flex-direction: column; align-items: center;
@@ -31,7 +44,7 @@
             display: flex; justify-content: space-between; align-items: center; width: 100%;
             background: #000; padding: 15px 25px; border-radius: 16px;
             border-bottom: 4px solid var(--primary); box-shadow: 0 10px 20px rgba(0,0,0,0.6);
-            margin-bottom: 30px; flex-wrap: wrap; gap: 15px;
+            margin-bottom: 30px; flex-wrap: wrap; gap: 15px; box-sizing: border-box;
         }
         .title { margin: 0; font-size: clamp(1.5rem, 4vw, 2.2rem); text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px var(--glow); }
         .bank-readout { display: flex; gap: 15px; font-size: clamp(0.8rem, 2.5vw, 1rem); color: #8892b0; align-items: center; }
@@ -39,26 +52,12 @@
         .stat-pts span { color: var(--primary); }
         .stat-cash span { color: #2ecc71; font-size: 1.2em; }
 
-        /* THE VIP DIAMOND SHOWCASE (TOP CENTER) */
-        .diamond-showcase {
-            display: flex; justify-content: center; width: 100%; margin-bottom: 30px;
-        }
-        .diamond-showcase .pack-listing {
-            width: 100%; max-width: 340px; /* Slightly wider */
-            border-width: 3px; z-index: 10;
-        }
-        .diamond-showcase .pack-foil {
-            width: 150px; height: 210px; /* Taller, more imposing pack */
-        }
-        .diamond-showcase .foil-text-main {
-            font-size: 3rem; /* Massive Diamond icon */
-        }
+        .diamond-showcase { display: flex; justify-content: center; width: 100%; margin-bottom: 30px; }
+        .diamond-showcase .pack-listing { width: 100%; max-width: 340px; border-width: 3px; z-index: 10; }
+        .diamond-showcase .pack-foil { width: 150px; height: 210px; }
+        .diamond-showcase .foil-text-main { font-size: 3rem; }
 
-        /* THE STANDARD PACK GRID */
-        .pack-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 25px; width: 100%;
-        }
+        .pack-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 25px; width: 100%; }
 
         .pack-listing {
             background: #0b0c10; border-radius: 16px; padding: 20px;
@@ -135,121 +134,105 @@
         .foil-text-sub { font-family: 'Arial Black', sans-serif; font-size: 0.8rem; letter-spacing: 2px; margin-top: 4px; opacity: 0.8; color: #1a252f; }
         
         .ripped-open-reveal-row { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; width: 90vw; max-width: 1100px; margin-top: 10px; }
-        .opened-showcase-card { background: #11141a; border-radius: 16px; padding: 12px; width: 175px; height: 255px; display: flex; flex-direction: column; align-items: center; box-shadow: 0 12px 24px rgba(0,0,0,0.8); border: 2px solid #4c566a; text-align: center; position: relative; animation: cardDropIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; transform: scale(0.6); }
-        @keyframes cardDropIn { to { opacity: 1; transform: scale(1); } }
-        .card-pos-badge { position: absolute; top: 12px; right: 12px; color: #8892b0; font-size: 0.75rem; font-weight: bold; }
-        .card-tier-tag { position: absolute; top: 12px; left: 12px; padding: 2px 8px; border-radius: 6px; font-size: 0.6rem; text-transform: uppercase; font-weight: 900; color: #000; }
-        .card-glyph-container { width: 45px; height: 45px; background: #232936; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-top: 25px; margin-bottom: 10px; }
-        .card-headline-name { font-size: 0.95rem; color: #fff; font-weight: 900; margin-bottom: 2px; letter-spacing: -0.5px; font-family: 'Arial Black', sans-serif; }
-        .dna-capsule-box { background: rgba(0,0,0,0.4); border: 1px solid #2e3646; border-radius: 8px; padding: 5px; width: 100%; margin-top: 4px; box-sizing: border-box; }
-        .dna-capsule-label { font-size: 0.5rem; color: #66758c; letter-spacing: 0.5px; text-transform: uppercase; font-weight: bold; }
-        .dna-capsule-target { font-size: 0.7rem; color: #00ff66; font-weight: bold; font-family: monospace; margin-top: 1px; }
-        .card-power-text { font-size: 0.75rem; color: #fff; margin-top: auto; display: flex; align-items: center; gap: 3px; font-weight: bold; }
-        .price-capsule { background: #1a1c23; border: 1px solid #2e3646; border-radius: 6px; padding: 3px 8px; font-family: monospace; color: #dddddd; margin-top: 6px; display: inline-flex; align-items: center; gap: 4px; font-size: 0.75rem; font-weight: bold; }
-        
+
         .bg-base { background: linear-gradient(135deg, #7f8c8d, #34495e); }
         .bg-silver { background: linear-gradient(135deg, #bdc3c7, #7f8c8d); }
         .bg-gold { background: linear-gradient(135deg, #f1c40f, #d35400); }
         .bg-platinum { background: linear-gradient(135deg, #e0eaf5, #7a8b9e); }
         .bg-diamond { background: linear-gradient(135deg, #00f2fe, #4facfe); }
 
-        .tier-base-tag { background: #7f8c8d; color: #fff; }
-        .tier-silver-tag { background: #bdc3c7; }
-        .tier-gold-tag { background: #f1c40f; box-shadow: 0 0 8px rgba(241,196,15,0.3); }
-        .tier-platinum-tag { background: #e5e4e2; box-shadow: 0 0 12px rgba(229,228,226,0.4); }
-        .tier-diamond-tag { background: #00f2fe; box-shadow: 0 0 15px rgba(0,242,254,0.6); }
-
         .vault-transfer-btn { background: #2ecc71; border: none; border-radius: 12px; padding: 15px 40px; color: #000; font-family: 'Arial Black', sans-serif; font-size: 1.1rem; cursor: pointer; text-transform: uppercase; margin-top: 20px; display: none; box-shadow: 0 0 15px rgba(46,204,113,0.4); }
-
         .msg-log { width: 100%; text-align: center; color: #ff4757; font-size: 1.2rem; margin-bottom: 20px; min-height: 25px; text-transform: uppercase; }
-.room-container {
-    width: 100%;       /* Full width by default */
-    padding: 10px;
-    box-sizing: border-box;
-    overflow-y: auto;
-    margin: 0 auto;
-}
 
-/* Only trigger the phone-style layout when the screen is narrow */
-@media (max-width: 600px) {
-    .room-container {
-        max-width: 600px; /* Force the 600px limit ONLY on phones */
-    }
-}
+        /* ====================================================
+           MASTER BLUEPRINT: PREMIUM CARD DESIGN
+           ==================================================== */
+        .card-core { 
+            background: #1c1c1e; border-radius: 12px; padding: 15px; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8); display: flex; flex-direction: column; 
+            align-items: center; width: 100%; max-width: 220px; box-sizing: border-box; 
+            position: relative; margin: 0 auto; animation: popIn 0.4s ease-out forwards; 
+        }
+        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .pos-badge { position: absolute; top: 12px; left: 12px; border: 1px solid #5a5a5e; border-radius: 4px; padding: 3px 6px; font-size: 0.75rem; font-weight: 900; color: #ffffff; font-family: 'Arial Black', sans-serif; }
+        .art-box { background: #121213; width: 110px; height: 110px; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 3.5rem; margin-top: 25px; margin-bottom: 15px; }
+        .card-title { font-size: 1.25rem; font-weight: 900; color: #FFFFFF; margin-bottom: 2px; text-align: center; }
+        .card-descriptive-text { font-size: 0.7rem; color: #8e8e93; margin-bottom: 15px; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; font-family: 'Arial', sans-serif; font-weight: bold;}
+        .data-panel-core { background: #242426; border: 1px solid #3a3a3c; border-radius: 8px; padding: 10px; width: 100%; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
+        .data-title-gray { font-size: 0.6rem; color: #7a7a7e; text-transform: uppercase; font-weight: 600; margin-bottom: 4px; text-align: center; letter-spacing: 0.5px; }
+        .data-detail-green { font-size: 0.9rem; color: #00ff00; font-weight: bold; text-align: center; }
+
     </style>
 </head>
 <body>
     <div class="room-container">      
         
-        <div class="shop-container">
-
-     </div>
-    </div>
-        
         <button class="exit-link" onclick="window.location.href='game_room.html'">◀ Exit Shop</button>
 
-        <div class="header-panel" style="margin-top: 40px;">
-            <h1 class="title">THE PRO SHOP</h1>
-            <div class="bank-readout">
-                <div class="stat-cash">CASH: <span id="bank-cash">$0</span></div>
-                <div class="stat-pts">PTS: <span id="bank-pts">0</span></div>
-            </div>
-        </div>
-
-        <div class="msg-log" id="msg-log"></div>
-
-        <div class="diamond-showcase">
-            <div class="pack-listing tier-diamond">
-                <div class="pack-foil">
-                    <p class="foil-text-main" id="sym-diamond">💎</p>
+        <div class="shop-container">
+            <div class="header-panel" style="margin-top: 40px;">
+                <h1 class="title">THE PRO SHOP</h1>
+                <div class="bank-readout">
+                    <div class="stat-cash">CASH: <span id="bank-cash">$0</span></div>
+                    <div class="stat-pts">PTS: <span id="bank-pts">0</span></div>
                 </div>
-                <h3 class="pack-title">Diamond Pack</h3>
-                <p class="pack-desc">20% Diamond Chance.</p>
-                <button class="buy-btn" onclick="buyPack('diamond')">BUY - $5,000</button>
             </div>
-        </div>
 
-        <div class="pack-grid">
-            
-            <div class="pack-listing tier-base">
-                <div class="pack-foil">
-                    <p class="foil-text-main" id="sym-base">🏀</p>
+            <div class="msg-log" id="msg-log"></div>
+
+            <div class="diamond-showcase">
+                <div class="pack-listing tier-diamond">
+                    <div class="pack-foil">
+                        <p class="foil-text-main" id="sym-diamond">💎</p>
+                    </div>
+                    <h3 class="pack-title">Diamond Pack</h3>
+                    <p class="pack-desc">20% Diamond Chance.</p>
+                    <button class="buy-btn" onclick="buyPack('diamond')">BUY - $5,000</button>
                 </div>
-                <h3 class="pack-title">Base Pack</h3>
-                <p class="pack-desc">Standard Draw. No Diamonds.</p>
-                <button class="buy-btn" onclick="buyPack('base')">BUY - $100</button>
             </div>
 
-            <div class="pack-listing tier-silver">
-                <div class="pack-foil">
-                    <p class="foil-text-main" id="sym-silver">🏀</p>
+            <div class="pack-grid">
+                
+                <div class="pack-listing tier-base">
+                    <div class="pack-foil">
+                        <p class="foil-text-main" id="sym-base">🏀</p>
+                    </div>
+                    <h3 class="pack-title">Base Pack</h3>
+                    <p class="pack-desc">Standard Draw. No Diamonds.</p>
+                    <button class="buy-btn" onclick="buyPack('base')">BUY - $100</button>
                 </div>
-                <h3 class="pack-title">Silver Pack</h3>
-                <p class="pack-desc">Higher Base Tier. No Diamonds.</p>
-                <button class="buy-btn" onclick="buyPack('silver')">BUY - $250</button>
-            </div>
 
-            <div class="pack-listing tier-gold">
-                <div class="pack-foil">
-                    <p class="foil-text-main" id="sym-gold">🏀</p>
+                <div class="pack-listing tier-silver">
+                    <div class="pack-foil">
+                        <p class="foil-text-main" id="sym-silver">🏀</p>
+                    </div>
+                    <h3 class="pack-title">Silver Pack</h3>
+                    <p class="pack-desc">Higher Base Tier. No Diamonds.</p>
+                    <button class="buy-btn" onclick="buyPack('silver')">BUY - $250</button>
                 </div>
-                <h3 class="pack-title">Gold Pack</h3>
-                <p class="pack-desc">1% Diamond Chance.</p>
-                <button class="buy-btn" onclick="buyPack('gold')">BUY - $500</button>
-            </div>
 
-            <div class="pack-listing tier-platinum">
-                <div class="pack-foil">
-                    <p class="foil-text-main" id="sym-platinum">🏀</p>
+                <div class="pack-listing tier-gold">
+                    <div class="pack-foil">
+                        <p class="foil-text-main" id="sym-gold">🏀</p>
+                    </div>
+                    <h3 class="pack-title">Gold Pack</h3>
+                    <p class="pack-desc">1% Diamond Chance.</p>
+                    <button class="buy-btn" onclick="buyPack('gold')">BUY - $500</button>
                 </div>
-                <h3 class="pack-title">Platinum Pack</h3>
-                <p class="pack-desc">5% Diamond Chance.</p>
-                <button class="buy-btn" onclick="buyPack('platinum')">BUY - $1,000</button>
-            </div>
 
+                <div class="pack-listing tier-platinum">
+                    <div class="pack-foil">
+                        <p class="foil-text-main" id="sym-platinum">🏀</p>
+                    </div>
+                    <h3 class="pack-title">Platinum Pack</h3>
+                    <p class="pack-desc">5% Diamond Chance.</p>
+                    <button class="buy-btn" onclick="buyPack('platinum')">BUY - $1,000</button>
+                </div>
+
+            </div>
         </div>
     </div>
-
+        
     <div class="ripping-theater-overlay" id="rip-theater">
         <h2 style="font-family:'Arial Black',sans-serif; letter-spacing:2px; margin:0; color:#fff;" id="theater-banner-msg">TAP PACK TO RIP</h2>
         <div class="theater-pack-actor" id="theater-pack-actor">
@@ -259,16 +242,16 @@
         <div class="ripped-open-reveal-row" id="revealed-cards-row"></div>
         <button class="vault-transfer-btn" id="vault-transfer-trigger" onclick="closePackScreen()">SEND TO LOCKER ROOM</button>
     </div>
-<script src="card_reveal.js"></script>
-<script>
+
+    <script>
         let playerCash = parseInt(localStorage.getItem('playerMoney')) || 0;
         let playerPoints = parseInt(localStorage.getItem('playerPoints')) || 0;
         let currentSport = localStorage.getItem('selectedSport') || 'default';
         const msgLog = document.getElementById('msg-log');
 
         function updateLedgers() {
-            document.getElementById('bank-cash').innerText = "$" + playerCash;
-            document.getElementById('bank-pts').innerText = playerPoints;
+            document.getElementById('bank-cash').innerText = "$" + playerCash.toLocaleString();
+            document.getElementById('bank-pts').innerText = playerPoints.toLocaleString();
             localStorage.setItem('playerMoney', playerCash);
         }
         updateLedgers();
@@ -285,12 +268,10 @@
         };
         const activeConfig = sportData[currentSport] || sportData['default'];
 
-        // Update pack icons to match sport (skipping Diamond so it stays a gem)
         ['base', 'silver', 'gold', 'platinum'].forEach(tier => {
             document.getElementById(`sym-${tier}`).innerText = activeConfig.symbol;
         });
 
-        // Pack Odds Definition (Cumulative thresholds for Math.random)
         const packOdds = {
             base:     { cost: 100,  odds: { base: 0.75, silver: 0.95, gold: 0.99, platinum: 1.00, diamond: 1.00 } },
             silver:   { cost: 250,  odds: { base: 0.20, silver: 0.85, gold: 0.97, platinum: 1.00, diamond: 1.00 } },
@@ -340,9 +321,6 @@
             }
         }
 
-        // ========================================================
-        // PURCHASING LOGIC
-        // ========================================================
         function buyPack(packType) {
             msgLog.innerText = "";
             let config = packOdds[packType];
@@ -408,31 +386,24 @@
                     document.getElementById('theater-banner-msg').innerText = "ASSET SECURED:"; 
                     
                     // ==========================================
-                    // MASSIVE 2X CARD REVEAL TRIGGER (POST-SHAKE)
+                    // INJECTING THE MASTER BLUEPRINT DESIGN
                     // ==========================================
-                        CardReveal.present({
-                        name: card.name,
-                        year: "2026", 
-                        cardNumber: card.pos,
-                        rarity: card.tier, 
-                        // This generates a massive custom card image on the fly!
-                        imageSrc: "https://dummyimage.com/360x480/1a1c23/ffffff&text=" + encodeURIComponent(card.dna)
-                    });
+                    let bColor = card.tier === 'gold' ? '#f1c40f' : card.tier === 'silver' ? '#bdc3c7' : card.tier === 'platinum' ? '#e5e4e2' : card.tier === 'diamond' ? '#00f2fe' : '#7f8c8d';
+                    let shortPos = card.pos.charAt(0);
                     
-                    // This creates the smaller showcase card behind the popup so it's there when you hit "COLLECT"
                     row.innerHTML = ` 
-                        <div class="opened-showcase-card tier-${card.tier}-tag"> 
-                            <div class="card-tier-tag tier-${card.tier}-tag">${card.tier}</div> 
-                            <div class="card-pos-badge">[ ${card.pos} ]</div> 
-                            <div class="card-glyph-container">${card.tier === 'diamond' ? '💎' : activeConfig.symbol}</div> 
-                            <div class="card-headline-name">${card.name}</div> 
-                            <div class="dna-capsule-box"> 
-                                <div class="dna-capsule-label">Performance Match:</div> 
-                                <div class="dna-capsule-target">${card.dna}</div> 
-                            </div> 
-                            <div class="card-power-text">⚡ ${card.power} Power</div> 
-                            <div class="price-capsule capsule-sm">${card.value.toLocaleString()} <span style="color:#2ecc71;">💵</span></div> 
-                        </div> `; 
+                        <div class="card-core" style="border: 2px solid ${bColor}; box-shadow: 0 0 30px ${bColor};">
+                            <div class="pos-badge">${shortPos}</div>
+                            <div class="art-box">${card.tier === 'diamond' ? '💎' : activeConfig.symbol}</div>
+                            <div class="card-title">${card.name}</div>
+                            <div class="card-descriptive-text">LOCKER 88 ${card.tier.toUpperCase()}</div>
+                            <div class="data-panel-core">
+                                <div class="data-title-gray">STAT DNA MATCH</div>
+                                <div class="data-detail-green">${card.dna}</div>
+                            </div>
+                            <div style="margin-top: 15px; font-size: 0.75rem; color: #fff; font-weight: bold; font-family: sans-serif;">⚡ ${card.power} Power</div> 
+                        </div>
+                    `; 
                     
                     setTimeout(() => { transferTrigger.style.display = 'block'; }, 500); 
                 }, 800); 

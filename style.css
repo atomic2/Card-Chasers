@@ -1,0 +1,85 @@
+body { background-color: red !important; }
+
+/* =========================================
+   DESIGN SYSTEM (image_5.png Refined Palette)
+   ========================================= */
+
+:root {
+    /* Main Functional Colors (Sleek NYR-esque palette from image_5.png) */
+    --brand-primary: #1A73E8;    /* A pure, sleek functional blue for actions */
+    --brand-secondary: #2ECC71;  /* Standard bright success green for DNA/Money */
+    --brand-danger: #E74C3C;     /* Red (functional, sleek) */
+
+    /* UI Theme Colors (The Neutral Cool Grays from image_5.png) */
+    --bg-dark: #0A0D10;         /* The deepest background gray */
+    --panel-dark: #1A1C21;      /* The primary dark-gray for card bodies */
+    --sub-panel-dark: #24272D;  /* A distinct gray creating the multi-panel depth */
+    --border-subtle: #3D424A;   /* Soft, clean gray for borders */
+    --text-main: #FFFFFF;       /* Pure white title */
+    --text-sub: #BDC3C7;        /* Cool neutral gray descriptive text */
+}
+
+/* =========================================
+   UNIVERSAL UI COMPONENTS (Card Standard)
+   ========================================= */
+
+/* The Refined Data Card (For lockers, market, stadium slots) */
+.card-core {
+    background: var(--panel-dark); /* image_5.png main gray */
+    border: 2px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centers all content */
+    width: 100%;
+    box-sizing: border-box; /* Essential for mobile responsiveness */
+}
+
+/* Typography Standards inside the Card */
+.card-title {
+    font-size: clamp(1.1rem, 4vw, 1.3rem);
+    font-weight: 900;
+    color: var(--text-main); /* White title */
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.card-descriptive-text {
+    font-size: clamp(0.7rem, 2vw, 0.85rem);
+    color: var(--text-sub); /* image_5.png descriptive gray */
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+/* The Distinct Sub-Panel (THE STAT DNA MATCH style panel) */
+.data-panel-core {
+    background: var(--sub-panel-dark); /* Unique background creates depth */
+    border: 2px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 10px;
+    width: 100%;
+    margin-top: 15px; /* Creates separation from main card content */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+/* Data Panel Green Text Standards */
+.data-title-green {
+    font-size: 0.65rem;
+    color: var(--brand-secondary); /* image_5.png success green */
+    text-transform: uppercase;
+    font-weight: 900;
+    margin-bottom: 3px;
+    text-align: center;
+}
+
+.data-detail-green {
+    font-size: 0.8rem;
+    color: var(--brand-secondary); /* image_5.png success green */
+    font-weight: 900;
+    text-align: center;
+}

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Global Leaderboard | Card Chaser's</title>
+    
+    <style>
+        :root {
+            --primary: #1A73E8;
+            --brand-secondary: #2ECC71;
+            --brand-danger: #E74C3C;
+            --bg-dark: #0A0D10;
+            --panel-dark: #1A1C21;
+            --sub-panel-dark: #24272D;
+            --border-subtle: #3D424A;
+            --text-main: #FFFFFF;
+            --text-sub: #BDC3C7;
+            --glow: rgba(26, 115, 232, 0.4);
+        }
+
+        body, html {
+            margin: 0; padding: 0; min-height: 100vh;
+            background: var(--bg-dark); 
+            font-family: 'Arial', sans-serif;
+            color: var(--text-main); 
+            box-sizing: border-box; overflow-x: hidden;
+        }
+
+        *, *:before, *:after { box-sizing: inherit; }
+
+        .room-container { width: 100%; padding: 15px; box-sizing: border-box; margin: 0 auto; max-width: 900px; display: flex; flex-direction: column; gap: 20px;}
+
+        /* EXIT BUTTON */
+        .exit-btn { 
+            align-self: flex-start; background: none; border: none; 
+            color: var(--text-sub); font-weight: 900; font-size: 0.95rem; 
+            cursor: pointer; padding: 0; margin-left: 5px; margin-bottom: -5px;
+            text-transform: uppercase; transition: color 0.2s; font-family: 'Arial Black', sans-serif;
+        }
+        .exit-btn:hover { color: #fff; text-shadow: 0 0 8px rgba(255,255,255,0.5); }
+
+        /* PAGE HEADER */
+        .page-header {
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--panel-dark); padding: 15px 25px; border-radius: 16px;
+            border-bottom: 6px solid #f1c40f; box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+            font-family: 'Arial Black', sans-serif; flex-wrap: wrap; gap: 10px;
+        }
+        .page-title { margin: 0; font-size: clamp(1.2rem, 4vw, 1.6rem); text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 15px rgba(241, 196, 15, 0.5); color: #f1c40f; }
+        
+        .personal-stats { display: flex; gap: 15px; font-size: 0.9rem; color: var(--text-sub); }
+        .personal-stats span { font-weight: 900; margin-left: 5px; }
+        .stat-pts span { color: #f1c40f; }
+
+        /* LEADERBOARD STYLING */
+        .leaderboard-panel {
+            background: #1A1C21; border: 2px solid #3D424A; border-radius: 16px;
+            padding: 20px; width: 100%; box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+        }
+        .lb-header {
+            text-align: center; font-family: 'Arial Black', sans-serif; color: var(--text-sub);
+            letter-spacing: 2px; margin-bottom: 20px; border-bottom: 2px solid var(--border-subtle);
+            padding-bottom: 10px;
+        }
+        .lb-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 10px; border-bottom: 1px solid #3D424A;
+            font-family: monospace; font-size: clamp(0.9rem, 3vw, 1.1rem); transition: background 0.2s;
+        }
+        .lb-row:hover { background: rgba(255,255,255,0.05); }
+        .lb-row:last-child { border-bottom: none; }
+        .lb-rank { color: #f1c40f; font-weight: 900; width: 40px; }
+        .lb-name { color: #fff; flex: 1; font-weight: bold; font-family: 'Arial', sans-serif; text-transform: uppercase; }
+        .lb-score { color: #00ff66; font-weight: bold; text-align: right; }
+        
+        .player-row { background: rgba(46, 204, 113, 0.1); border-left: 4px solid #2ECC71; border-radius: 4px; }
+        .player-row .lb-name { color: #2ECC71; }
+
+        /* RULES PANEL */
+        .rules-panel {
+            background: var(--sub-panel-dark); border: 1px solid var(--border-subtle);
+            border-radius: 12px; padding: 20px; margin-top: 10px;
+        }
+        .rules-title {
+            color: #f1c40f; font-family: 'Arial Black', sans-serif; font-size: 1rem;
+            margin-top: 0; margin-bottom: 15px; text-transform: uppercase; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px;
+        }
+        .rules-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;
+        }
+        .rule-item {
+            display: flex; justify-content: space-between; font-size: 0.85rem;
+            background: #11141A; padding: 10px; border-radius: 8px; border: 1px solid #2c313a;
+        }
+        .rule-desc { color: var(--text-sub); font-weight: bold; }
+        .rule-val { color: #00ff66; font-family: monospace; font-weight: bold; }
+
+    </style>
+</head>
+<body>
+
+    <div class="room-container">
+        
+        <button class="exit-btn" onclick="window.location.href='game_room.html'">◀ Back to Clubhouse</button>
+
+        <div class="page-header">
+            <h1 class="page-title">GLOBAL RANKINGS</h1>
+            <div class="personal-stats">
+                <div class="stat-pts">YOUR RANKING SCORE: <span id="header-pts">0 PTS</span></div>
+            </div>
+        </div>
+
+        <div class="leaderboard-panel">
+            <div class="lb-header">TOP 10 CHASERS</div>
+            <div id="lb-container">
+                </div>
+        </div>
+
+        <div class="rules-panel">
+            <h3 class="rules-title">HOW TO EARN LEADERBOARD POINTS</h3>
+            <div class="rules-grid">
+                <div class="rule-item"><span class="rule-desc">Daily Platform Login</span><span class="rule-val">+1 PT</span></div>
+                <div class="rule-item"><span class="rule-desc">Blackjack Hit</span><span class="rule-val">+1 PT</span></div>
+                <div class="rule-item"><span class="rule-desc">DFS Stadium Win</span><span class="rule-val">+1 PT</span></div>
+                <div class="rule-item"><span class="rule-desc">Every 100 Slot Spins</span><span class="rule-val">+1 PT</span></div>
+                <div class="rule-item"><span class="rule-desc">Platinum Card Trade (Max 1/Day)</span><span class="rule-val">+5 PTS</span></div>
+                <div class="rule-item"><span class="rule-desc">Pull Platinum Card</span><span class="rule-val">+5 PTS</span></div>
+                <div class="rule-item"><span class="rule-desc">Pull Diamond Card</span><span class="rule-val">+20 PTS</span></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // 1. Gather the player's accumulated points
+        let playerPoints = parseInt(localStorage.getItem('playerPoints')) || 0;
+        document.getElementById('header-pts').innerText = playerPoints.toLocaleString() + " PTS";
+
+        // 2. Rival AI Players
+        const rivals = [
+            { name: "@IronLung", score: 8450 },
+            { name: "@Tony_TopShelf", score: 6200 },
+            { name: "@CardFather", score: 5150 },
+            { name: "@Sniper99", score: 3800 },
+            { name: "@GloveSave", score: 2900 },
+            { name: "@PackRipper", score: 1500 },
+            { name: "@DiamondHands", score: 950 },
+            { name: "@RookieMistake", score: 400 },
+            { name: "@BenchWarmer", score: 150 }
+        ];
+
+        function renderLeaderboard() {
+            let masterList = [...rivals];
+            
+            masterList.push({ 
+                name: "YOU (CURRENT ACCOUNT)", 
+                score: playerPoints,
+                isPlayer: true 
+            });
+
+            masterList.sort((a, b) => b.score - a.score);
+            let top10 = masterList.slice(0, 10);
+
+            const container = document.getElementById('lb-container');
+            container.innerHTML = '';
+
+            top10.forEach((entry, index) => {
+                let rowClass = entry.isPlayer ? "lb-row player-row" : "lb-row";
+                container.innerHTML += `
+                    <div class="${rowClass}">
+                        <span class="lb-rank">#${index + 1}</span>
+                        <span class="lb-name">${entry.name}</span>
+                        <span class="lb-score">${entry.score.toLocaleString()} PTS</span>
+                    </div>
+                `;
+            });
+        }
+
+        renderLeaderboard();
+
+        /* =========================================================
+        DEVELOPER MASTER PLAN: CHASER POINTS SYSTEM LOGIC 
+        =========================================================
+        Cash is for the economy. Points track the actual leaders.
+        
+        EARNING RULES TO BE INTEGRATED ACROSS PAGES:
+        - DAILY LOGIN: 1 pt per day.
+        - SLOTS: 1 pt for every 100 spins. (Needs counter in slots.js)
+        - BLACKJACK: 1 pt for every Blackjack hit.
+        - TRADING: 5 pts for a Platinum trade (MAX 1 PER DAY to prevent abuse. Store timestamp).
+        - STADIUM: 1 pt for every Stadium 6v6 win.
+        - PACK PULLS (Slots, Market, Blackjack Drops): 
+            * Diamond Card = 20 pts
+            * Platinum Card = 5 pts
+            * Gold/Silver/Base = 0 pts
+        =========================================================
+        */
+    </script>
+</body>
+</html>

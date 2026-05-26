@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Card Chaser's | Welcome</title>
+    
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
         body, html {
@@ -27,9 +28,26 @@
         .jumbotron-box::after { content: '[!]'; position: absolute; top: 10px; right: 15px; color: #00ff66; font-family: monospace; font-size: 1.2rem; font-weight: 900; animation: flashText 1s infinite; }
         .scanlines { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.4) 50%); background-size: 100% 6px; z-index: 2; pointer-events: none; }
         .alert-header { color: #fff; font-size: clamp(0.7rem, 2vw, 1rem); letter-spacing: 4px; margin-bottom: 10px; font-weight: 900; z-index: 10; text-transform: uppercase; text-shadow: 2px 2px 0px #000; }
+        
         .marquee-container { width: 90%; overflow: hidden; white-space: nowrap; z-index: 10; border-top: 2px solid rgba(0, 255, 102, 0.4); border-bottom: 2px solid rgba(0, 255, 102, 0.4); padding: 15px 0; background: rgba(0, 255, 102, 0.1); }
-        .marquee-content { display: inline-block; color: #00ff66; font-family: monospace; font-size: clamp(1.5rem, 4vw, 2.5rem); font-weight: 900; letter-spacing: 2px; text-transform: uppercase; text-shadow: 2px 2px 0px #000, -1px -1px 0px #000, 0 0 15px rgba(0, 255, 102, 0.9); animation: scrollText 12s linear infinite; }
-        @keyframes scrollText { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        
+        /* UPDATED MARQUEE CONTENT WITH PADDING FIX */
+        .marquee-content { 
+            display: inline-block; 
+            color: #00ff66; 
+            font-family: monospace; 
+            font-size: clamp(1.5rem, 4vw, 2.5rem); 
+            font-weight: 900; 
+            letter-spacing: 2px; 
+            text-transform: uppercase; 
+            text-shadow: 2px 2px 0px #000, -1px -1px 0px #000, 0 0 15px rgba(0, 255, 102, 0.9); 
+            padding-left: 100%; /* The magic fix */
+            animation: scrollText 12s linear infinite; 
+        }
+        
+        /* UPDATED KEYFRAMES STARTING AT 0 */
+        @keyframes scrollText { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+        
         @keyframes pulseGlow { 0% { box-shadow: 0 0 20px rgba(0, 255, 102, 0.2), inset 0 0 30px rgba(0, 255, 102, 0.1); border-color: rgba(0, 255, 102, 0.5); } 100% { box-shadow: 0 0 40px rgba(0, 255, 102, 0.5), inset 0 0 60px rgba(0, 255, 102, 0.3); border-color: #00ff66; } }
         @keyframes flashText { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.2; } }
         .welcome-container { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 30px; perspective: 1000px; margin-bottom: 5vh; }
@@ -39,28 +57,43 @@
         .enter-btn-3d:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(255, 159, 67, 0.4), 0 14px 0px #c26b1f; }
         .enter-btn-3d:active { transform: translateY(4px); border-bottom-width: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.5), 0 2px 0px #5c2807; }
 
-.room-container {
-    width: 100%;       /* Full width by default */
-    padding: 10px;
-    box-sizing: border-box;
-    overflow-y: auto;
-    margin: 0 auto;
-}
+        .room-container {
+            width: 100%;       /* Full width by default */
+            padding: 10px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            margin: 0 auto;
+        }
 
-/* Only trigger the phone-style layout when the screen is narrow */
-@media (max-width: 600px) {
-    .room-container {
-        max-width: 600px; /* Force the 600px limit ONLY on phones */
-    }
-}
+        /* Only trigger the phone-style layout when the screen is narrow */
+        @media (max-width: 600px) {
+            .room-container {
+                max-width: 600px; /* Force the 600px limit ONLY on phones */
+            }
+        }
     </style>
 </head>
 <body>
 
+    <button onclick="window.location.href='leaderboard.html'">🏆 VIEW LEADERBOARD</button>
+
     <div class="room-container"></div>
 
-    <div class="jumbotron-box" id="jumbo-box"><div class="scanlines"></div><div class="alert-header">=== GLOBAL EVENT FEED ===</div><div class="marquee-container"><div class="marquee-content" id="alert-marquee">SYSTEM BOOT SEQUENCE INITIATED...</div></div></div>
-    <div class="welcome-container"><h1 class="logo-text">Card<br>Chaser's</h1><div class="btn-3d-container"><button class="enter-btn-3d" onclick="window.location.href='playground.html'">ENTER NOW</button></div></div>
+    <div class="jumbotron-box" id="jumbo-box">
+        <div class="scanlines"></div>
+        <div class="alert-header">=== GLOBAL EVENT FEED ===</div>
+        <div class="marquee-container">
+            <div class="marquee-content" id="alert-marquee">SYSTEM BOOT SEQUENCE INITIATED...</div>
+        </div>
+    </div>
+    
+    <div class="welcome-container">
+        <h1 class="logo-text">Card<br>Chaser's</h1>
+        <div class="btn-3d-container">
+            <button class="enter-btn-3d" onclick="window.location.href='playground.html'">ENTER NOW</button>
+        </div>
+    </div>
+    
     <script>
         function getNextMonsterFeeding() {
             let now = new Date(); let target = new Date(now); target.setUTCHours(20, 0, 0, 0);
