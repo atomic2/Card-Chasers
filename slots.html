@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Arena Slots | Card Chaser's</title>
+    <script src="data.js"></script>
     
     <style>
         :root {
@@ -25,7 +26,7 @@
         *, *:before, *:after { box-sizing: inherit; }
 
         .room-container {
-            width: 100%;       
+            width: 100%;        
             padding: 10px;
             box-sizing: border-box;
             overflow-y: auto;
@@ -205,6 +206,10 @@
         let playerPoints = parseInt(localStorage.getItem('playerPoints')) || 0;
         let currentSport = localStorage.getItem('selectedSport') || 'default';
         
+        // --- MISSING VARIABLES FIX ---
+        const pricingMap = { "base": 50, "silver": 250, "gold": 1000, "platinum": 1500, "diamond": 2500 };
+        const powerMap = { "base": "1x", "silver": "2x", "gold": "3x", "platinum": "6x", "diamond": "10x" };
+
         // ========================================================
         // WEB AUDIO SYNTHESIZER ENGINE
         // ========================================================
@@ -270,12 +275,13 @@
             }
         }
 
+        // --- KEY MISMATCH FIX (Changed _inventory to _inv to match Locker Room) ---
         const sportData = { 
-            nhl: { title: "Ice Blast", primary: "#3498db", dark: "#1a5276", bg: "linear-gradient(to bottom, #2c3e50, #0f171e)", border: "double", symbols: ["🏆", "💎", "🏒", "🥅", "⛸️", "🚨"], key: "nhl_inventory", pool: [ {name: "Game Changer", dna: "Kirill Kaprizov (MIN)", pos: "LW"}, {name: "Rink Rat", dna: "Connor McDavid (EDM)", pos: "C"}, {name: "The Great One", dna: "Wayne Gretzky (LEG)", pos: "C"}, {name: "The Sidkid", dna: "Sidney Crosby (PIT)", pos: "C"}, {name: "Matts Magic", dna: "Auston Matthews (TOR)", pos: "C"}, {name: "Ice Wall", dna: "Andrei Vasilevskiy (TB)", pos: "G"}, {name: "Blueline Boss", dna: "Cale Makar (COL)", pos: "LD"} ] }, 
-            mlb: { title: "Grand Slam", primary: "#2ecc71", dark: "#196f3d", bg: "linear-gradient(to bottom, #2d4a22, #0d1a0a)", border: "dashed", symbols: ["🏆", "💎", "⚾", "🧢", "🏟️", "👟"], key: "mlb_inventory", pool: [ {name: "Diamond King", dna: "Shohei Ohtani (LAD)", pos: "P"}, {name: "The Captain", dna: "Aaron Judge (NYY)", pos: "CF"}, {name: "Mookie Magic", dna: "Mookie Betts (LAD)", pos: "2B"}, {name: "Soto Shuffle", dna: "Juan Soto (NYY)", pos: "LF"} ] }, 
-            nba: { title: "Full Court", primary: "#e67e22", dark: "#a04000", bg: "linear-gradient(to bottom, #5c2c06, #1a0c02)", border: "solid", symbols: ["🏆", "💎", "🏀", "👟", "🔥", "👑"], key: "nba_inventory", pool: [ {name: "Crossover Master", dna: "Stephen Curry (GSW)", pos: "PG"}, {name: "King James", dna: "LeBron James (LAL)", pos: "SF"}, {name: "The Joker", dna: "Nikola Jokic (DEN)", pos: "C"}, {name: "Greek Freak", dna: "Giannis Antetokounmpo (MIL)", pos: "PF"} ] }, 
-            nfl: { title: "Gridiron", primary: "#f1c40f", dark: "#9a7d0a", bg: "linear-gradient(to bottom, #3e2723, #150c0a)", border: "solid", symbols: ["🏆", "💎", "🏈", "🏟️", "📣", "🧤"], key: "nfl_inventory", pool: [ {name: "Showtime", dna: "Patrick Mahomes (KC)", pos: "QB"}, {name: "Run CMC", dna: "Christian McCaffrey (SF)", pos: "RB"}, {name: "Action Jackson", dna: "Lamar Jackson (BAL)", pos: "QB"}, {name: "Cheetah", dna: "Tyreek Hill (MIA)", pos: "WR"} ] }, 
-            default: { title: "Card Chaser", primary: "#ff9f43", dark: "#b1601a", bg: "linear-gradient(to bottom, #232731, #161920)", border: "solid", symbols: ["🏆", "💎", "🎰", "🍒", "🔔", "⭐"], key: "default_inventory", pool: [ {name: "Base Player", dna: "Rookie Draft Pick", pos: "UTIL"} ] } 
+            nhl: { title: "Ice Blast", primary: "#3498db", dark: "#1a5276", bg: "linear-gradient(to bottom, #2c3e50, #0f171e)", border: "double", symbols: ["🏆", "💎", "🏒", "🥅", "⛸️", "🚨"], key: "nhl_inv" }, 
+            mlb: { title: "Grand Slam", primary: "#2ecc71", dark: "#196f3d", bg: "linear-gradient(to bottom, #2d4a22, #0d1a0a)", border: "dashed", symbols: ["🏆", "💎", "⚾", "🧢", "🏟️", "👟"], key: "mlb_inv" }, 
+            nba: { title: "Full Court", primary: "#e67e22", dark: "#a04000", bg: "linear-gradient(to bottom, #5c2c06, #1a0c02)", border: "solid", symbols: ["🏆", "💎", "🏀", "👟", "🔥", "👑"], key: "nba_inv" }, 
+            nfl: { title: "Gridiron", primary: "#f1c40f", dark: "#9a7d0a", bg: "linear-gradient(to bottom, #3e2723, #150c0a)", border: "solid", symbols: ["🏆", "💎", "🏈", "🏟️", "📣", "🧤"], key: "nfl_inv" }, 
+            default: { title: "Card Chaser", primary: "#ff9f43", dark: "#b1601a", bg: "linear-gradient(to bottom, #232731, #161920)", border: "solid", symbols: ["🏆", "💎", "🎰", "🍒", "🔔", "⭐"], key: "default_inv" } 
         };
         const activeConfig = sportData[currentSport] || sportData['default'];
         document.documentElement.style.setProperty('--primary', activeConfig.primary);
@@ -309,31 +315,58 @@
             } 
         }
 
-        function mintCard() { 
-            let template = activeConfig.pool[Math.floor(Math.random() * activeConfig.pool.length)]; 
-            let roll = Math.random(); 
-            let tier = 'base'; 
-            
-            // Adjusted Odds: Base 60%, Silver 25%, Gold 14%, Platinum 1%
-            if (roll > 0.99) tier = 'platinum'; 
-            else if (roll > 0.85) tier = 'gold'; 
-            else if (roll > 0.60) tier = 'silver'; 
-            else tier = 'base'; 
-            
-            const pricingMap = { "base": 50, "silver": 250, "gold": 1000, "platinum": 1500 }; 
-            const powerMap = { "base": "1x", "silver": "2x", "gold": "3x", "platinum": "6x" }; 
-            
-            let newCard = { 
-                id: "slot_mint_" + Date.now() + "_" + Math.random(), 
-                name: template.name, dna: template.dna, pos: template.pos, 
-                tier: tier, value: pricingMap[tier], power: powerMap[tier] 
-            }; 
-            
-            let inv = JSON.parse(localStorage.getItem(activeConfig.key)) || []; 
-            inv.push(newCard); 
-            localStorage.setItem(activeConfig.key, JSON.stringify(inv)); 
-            
-            return newCard; 
+        function mintCard() {
+            try {
+                // 1. Establish sport, ensuring it matches the keys in data.js
+                let sport = currentSport === 'default' ? 'nhl' : currentSport;
+                
+                // Safety: If data.js hasn't loaded or sport is missing, use a fallback
+                if (typeof window.SportsData === 'undefined' || !window.SportsData[sport]) {
+                    console.error("data.js not loaded or sport missing!");
+                    return { name: "Fallback Player", tier: "base", dna: "N/A", pos: "U", value: 50, power: "1x" };
+                }
+
+                // Get the list from data.js
+                let data = window.SportsData[sport];
+                let playerList = data.list;
+                let randomIndex = Math.floor(Math.random() * playerList.length);
+                let rawString = playerList[randomIndex]; 
+                
+                let cleanName = rawString.split(' (')[0];
+                let exactPosition = data.positions[cleanName] || "UTIL";
+
+                // 2. TIER LOGIC
+                let roll = Math.random(); 
+                let tier = 'base';
+                if (roll > 0.99) tier = 'platinum'; 
+                else if (roll > 0.85) tier = 'gold'; 
+                else if (roll > 0.60) tier = 'silver';
+                else tier = 'base';
+
+                // 3. Match the Locker Room structure exactly
+                let newCard = {
+                    id: "slot_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
+                    name: cleanName,
+                    dna: rawString, 
+                    pos: exactPosition,
+                    tier: tier,
+                    value: pricingMap[tier] || 50,
+                    power: powerMap[tier] || "1x"
+                };
+
+                // 4. Save to the Locker Room's exact key
+                let storageKey = activeConfig.key; 
+                
+                let rawData = localStorage.getItem(storageKey);
+                let inv = rawData ? JSON.parse(rawData) : [];
+                inv.push(newCard);
+                localStorage.setItem(storageKey, JSON.stringify(inv));
+                
+                return newCard;
+            } catch (error) {
+                console.error("Crash avoided in mintCard:", error);
+                return { name: "Error Card", tier: "base", dna: "Error", pos: "U", value: 50, power: "1x" };
+            }
         }
 
         function pullLever() { 

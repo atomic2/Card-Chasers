@@ -1,3 +1,17 @@
+// 1. THIS IS YOUR LOCKER ROOM (The cards the player actually owns)
+window.playerInventory = window.playerInventory || [];
+
+// 2. THIS IS THE MASTER SPREADSHEET (Every possible card in the game)
+window.masterCardDatabase = window.masterCardDatabase || [
+    { name: "Wayne Gretzky", tier: "diamond", pos: "C", dna: "Original" },
+    { name: "Connor McDavid", tier: "platinum", pos: "C", dna: "Original" },
+    { name: "Sidney Crosby", tier: "gold", pos: "C", dna: "Original" },
+    { name: "Auston Matthews", tier: "silver", pos: "C", dna: "Original" },
+    { name: "Rookie Draft Pick", tier: "base", pos: "U", dna: "Original" }
+    // ... your hundreds of real cards go here
+];
+
+
 window.SportsData = {
     mlb: {
         list: [ "Shohei Ohtani (LAD)", "Aaron Judge (NYY)", "Bobby Witt Jr (KC)", "Juan Soto (NYM)", "Tarik Skubal (DET)", "Paul Skenes (PIT)", "Francisco Lindor (NYM)", "Jose Ramirez (CLE)", "Gunnar Henderson (BAL)", "Yordan Alvarez (HOU)", "Kyle Tucker (LAD)", "Elly De La Cruz (CIN)", "Corbin Carroll (ARI)", "Bryce Harper (PHI)", "Trea Turner (PHI)", "William Contreras (MIL)", "Chris Sale (ATL)", "Logan Webb (SF)", "Will Smith (LAD)", "Vladimir Guerrero Jr (TOR)", "Adley Rutschman (BAL)", "Corey Seager (TEX)", "Freddie Freeman (LAD)", "Zack Wheeler (PHI)", "Riley Greene (DET)", "Jackson Chourio (MIL)", "Paul Goldschmidt (STL)", "Austin Riley (ATL)", "Matt Olson (ATL)", "Ozzie Albies (ATL)", "Luis Robert Jr (CHW)", "Fernando Tatis Jr (SD)", "Manny Machado (SD)", "Jackson Merrill (SD)", "Dylan Cease (SD)", "Cole Ragans (KC)", "Seth Lugo (KC)", "George Kirby (SEA)", "Logan Gilbert (SEA)", "Cal Raleigh (SEA)", "Julio Rodriguez (SEA)", "Luis Castillo (SEA)", "Framber Valdez (HOU)", "Kyle Schwarber (PHI)", "Nick Castellanos (PHI)", "Cristopher Sanchez (PHI)", "Ranger Suarez (PHI)", "Zac Gallen (ARI)", "Ketel Marte (ARI)", "Christian Walker (ARI)", "Merrill Kelly (ARI)", "Oneil Cruz (PIT)", "Bryan Reynolds (PIT)", "Jared Jones (PIT)", "Ke'Bryan Hayes (PIT)", "Dansby Swanson (CHC)", "Shota Imanaga (CHC)", "Justin Steele (CHC)", "Seiya Suzuki (CHC)", "Pete Alonso (NYM)", "Kodai Senga (NYM)", "Edwin Diaz (NYM)", "Brandon Nimmo (NYM)", "Mark Vientos (NYM)", "Gerrit Cole (NYY)", "Giancarlo Stanton (NYY)", "Anthony Volpe (NYY)", "Luis Gil (NYY)", "Carlos Rodon (NYY)", "Rafael Devers (BOS)", "Triston Casas (BOS)", "Ceddanne Rafaela (BOS)", "Tanner Houck (BOS)", "Brayan Bello (BOS)", "Bo Bichette (TOR)", "Kevin Gausman (TOR)", "Jose Berrios (TOR)", "Daulton Varsho (TOR)", "Colton Cowser (BAL)", "Jordan Westburg (BAL)", "Grayson Rodriguez (BAL)", "Corbin Burnes (BAL)", "Lane Thomas (CLE)", "Steven Kwan (CLE)", "Josh Naylor (CLE)", "Emmanuel Clase (CLE)", "Tanner Bibee (CLE)", "Royce Lewis (MIN)", "Carlos Correa (MIN)", "Pablo Lopez (MIN)", "Byron Buxton (MIN)", "Joe Ryan (MIN)", "Wyatt Langford (TEX)", "Evan Carter (TEX)", "Nathan Eovaldi (TEX)", "Jacob deGrom (TEX)", "Marcus Semien (TEX)", "Alvarez (NYM)", "Spencer Strider (ATL)", "Max Fried (ATL)" ],

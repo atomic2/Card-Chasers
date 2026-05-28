@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Blackjack | Card Chaser's</title>
+    <head>
+    <title>Blackjack | Card Chaser's</title>
+    <script src="data.js"></script> 
+   
     
     <style>
         :root {
@@ -218,22 +222,33 @@
 
         // Card Data Pools for Prizes
         const pricingMap = { "base": 50, "silver": 250, "gold": 1000, "platinum": 1500, "diamond": 2500 };
-        const sportData = {
-            nhl: { key: "nhl_inventory", icon: "🏒", pool: [
-                {name: "The Brick Wall", dna: "Igor Shesterkin (NYR)", pos: "G"}, {name: "Game Changer", dna: "Kirill Kaprizov (MIN)", pos: "LW"}, {name: "Rink Rat", dna: "Connor McDavid (EDM)", pos: "C"}, {name: "The Great 8", dna: "Alex Ovechkin (WSH)", pos: "RW"}, {name: "Blueline Boss", dna: "Cale Makar (COL)", pos: "LD"}
-            ]},
-            mlb: { key: "mlb_inventory", icon: "⚾", pool: [
-                {name: "Diamond King", dna: "Shohei Ohtani (LAD)", pos: "P"}, {name: "The Captain", dna: "Aaron Judge (NYY)", pos: "CF"}
-            ]},
-            nba: { key: "nba_inventory", icon: "🏀", pool: [
-                {name: "Crossover Master", dna: "Stephen Curry (GSW)", pos: "PG"}, {name: "King James", dna: "LeBron James (LAL)", pos: "SF"}
-            ]},
-            nfl: { key: "nfl_inventory", icon: "🏈", pool: [
-                {name: "Showtime", dna: "Patrick Mahomes (KC)", pos: "QB"}, {name: "Run CMC", dna: "Christian McCaffrey (SF)", pos: "RB"}
-            ]}
+// --- DYNAMIC DATA BRIDGE ---
+// This function pulls the data from data.js instead of using hardcoded lists
+function getPoolForSport(sportKey) {
+    if (!window.SportsData || !window.SportsData[sportKey]) {
+        console.error("DATA ERROR: data.js is not loaded or sport not found!");
+        return [{name: "Base Player", dna: "Rookie", pos: "UTIL"}];
+    }
+    
+    let pool = window.SportsData[sportKey].list.map(entry => {
+        let name = entry.split(' (')[0].trim();
+        return {
+            name: name,
+            dna: entry,
+            pos: window.SportsData[sportKey].positions[name] || "UTIL"
         };
-        const activeSportData = sportData[currentSport] || sportData['nhl'];
-        
+    });
+
+    console.log("SUCCESS: Loaded " + pool.length + " players for " + sportKey);
+    return pool;
+}
+
+// Set up the active data dynamically based on the current sport
+const activeSportData = { 
+    key: currentSport + "_inventory",
+    icon: currentSport === 'nhl' ? '🏒' : currentSport === 'mlb' ? '⚾' : currentSport === 'nba' ? '🏀' : '🏈',
+    pool: getPoolForSport(currentSport)
+};
         function updateBankUI() {
             document.getElementById('bank-cash').innerText = "$" + playerCash.toLocaleString();
             document.getElementById('bank-pts').innerText = playerPoints.toLocaleString();
@@ -384,40 +399,49 @@
             document.getElementById('terminal-log').innerText = "BET CLEARED.";
         }
 
-        function dealHand() {
-            gameActive = true;
-            document.getElementById('bet-controls').style.display = 'none';
-            document.getElementById('action-controls').style.display = 'flex';
-            document.getElementById('hit-btn').disabled = false;
-            document.getElementById('stand-btn').disabled = false;
-            document.getElementById('terminal-log').innerText = "GOOD LUCK. HIT OR STAND?";
-            document.getElementById('terminal-log').style.color = "#f1c40f";
+function dealHand() {
+    gameActive = true;
+    
+    // UI Setup
+    document.getElementById('bet-controls').style.display = 'none';
+    document.getElementById('action-controls').style.display = 'flex';
+    document.getElementById('hit-btn').disabled = false;
+    document.getElementById('stand-btn').disabled = false;
+    document.getElementById('terminal-log').innerText = "GOOD LUCK. HIT OR STAND?";
+    document.getElementById('terminal-log').style.color = "#f1c40f";
 
-            buildDeck();
-            playerHand = [deck.pop(), deck.pop()];
-            dealerHand = [deck.pop(), deck.pop()];
-            
-            playSound('card'); setTimeout(() => playSound('card'), 200);
-            updateBoard(true);
-            checkInitialBlackjack();
-        }
+    // Build and Deal
+    buildDeck();
+    playerHand = [deck.pop(), deck.pop()];
+    dealerHand = [deck.pop(), deck.pop()];
+    
+    // UI Update
+    playSound('card'); 
+    setTimeout(() => playSound('card'), 200);
+    updateBoard(true);
+    
+    // Check for natural 21 (Blackjack)
+    checkInitialBlackjack();
+}
 
-        function checkInitialBlackjack() {
-            let pScore = calculateScore(playerHand);
-            if (pScore === 21) {
-                gameActive = false;
-                updateBoard(false);
-                let winnings = currentBet * 2.5; 
-                playerCash += winnings; playerPoints += 25;
-                updateBankUI();
-                playSound('win');
-                document.getElementById('terminal-log').innerText = `BLACKJACK! YOU WIN $${winnings}!`;
-                document.getElementById('terminal-log').style.color = "#2ecc71";
-                
-                checkPrizeDrop(); // Triggers chance for pack drop
-                resetTable();
-            }
-        }
+ function checkInitialBlackjack() {
+    let pScore = calculateScore(playerHand);
+    if (pScore === 21) {
+        gameActive = false;
+        updateBoard(false);
+        let winnings = currentBet * 2.5; 
+        playerCash += winnings; playerPoints += 25;
+        updateBankUI();
+        playSound('win');
+        document.getElementById('terminal-log').innerText = `BLACKJACK! YOU WIN $${winnings}!`;
+        document.getElementById('terminal-log').style.color = "#2ecc71";
+        
+        // REPLACING checkPrizeDrop() with new reward engine
+        processWinReward(true, true); 
+        
+        resetTable();
+    }
+}
 
         function hit() {
             if (!gameActive) return;
@@ -460,29 +484,48 @@
             }, 800);
         }
 
-        function resolveGame() {
-            let pScore = calculateScore(playerHand);
-            let dScore = calculateScore(dealerHand);
-            const log = document.getElementById('terminal-log');
+function resolveGame() {
+    let pScore = calculateScore(playerHand);
+    let dScore = calculateScore(dealerHand);
+    const log = document.getElementById('terminal-log');
 
-            if (dScore > 21) {
-                let winnings = currentBet * 2; playerCash += winnings; playSound('win');
-                log.innerText = `DEALER BUSTS! YOU WIN $${winnings}!`; log.style.color = "#2ecc71";
-            } else if (pScore > dScore) {
-                let winnings = currentBet * 2; playerCash += winnings; playSound('win');
-                log.innerText = `YOU WIN $${winnings}!`; log.style.color = "#2ecc71";
-            } else if (pScore < dScore) {
-                playSound('bust');
-                log.innerText = `DEALER WINS ${dScore} TO ${pScore}.`; log.style.color = "#ff4757";
-            } else {
-                playerCash += currentBet; 
-                log.innerText = "PUSH. TIE GAME. BET REFUNDED."; log.style.color = "#f1c40f";
-            }
-            
-            updateBankUI();
-            checkPrizeDrop(); // Triggers chance for pack drop
-            resetTable();
-        }
+    if (dScore > 21) {
+        // DEALER BUSTS - WIN
+        let winnings = currentBet * 2; 
+        playerCash += winnings; 
+        playSound('win');
+        log.innerText = `DEALER BUSTS! YOU WIN $${winnings}!`; 
+        log.style.color = "#2ecc71";
+        
+        // Correct usage: Pass current score, and false for "Is it a Blackjack?"
+        processWinReward(false, true);
+
+    } else if (pScore > dScore) {
+        // PLAYER WINS
+        let winnings = currentBet * 2; 
+        playerCash += winnings; 
+        playSound('win');
+        log.innerText = `YOU WIN $${winnings}!`; 
+        log.style.color = "#2ecc71";
+        
+        // Correct usage: Pass current score, and false for "Is it a Blackjack?"
+        processWinReward(false, true);
+
+    } else if (pScore < dScore) {
+        // PLAYER LOSES
+        playSound('bust');
+        log.innerText = `DEALER WINS ${dScore} TO ${pScore}.`; 
+        log.style.color = "#ff4757";
+    } else {
+        // PUSH / TIE
+        playerCash += currentBet; 
+        log.innerText = "PUSH. TIE GAME. BET REFUNDED."; 
+        log.style.color = "#f1c40f";
+    }
+    
+    updateBankUI();
+    resetTable();
+}
 
         function resetTable() {
             document.getElementById('hit-btn').disabled = true;
@@ -573,6 +616,77 @@
             document.getElementById('prize-modal').style.display = 'none';
             showBetScreen(); // Resets the table for the next hand
         }
+
+
+function openPrizeModal(card) {
+    let bColor = card.tier === 'gold' ? '#f1c40f' : card.tier === 'silver' ? '#bdc3c7' : card.tier === 'platinum' ? '#e5e4e2' : '#7f8c8d';
+    let shortPos = card.pos.charAt(0);
+
+    document.getElementById('prize-card-container').innerHTML = `
+        <div class="card-core" style="border: 2px solid ${bColor}; box-shadow: 0 0 30px ${bColor};">
+            <div class="pos-badge">${shortPos}</div>
+            <div class="art-box">${activeSportData.icon}</div>
+            <div class="card-title">${card.name}</div>
+            <div class="card-descriptive-text">LOCKER 88 ${card.tier.toUpperCase()}</div>
+            <div class="data-panel-core">
+                <div class="data-title-gray">STAT DNA MATCH</div>
+                <div class="data-detail-green">${card.dna}</div>
+            </div>
+        </div>
+    `;
+    document.getElementById('prize-modal').style.display = 'flex';
+}
+
+
+
+
+
+// --- REWARD ENGINE ---
+function mintCard(overrideTier = null) {
+    let template = activeSportData.pool[Math.floor(Math.random() * activeSportData.pool.length)];
+    let tier = overrideTier || 'base';
+
+    const pricingMap = { "base": 50, "silver": 250, "gold": 1000, "platinum": 1500, "diamond": 2500 };
+    const powerMap = { "base": "1x", "silver": "2x", "gold": "3x", "platinum": "6x", "diamond": "10x" };
+
+    let newCard = {
+        id: "slot_mint_" + Date.now() + "_" + Math.random(),
+        name: template.name, 
+        dna: template.dna, 
+        pos: template.pos,
+        tier: tier, 
+        value: pricingMap[tier], 
+        power: powerMap[tier]
+    };
+
+    let inv = JSON.parse(localStorage.getItem(activeSportData.key)) || [];
+    inv.push(newCard);
+    localStorage.setItem(activeSportData.key, JSON.stringify(inv));
+
+    return newCard;
+}
+
+function processWinReward(isBlackjack, isWin) {
+    if (!isWin) return; // This will now correctly let wins pass
+
+    let tier = 'base';
+
+    if (isBlackjack) {
+        // Blackjack logic
+        let roll = Math.random();
+        if (roll > 0.85) tier = 'platinum';
+        else if (roll > 0.50) tier = 'gold';
+        else tier = 'silver';
+    } else {
+        // Standard win logic
+        tier = 'base';
+    }
+
+    let card = mintCard(tier);
+    openPrizeModal(card);
+}
+
+
 
     </script>
 </body>

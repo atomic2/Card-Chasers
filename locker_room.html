@@ -164,72 +164,129 @@
     </div> 
 
     <script>
-
-// --- BRIDGE TO DATA.JS ---
-const sportConfig = {
-    nhl: { 
-        key: 'nhl_inv', 
-        title: 'NHL VAULT', 
-        btnText: 'RIP NHL PACK', 
-        icon: '🏒', 
-        primary: '#1A73E8', 
-        bg: '#0A0D10', 
-        pool: window.SportsData.nhl.list.map(name => ({
-            name: name.split(' (')[0], 
-            dna: name, 
-            pos: window.SportsData.nhl.positions[name.split(' (')[0]] || "UTIL"
-        }))
-    },
-    mlb: { 
-        key: 'mlb_inv', 
-        title: 'MLB VAULT', 
-        btnText: 'RIP MLB PACK', 
-        icon: '⚾', 
-        primary: '#E74C3C', 
-        bg: '#100A0A', 
-        pool: window.SportsData.mlb.list.map(name => ({
-            name: name.split(' (')[0], 
-            dna: name, 
-            pos: window.SportsData.mlb.positions[name.split(' (')[0]] || "UTIL"
-        }))
-    },
-    nba: { 
-        key: 'nba_inv', 
-        title: 'NBA VAULT', 
-        btnText: 'RIP NBA PACK', 
-        icon: '🏀', 
-        primary: '#F39C12', 
-        bg: '#1A1C21', 
-        pool: window.SportsData.nba.list.map(name => ({
-            name: name.split(' (')[0], 
-            dna: name, 
-            pos: window.SportsData.nba.positions[name.split(' (')[0]] || "UTIL"
-        }))
-    },
-    nfl: { 
-        key: 'nfl_inv', 
-        title: 'NFL VAULT', 
-        btnText: 'RIP NFL PACK', 
-        icon: '🏈', 
-        primary: '#8E44AD', 
-        bg: '#1A1C21', 
-        pool: window.SportsData.nfl.list.map(name => ({
-            name: name.split(' (')[0], 
-            dna: name, 
-            pos: window.SportsData.nfl.positions[name.split(' (')[0]] || "UTIL"
-        }))
-    }
-};
-
-
-
+        // --- BRIDGE TO DATA.JS ---
+        const sportConfig = {
+            nhl: { 
+                key: 'nhl_inv', 
+                title: 'NHL VAULT', 
+                btnText: 'RIP NHL PACK', 
+                icon: '🏒', 
+                primary: '#1A73E8', 
+                bg: '#0A0D10', 
+                pool: window.SportsData.nhl.list.map(name => ({
+                    dna: name, 
+                    pos: window.SportsData.nhl.positions[name.split(' (')[0]] || "UTIL"
+                }))
+            },
+            mlb: { 
+                key: 'mlb_inv', 
+                title: 'MLB VAULT', 
+                btnText: 'RIP MLB PACK', 
+                icon: '⚾', 
+                primary: '#E74C3C', 
+                bg: '#100A0A', 
+                pool: window.SportsData.mlb.list.map(name => ({
+                    dna: name, 
+                    pos: window.SportsData.mlb.positions[name.split(' (')[0]] || "UTIL"
+                }))
+            },
+            nba: { 
+                key: 'nba_inv', 
+                title: 'NBA VAULT', 
+                btnText: 'RIP NBA PACK', 
+                icon: '🏀', 
+                primary: '#F39C12', 
+                bg: '#1A1C21', 
+                pool: window.SportsData.nba.list.map(name => ({
+                    dna: name, 
+                    pos: window.SportsData.nba.positions[name.split(' (')[0]] || "UTIL"
+                }))
+            },
+            nfl: { 
+                key: 'nfl_inv', 
+                title: 'NFL VAULT', 
+                btnText: 'RIP NFL PACK', 
+                icon: '🏈', 
+                primary: '#8E44AD', 
+                bg: '#1A1C21', 
+                pool: window.SportsData.nfl.list.map(name => ({
+                    dna: name, 
+                    pos: window.SportsData.nfl.positions[name.split(' (')[0]] || "UTIL"
+                }))
+            }
+        };
 
         let activeSport = localStorage.getItem('selectedSport') || 'nhl';
         
         const pricingMap = { "base": 50, "silver": 250, "gold": 1000, "platinum": 1500, "diamond": 2500 };
         const powerMap = { "base": "1x", "silver": "2x", "gold": "3x", "platinum": "6x", "diamond": "10x" };
-        
-               function initLocker() {
+
+        // --- DNA HASH GENERATOR (300 Unique Combinations per Position) ---
+        function getCardAlias(sport, pos, dna) {
+            // Hash the exact player string so they always get the same unique title
+            let hash = 0;
+            for (let i = 0; i < dna.length; i++) {
+                hash = dna.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            hash = Math.abs(hash);
+
+            const prefixes = [
+                "The", "Iron", "Shadow", "Neon", "Quantum", "Frost", "Cyber", 
+                "Apex", "Titan", "Phantom", "Rogue", "Savage", "Prime", "Alpha", 
+                "Omega", "Nova", "Stealth", "Vortex", "Elite", "Supreme",
+                "Ghost", "Toxic", "Venom", "Electric", "Plasma", "Crimson", 
+                "Golden", "Silver", "Midnight", "Solar"
+            ];
+            
+            const suffixes = {
+                'G': ['Brick Wall', 'Netminder', 'Guardian', 'Shield', 'Stopper', 'Sentry', 'Blockade', 'Anchor', 'Protector', 'Wall'],
+                'C': ['Ice General', 'Playmaker', 'Boss', 'Commander', 'Maestro', 'Captain', 'Ace', 'Leader', 'Visionary', 'Strategist'],
+                'LW': ['Sniper', 'Assassin', 'Striker', 'Winger', 'Marksman', 'Phenom', 'Threat', 'Rocket', 'Cannon', 'Blaster'],
+                'RW': ['Sniper', 'Assassin', 'Striker', 'Winger', 'Marksman', 'Phenom', 'Threat', 'Rocket', 'Cannon', 'Blaster'],
+                'LD': ['Enforcer', 'Bruiser', 'Defender', 'Protector', 'Warden', 'Hammer', 'Anchor', 'Smasher', 'Destroyer', 'Bulldozer'],
+                'RD': ['Enforcer', 'Bruiser', 'Defender', 'Protector', 'Warden', 'Hammer', 'Anchor', 'Smasher', 'Destroyer', 'Bulldozer'],
+                'PG': ['Floor General', 'Court Vision', 'Dime Dropper', 'Maestro', 'Conductor', 'Strategist', 'Commander', 'Playmaker', 'Boss', 'Ace'],
+                'SG': ['Sharpshooter', 'Buckets', 'Sniper', 'Scorer', 'Marksman', 'Bomber', 'Rocket', 'Assassin', 'Threat', 'Phenom'],
+                'SF': ['Wing Assassin', 'Slam Dunker', 'Slasher', 'Glider', 'Flyer', 'Acrobat', 'Striker', 'Finisher', 'Threat', 'Sniper'],
+                'PF': ['Paint Beast', 'Post Boss', 'Powerhouse', 'Enforcer', 'Bruiser', 'Smasher', 'Destroyer', 'Bulldozer', 'Titan', 'Anchor'],
+                'C_nba': ['Rim Protector', 'Board Crasher', 'Tower', 'Giant', 'Anchor', 'Guardian', 'Blockade', 'Sentry', 'Wall', 'Boss'],
+                'QB': ['Field General', 'Gunslinger', 'Signal Caller', 'Cannon', 'Sniper', 'Commander', 'Strategist', 'Playmaker', 'Boss', 'Ace'],
+                'RB': ['Ground Pounder', 'Speedback', 'Juggernaut', 'Workhorse', 'Dasher', 'Burner', 'Smasher', 'Bruiser', 'Rocket', 'Flyer'],
+                'WR': ['Deep Threat', 'Route Runner', 'Burner', 'Playmaker', 'Acrobat', 'Glider', 'Flyer', 'Assassin', 'Sniper', 'Phenom'],
+                'TE': ['Redzone Target', 'Mismatch', 'Security Blanket', 'Seam Ripper', 'Hybrid', 'Enforcer', 'Bruiser', 'Anchor', 'Boss', 'Titan'],
+                'DEF': ['Sack Artist', 'Tackle Machine', 'Headhunter', 'Ballhawk', 'Stopper', 'Smasher', 'Destroyer', 'Enforcer', 'Predator', 'Beast'],
+                'P': ['The Ace', 'Mound Boss', 'Flamethrower', 'Spin Doctor', 'Hurler', 'Cannon', 'Rocket', 'Sniper', 'Commander', 'Maestro'],
+                'C_mlb': ['Plate General', 'Pitch Framer', 'Wall', 'Commander', 'Caller', 'Guardian', 'Sentry', 'Blockade', 'Boss', 'Leader'],
+                '1B': ['Power Hitter', 'Slugger', 'Masher', 'Bomber', 'Crusher', 'Smasher', 'Destroyer', 'Titan', 'Boss', 'Threat'],
+                '2B': ['Double Play Ace', 'Infield Boss', 'Keystone', 'Turner', 'Pivot', 'Acrobat', 'Playmaker', 'Commander', 'Ace', 'Phenom'],
+                'SS': ['Field General', 'Web Gem', 'Captain', 'Vacuum', 'Acrobat', 'Playmaker', 'Commander', 'Ace', 'Phenom', 'Maestro'],
+                '3B': ['Hot Corner', 'Slugger', 'Cannon', 'Masher', 'Bomber', 'Crusher', 'Smasher', 'Titan', 'Boss', 'Threat'],
+                'OF': ['Fly Chaser', 'Outfield Patrol', 'Gazelle', 'Sniper', 'Cannon', 'Burner', 'Flyer', 'Glider', 'Acrobat', 'Playmaker'],
+                'default': ['Superstar', 'Game Changer', 'Phenom', 'Prodigy', 'Legend', 'Master', 'Elite', 'Prime', 'Titan', 'Boss']
+            };
+
+            let safePos = pos || 'default';
+            if (safePos === 'C') {
+                if (sport === 'nba') safePos = 'C_nba';
+                if (sport === 'mlb') safePos = 'C_mlb';
+            }
+            
+            let validSuffixes = suffixes[safePos] || suffixes['default'];
+            
+            // Map the hash to the arrays
+            let pIndex = hash % prefixes.length;
+            let sIndex = Math.floor(hash / 10) % validSuffixes.length;
+
+            let prefix = prefixes[pIndex];
+            let suffix = validSuffixes[sIndex];
+
+            if (prefix === 'The') {
+                return `The ${suffix}`;
+            }
+            return `${prefix} ${suffix}`;
+        }
+
+        function initLocker() {
             const config = sportConfig[activeSport];
             document.documentElement.style.setProperty('--primary', config.primary);
             document.documentElement.style.setProperty('--vault-bg', config.bg);
@@ -239,22 +296,24 @@ const sportConfig = {
         }
 
         function makeCardMarkup(card, icon) {
-            let shortPos = card.pos ? card.pos.charAt(0) : "U"; 
+            let shortPos = card.pos ? card.pos : "UTIL"; 
             let bColor = card.tier === 'gold' ? '#f1c40f' : card.tier === 'silver' ? '#bdc3c7' : card.tier === 'platinum' ? '#e5e4e2' : card.tier === 'diamond' ? '#00ffff' : '#7f8c8d';
             let pwrString = card.power || powerMap[card.tier] || "1x";
             
             return `
                 <div class="card-core" style="border: 2px solid ${bColor};">
                     
-                    <div class="pos-badge">${card.pos || "UTIL"}</div>
+                    <div class="pos-badge">${shortPos}</div>
 
                     <div class="art-box">${icon}</div>
                     
+                    <!-- HIGH VISIBILITY AVATAR TITLE / ALIAS -->
                     <div class="card-title">${card.name}</div>
                     <div class="card-descriptive-text">LOCKER 88 ${card.tier.toUpperCase()}</div>
                     
                     <div class="data-panel-core">
                         <div class="data-title-gray">STAT DNA MATCH</div>
+                        <!-- GREEN TRACKING INTEL MATCH REFERENCE FIELD -->
                         <div class="data-detail-green">${card.dna}</div>
                     </div>
                     
@@ -264,23 +323,36 @@ const sportConfig = {
             `;
         }
 
-        // --- NEW BULLETPROOF SORTING SCANNER ---
         function getSafeCardValue(card) {
             if (!card) return 0;
-            // 1. Try to read explicit value (2500, 1500, etc.)
             if (card.value) return Number(card.value);
-            // 2. If value is missing (older cards), read the tier and assign standard value
             if (card.tier) {
                 let tierString = card.tier.toLowerCase();
                 return pricingMap[tierString] || 0;
             }
-            return 0; // Fallback
+            return 0;
         }
 
         function loadInventory() {
             const grid = document.getElementById('display-grid');
             grid.innerHTML = '';
             let currentInv = JSON.parse(localStorage.getItem(sportConfig[activeSport].key)) || [];
+            
+            // --- AUTOMATIC RETROACTIVE PATCH FOR OLD CARDS ---
+            let needsSave = false;
+            currentInv.forEach(card => {
+                let correctHashAlias = getCardAlias(activeSport, card.pos, card.dna);
+                if (card.name !== correctHashAlias) {
+                    card.name = correctHashAlias; // Instantly fix any legacy duplicates or real names
+                    needsSave = true;
+                }
+            });
+
+            if (needsSave) {
+                localStorage.setItem(sportConfig[activeSport].key, JSON.stringify(currentInv));
+            }
+            // --------------------------------------------------
+
             document.getElementById('total-count').innerText = currentInv.length;
 
             if (currentInv.length === 0) {
@@ -288,7 +360,6 @@ const sportConfig = {
                 return;
             }
 
-            // SAFE SORTING: Evaluates all cards using the scanner to guarantee proper high-to-low order
             currentInv.sort((a, b) => getSafeCardValue(b) - getSafeCardValue(a));
 
             currentInv.forEach(card => {
@@ -315,8 +386,8 @@ const sportConfig = {
 
                 let newCard = {
                     id: "c_" + Date.now() + "_" + Math.random(),
-                    name: template.name,
-                    dna: template.dna,
+                    name: getCardAlias(activeSport, template.pos, template.dna), // Generates permanent hashed alias
+                    dna: template.dna,                                           // Preserves green DNA link
                     pos: template.pos,
                     tier: tier,
                     value: pricingMap[tier],
@@ -328,7 +399,6 @@ const sportConfig = {
 
             localStorage.setItem(config.key, JSON.stringify(currentInv));
             
-            // Safe sort for newly pulled cards as well
             freshlyPulled.sort((a, b) => getSafeCardValue(b) - getSafeCardValue(a));
             freshlyPulled.forEach(card => revealRow.innerHTML += makeCardMarkup(card, config.icon));
             

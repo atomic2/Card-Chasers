@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Monster Event | Mutation Chamber</title>
-    <link rel="stylesheet" href="style.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
         :root {
             --primary: #ff4757;
@@ -56,7 +54,8 @@
             width: 220px; height: 50px; background: linear-gradient(#1e272e, #0f141c);
             border: 4px solid #546e7a; border-radius: 10px; position: relative;
             box-shadow: inset 0 10px 15px #000, 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 20px;
-            display: flex; align-items: center; justify-content: center; overflow: hidden;
+            display: flex; align-items: center; justify-content: center; 
+            overflow: visible; 
         }
         .intake-slot-bracket::before {
             content: ''; position: absolute; left: 0; right: 0; height: 3px; background: var(--primary);
@@ -64,27 +63,29 @@
         }
         @keyframes laserFlicker { 0% { opacity: 0.6; } 100% { opacity: 1; } }
 
-        /* THE ANIMATED SLIDING TRADING CARD */
+        /* THE ANIMATED TRADING CARD */
         .sliding-card {
             width: 90px; height: 120px; background: linear-gradient(135deg, #2c3e50, #1a252f);
             border: 3px solid #7f8c8d; border-radius: 8px; display: flex; flex-direction: column;
             align-items: center; justify-content: center; font-size: 0.6rem; font-weight: bold; text-align: center;
-            position: absolute; top: -130px; transition: transform 0.6s cubic-bezier(0.6, -0.28, 0.735, 0.04);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 1; padding: 5px;
+            position: absolute; bottom: 60px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 50; padding: 5px; display: none;
         }
         .sliding-card .req-badge { background: #ff4757; padding: 3px 6px; border-radius: 12px; font-size: 0.7rem; color: #fff; margin-bottom: 2px; }
         .sliding-card .icon { font-size: 1.8rem; margin: 3px 0; }
-        .slide-down-action { transform: translateY(155px) scale(0.7); opacity: 0.2; }
+        
+        .slide-down-action { transform: translateY(120px) scale(0.5); opacity: 0; }
+        .reward-pop-action { transform: translateY(-70px) scale(1.3) !important; opacity: 1 !important; z-index: 99 !important; }
 
-        /* HEAVY SLAMMER CRANK BUTTON */
+        /* BIG FEED ME BUTTON */
         .feed-trigger-3d {
             width: 100%; height: 70px; border-radius: 16px; border: none; outline: none; cursor: pointer;
             font-family: 'Arial Black', sans-serif; font-size: 1.2rem; font-weight: 900; color: #fff;
-            text-transform: uppercase; transition: all 0.05s ease;
+            text-transform: uppercase; transition: all 0.05s ease; margin-top: 20px;
+            background: linear-gradient(135deg, #ff4757, #ff6b81); border-bottom: 12px solid #c0392b; 
+            box-shadow: 0 8px 20px var(--glow);
         }
-        .slammer-locked { background: linear-gradient(135deg, #455a64, #263238); border-bottom: 10px solid #1c2529; opacity: 0.5; cursor: not-allowed; transform: translateY(4px); border-bottom-width: 2px; }
-        .slammer-ready { background: linear-gradient(135deg, #ff4757, #ff6b81); border-bottom: 12px solid #c0392b; transform: translateY(-6px); box-shadow: 0 8px 20px var(--glow); }
-        .slammer-ready:active { transform: translateY(4px); border-bottom-width: 2px; }
+        .feed-trigger-3d:active { transform: translateY(4px); border-bottom-width: 2px; }
 
         .terminal-log {
             margin-top: 15px; background: #000; width: 100%; padding: 12px; border-radius: 8px;
@@ -92,13 +93,34 @@
         }
         .abort-link { background: none; border: none; color: #546e7a; cursor: pointer; font-weight: bold; font-size: 0.85rem; margin-top: 15px; text-transform: uppercase; }
         .abort-link:hover { color: #d8dee9; }
+
+        /* FULL-SIZE LOCKER ROOM CARDS & SELECTION */
+        .card-core { 
+            background: #1c1c1e; border-radius: 12px; padding: 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8); 
+            display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 160px; 
+            box-sizing: border-box; position: relative; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+        }
+        .pos-badge { position: absolute; top: 12px; left: 12px; border: 1px solid #5a5a5e; border-radius: 4px; padding: 3px 6px; font-size: 0.75rem; font-weight: 900; color: #ffffff; }
+        .art-box { background: #121213; width: 80px; height: 80px; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 2.5rem; margin-top: 25px; margin-bottom: 10px; }
+        .card-title { font-size: 0.9rem; font-weight: 900; color: #FFFFFF; margin-bottom: 2px; text-align: center; word-wrap: break-word; width: 100%; }
+        .card-descriptive-text { font-size: 0.6rem; margin-bottom: 5px; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; font-weight: bold; }
         
+        .card-selected { transform: translateY(-15px) scale(1.05) !important; border-color: #00e676 !important; box-shadow: 0 15px 35px rgba(0, 230, 118, 0.4) !important; }
+        
+        .locker-feed-action {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: linear-gradient(135deg, #00e676, #00c853); color: #000;
+            padding: 20px 40px; font-family: 'Arial Black'; font-size: 1.5rem;
+            border: 4px solid #fff; border-radius: 12px; cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,230,118,0.6); display: none; z-index: 9999;
+            transition: transform 0.1s;
+        }
+        .locker-feed-action:active { transform: translateX(-50%) scale(0.95); }
     </style>
 </head>
 <body>
 
     <div class="chamber-mainframe">
-        
         <div class="danger-marquee">
             <h1 class="marquee-alert" id="marquee-header">MUTATION ISOLATOR</h1>
         </div>
@@ -112,99 +134,77 @@
 
         <div class="intake-slot-bracket">
             <div class="sliding-card" id="physical-card">
-                <div class="req-badge" id="card-req-badge">REQ: 0</div>
-                <div style="color:#7f8c8d; margin-top:2px;" id="card-tier-text">TARGET TIER</div>
+                <div class="req-badge" id="card-req-badge">TRIBUTE</div>
+                <div style="color:#7f8c8d; margin-top:2px;" id="card-tier-text">TIER</div>
                 <div class="icon" id="card-sport-icon">🃏</div>
-                <div id="card-name-text">FEEDING ASSET</div>
+                <div id="card-name-text">ASSET</div>
             </div>
         </div>
 
-        <button class="feed-trigger-3d slammer-locked" id="feed-btn" onclick="executeFeeding()" disabled>MONSTER DORMANT</button>
+        <button class="feed-trigger-3d" id="feed-me-btn" onclick="openLockerRoom()">FEED ME</button>
 
-        <div style="font-size:0.75rem; color:#90a4ae; margin-top:15px; letter-spacing:1px; text-align:center;">
-            AVAILABLE FEED STACKS (5 Base, 4 Silver, 3 Gold): <br>
-            <span id="combo-qty" style="color:var(--primary); font-weight:bold; font-size:1rem;">0</span> STACKS READY
-        </div>
-        
-        <div class="terminal-log" id="terminal-screen">TERMINAL COLD BOOT PROTOCOL STANDBY...</div>
+        <div class="terminal-log" id="terminal-screen">SYSTEM STABILIZED. AWAITING TRIBUTE.</div>
 
         <button class="abort-link" onclick="window.location.href='game_room.html'">◀ Exit Chamber</button>
-
     </div>
 
+    <!-- NEW: Collect Reward Button -->
+    <button id="collect-reward-btn" class="locker-feed-action" onclick="collectMutation()">SEND TO LOCKER</button>
+
+    <!-- FULL SCREEN LOCKER ROOM MODAL -->
+    <div id="locker-room-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(5, 2, 2, 0.98); z-index:9000; flex-direction:column; align-items:center; overflow-y:auto; padding:20px; box-sizing:border-box;">
+        
+        <h2 style="color:#ff4757; margin-bottom: 5px; font-size: clamp(1.5rem, 5vw, 2.5rem); text-transform: uppercase; text-shadow: 0 0 20px rgba(255,71,87,0.5);">SELECT YOUR SACRIFICE</h2>
+        <p style="color:#90a4ae; margin-bottom: 30px; font-family: sans-serif; font-weight: bold; font-size: 1.1rem;" id="selection-tracker">Select 5 Base, 5 Silver, 3 Gold, or 3 Platinum</p>
+        
+        <button onclick="closeLockerRoom()" style="position:fixed; top:20px; right:20px; padding:10px 20px; background:#2c3e50; color:#fff; border:none; border-radius:8px; cursor:pointer; font-family: 'Arial Black'; z-index: 9999;">X CLOSE</button>
+        
+        <div id="full-size-inventory" style="display:flex; flex-wrap:wrap; justify-content:center; gap:20px; width:100%; max-width: 1400px; padding-bottom: 120px;"></div>
+
+        <button id="execute-tribute-btn" class="locker-feed-action" onclick="executeFeeding()">FEED MONSTER</button>
+    </div>
+
+    <!-- DATA CONNECTION -->
+    <script src="data.js"></script>
+
     <script>
-        let currentSport = localStorage.getItem('selectedSport') || 'default';
-        let audioCtx = null; 
-
-        function initAudio() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-
-        function playSound(type) {
-            initAudio();
-            if (!audioCtx) return;
-            let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            let now = audioCtx.currentTime;
-
-            if (type === 'slide') {
-                osc.type = 'triangle'; osc.frequency.setValueAtTime(600, now); osc.frequency.exponentialRampToValueAtTime(80, now + 0.5);
-                gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.5);
-                osc.start(now); osc.stop(now + 0.5);
-            } else if (type === 'crunch') {
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(90, now); osc.frequency.linearRampToValueAtTime(30, now + 0.3);
-                gain.gain.setValueAtTime(0.4, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
-                osc.start(now); osc.stop(now + 0.3);
-            } else if (type === 'jackpot') {
-                let notes = [523.25, 659.25, 783.99, 1046.50];
-                notes.forEach((freq, idx) => {
-                    let o = audioCtx.createOscillator(); let g = audioCtx.createGain();
-                    o.connect(g); g.connect(audioCtx.destination); o.type = 'square';
-                    o.frequency.setValueAtTime(freq, now + (idx * 0.1)); g.gain.setValueAtTime(0.1, now + (idx * 0.1));
-                    g.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.1) + 0.15);
-                    o.start(now + (idx * 0.1)); o.stop(now + (idx * 0.1) + 0.15);
-                });
-            }
-        }
-
+        // --- 1. SETUP WITH CORRECT KEYS DIRECTLY FROM YOUR LOCKER ROOM ---
+        let currentSport = localStorage.getItem('selectedSport') || 'nhl';
+        
         const sportConfig = {
-            nhl: { title: "NHL Hockey Monster", primary: "#3498db", dark: "#21618c", glow: "rgba(52,152,219,0.5)", bg: "radial-gradient(circle at center, #11222e 0%, #03070a 100%)", icon: "🏒", key: "nhl_inventory" },
-            mlb: { title: "MLB Baseball Monster", primary: "#2ecc71", dark: "#196f3d", glow: "rgba(46,204,113,0.5)", bg: "radial-gradient(circle at center, #0e2916 0%, #020804 100%)", icon: "⚾", key: "mlb_inventory" },
-            nba: { title: "NBA Basketball Monster", primary: "#e67e22", dark: "#b03a2e", glow: "rgba(230,126,34,0.5)", bg: "radial-gradient(circle at center, #2e160a 0%, #0a0502 100%)", icon: "🏀", key: "nba_inventory" },
-            nfl: { title: "NFL Football Monster", primary: "#f1c40f", dark: "#b7950b", glow: "rgba(241,196,15,0.4)", bg: "radial-gradient(circle at center, #261c08 0%, #0a0702 100%)", icon: "🏈", key: "nfl_inventory" },
-            default: { title: "Card Devourer Tank", primary: "#ff4757", dark: "#c0392b", glow: "rgba(255,71,87,0.4)", bg: "radial-gradient(circle at center, #1e0f0f 0%, #050202 100%)", icon: "🃏", key: "default_inventory" }
+            nhl: { title: "NHL Hockey Monster", primary: "#1A73E8", glow: "rgba(26,115,232,0.5)", icon: "🏒", key: "nhl_inv" },
+            mlb: { title: "MLB Baseball Monster", primary: "#E74C3C", glow: "rgba(231,76,60,0.5)", icon: "⚾", key: "mlb_inv" },
+            nba: { title: "NBA Basketball Monster", primary: "#F39C12", glow: "rgba(243,156,18,0.5)", icon: "🏀", key: "nba_inv" },
+            nfl: { title: "NFL Football Monster", primary: "#8E44AD", glow: "rgba(142,68,173,0.4)", icon: "🏈", key: "nfl_inv" }
         };
 
-        const activeChamber = sportConfig[currentSport] || sportConfig['default'];
+        const activeChamber = sportConfig[currentSport] || sportConfig['nhl'];
         document.documentElement.style.setProperty('--primary', activeChamber.primary);
         document.documentElement.style.setProperty('--glow', activeChamber.glow);
-        document.documentElement.style.setProperty('--chamber-bg', activeChamber.bg);
         document.getElementById('marquee-header').innerText = activeChamber.title;
         document.getElementById('card-sport-icon').innerText = activeChamber.icon;
 
-        let globalInventory = JSON.parse(localStorage.getItem(activeChamber.key)) || [];
-        let availableFeedStacks = [];
+        const pricingMap = { "base": 50, "silver": 250, "gold": 1000, "platinum": 1500, "diamond": 2500 };
+        const powerMap = { "base": "1x", "silver": "2x", "gold": "3x", "platinum": "6x", "diamond": "10x" };
 
-        function scanForCombos() {
-            let counts = {};
-            availableFeedStacks = [];
-            
-            globalInventory.forEach(card => {
-                if (!counts[card.name]) counts[card.name] = { count: 0, ref: card };
-                counts[card.name].count++;
-            });
-
-            for (let name in counts) {
-                let item = counts[name];
-                if (item.ref.tier === 'base' && item.count >= 5) availableFeedStacks.push({ card: item.ref, req: 5 });
-                else if (item.ref.tier === 'silver' && item.count >= 4) availableFeedStacks.push({ card: item.ref, req: 4 });
-                else if (item.ref.tier === 'gold' && item.count >= 3) availableFeedStacks.push({ card: item.ref, req: 3 });
-            }
-
-            document.getElementById('combo-qty').innerText = availableFeedStacks.length;
+        // --- SAFE AUDIO ENGINE ---
+        let audioCtx = null; 
+        function initAudio() { 
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
+            if (audioCtx.state === 'suspended') audioCtx.resume();
         }
-        scanForCombos();
+        function playSoundSafe(type) {
+            try {
+                initAudio(); if (!audioCtx) return;
+                let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
+                osc.connect(gain); gain.connect(audioCtx.destination); let now = audioCtx.currentTime;
+                if (type === 'slide') { osc.type = 'triangle'; osc.frequency.setValueAtTime(600, now); osc.frequency.exponentialRampToValueAtTime(80, now + 0.5); gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.5); osc.start(now); osc.stop(now + 0.5); } 
+                else if (type === 'crunch') { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(90, now); osc.frequency.linearRampToValueAtTime(30, now + 0.3); gain.gain.setValueAtTime(0.4, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.3); osc.start(now); osc.stop(now + 0.3); } 
+                else if (type === 'jackpot') { let notes = [523.25, 659.25, 783.99, 1046.50]; notes.forEach((freq, idx) => { let o = audioCtx.createOscillator(); let g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.type = 'square'; o.frequency.setValueAtTime(freq, now + (idx * 0.1)); g.gain.setValueAtTime(0.1, now + (idx * 0.1)); g.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.1) + 0.15); o.start(now + (idx * 0.1)); o.stop(now + (idx * 0.1) + 0.15); }); }
+            } catch(e) { console.log("Audio native playback skipped"); }
+        }
 
+        // --- CLOCK ---
         function getNextMonsterFeeding() {
             let now = new Date(); let target = new Date(now);
             target.setUTCHours(20, 0, 0, 0);
@@ -214,132 +214,330 @@
             return target.getTime(); 
         }
 
-        let clockLoop = setInterval(calculateTimeMetrics, 1000);
-        calculateTimeMetrics();
-
+        setInterval(calculateTimeMetrics, 1000);
         function calculateTimeMetrics() {
             let distance = getNextMonsterFeeding() - Date.now();
             let readout = document.getElementById('time-readout');
             let descriptor = document.getElementById('clock-status-text');
-            let slammer = document.getElementById('feed-btn');
-
-            let oneHour = 3600000;
-            if (distance <= 0 && distance > -oneHour) {
+            if (distance <= 0 && distance > -3600000) {
                 readout.innerText = "00d 00h 00m 00s";
                 descriptor.innerText = "SECURITY OVERRIDE: FEED GATE LIVE!";
                 descriptor.style.color = activeChamber.primary;
-                slammer.disabled = false;
-                slammer.className = "feed-trigger-3d slammer-ready";
-                slammer.innerText = "FEED CARD STACK";
                 return;
             }
-
             let d = Math.floor(distance / (1000 * 60 * 60 * 24));
             let h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             let m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             let s = Math.floor((distance % (1000 * 60)) / 1000);
             readout.innerText = `${d}d ${h < 10 ? '0'+h : h}h ${m < 10 ? '0'+m : m}m ${s < 10 ? '0'+s : s}s`;
         }
+        calculateTimeMetrics();
 
-        function executeFeeding() {
-            if (availableFeedStacks.length === 0) {
-                document.getElementById('terminal-screen').innerText = "DENIED: NO COMPLETE CARD STACKS IN VAULT! (Need 5 Base, 4 Silver, or 3 Gold)";
-                document.getElementById('terminal-screen').style.color = "#ff4757";
+        // --- DOUBLES-ONLY LOCKER ROOM LOGIC ---
+        let selectedIndices = [];
+        let rawInventory = []; 
+
+        function openLockerRoom() {
+            rawInventory = JSON.parse(localStorage.getItem(activeChamber.key)) || [];
+            
+            selectedIndices = []; 
+            document.getElementById('execute-tribute-btn').style.display = 'none';
+            document.getElementById('selection-tracker').innerText = "Select 5 Base, 5 Silver, 3 Gold, or 3 Platinum";
+            document.getElementById('selection-tracker').style.color = "#90a4ae";
+            
+            let list = document.getElementById('full-size-inventory');
+            list.innerHTML = '';
+            
+            if (rawInventory.length === 0) {
+                list.innerHTML = '<div style="color:#ff4757; font-size: 1.5rem; margin-top: 50px; text-align:center;">YOUR LOCKER ROOM IS EMPTY.<br><span style="font-size:0.9rem; color:#BDC3C7;">Rip some packs to get started.</span></div>';
+                document.getElementById('locker-room-modal').style.display = 'flex';
                 return;
             }
 
-            const button = document.getElementById('feed-btn');
-            const cardElement = document.getElementById('physical-card');
-            const tankMouth = document.getElementById('containment-mouth');
-            const terminal = document.getElementById('terminal-screen');
+            // 1. Map to remember the exact original index so we delete the right card
+            let mappedInventory = rawInventory.map((card, idx) => ({ ...card, originalIndex: idx }));
 
-            let targetStack = availableFeedStacks[0];
+            // 2. FILTER: Only extract the "Doubles" (Protecting 1 copy of every card)
+            let protectedCards = new Set();
+            let excessInventory = [];
 
-            document.getElementById('card-req-badge').innerText = targetStack.req + "x STACK";
-            document.getElementById('card-tier-text').innerText = targetStack.card.tier.toUpperCase();
-            document.getElementById('card-name-text').innerText = targetStack.card.name;
-            
-            if (targetStack.card.tier === 'base') cardElement.style.borderColor = "#7f8c8d";
-            if (targetStack.card.tier === 'silver') cardElement.style.borderColor = "#bdc3c7";
-            if (targetStack.card.tier === 'gold') cardElement.style.borderColor = "#f1c40f";
+            mappedInventory.forEach(card => {
+                let uniqueKey = card.name + "_" + card.tier; // Example: "Connor McDavid_base"
+                
+                if (!protectedCards.has(uniqueKey)) {
+                    // This is the FIRST time we've seen this specific card. Protect it!
+                    protectedCards.add(uniqueKey);
+                } else {
+                    // We already saved one copy. This is a double/excess card.
+                    excessInventory.push(card);
+                }
+            });
 
-            button.disabled = true;
-            terminal.innerText = `SLIDING ${targetStack.req}x [${targetStack.card.name.toUpperCase()}] INTO INTAKE...`;
-            terminal.style.color = "#ff9f43";
-
-            playSound('slide');
-            cardElement.classList.add('slide-down-action');
-
-            for (let i = 0; i < targetStack.req; i++) {
-                let indexToRemove = globalInventory.findIndex(card => card.name === targetStack.card.name);
-                if (indexToRemove !== -1) globalInventory.splice(indexToRemove, 1);
+            // 3. Check if there are any doubles available to sacrifice
+            if (excessInventory.length === 0) {
+                list.innerHTML = '<div style="color:#ff4757; font-size: 1.5rem; margin-top: 50px; text-align:center; font-family: \'Arial Black\'; text-transform: uppercase;">NO DOUBLES AVAILABLE.<br><span style="font-size:0.9rem; color:#BDC3C7; font-family: sans-serif;">(Your vault protects your last copy of every card)</span></div>';
+                document.getElementById('locker-room-modal').style.display = 'flex';
+                return;
             }
 
-            setTimeout(() => {
-                playSound('crunch');
-                tankMouth.className = "monster-containment chomping-loop";
-                tankMouth.innerText = "👅";
-                terminal.innerText = `SHREDDING ${targetStack.req} CARDS FOR DNA RECONSTRUCTION...`;
+            // 4. SORT ONLY THE DOUBLES (Lowest to Highest)
+            const tierWeights = { 'base': 1, 'silver': 2, 'gold': 3, 'platinum': 4, 'diamond': 5 };
+            excessInventory.sort((a, b) => {
+                if (tierWeights[a.tier] !== tierWeights[b.tier]) return tierWeights[a.tier] - tierWeights[b.tier];
+                return a.name.localeCompare(b.name);
+            });
+
+            // 5. Render only the excess doubles
+            excessInventory.forEach((card) => {
+                let bColor = card.tier === 'diamond' ? '#00e5ff' : card.tier === 'platinum' ? '#e5e4e2' : card.tier === 'gold' ? '#f1c40f' : card.tier === 'silver' ? '#bdc3c7' : '#7f8c8d';
+                let shortPos = card.pos ? card.pos.charAt(0) : 'U';
+                
+                let div = document.createElement('div');
+                div.id = `locker-card-${card.originalIndex}`;
+                div.className = 'card-core';
+                div.style.border = `2px solid ${bColor}`;
+                
+                div.innerHTML = `
+                    <div class="pos-badge">${shortPos}</div>
+                    <div class="art-box">${activeChamber.icon}</div>
+                    <div class="card-title">${card.name}</div>
+                    <div class="card-descriptive-text" style="color:${bColor};">${card.tier.toUpperCase()}</div>
+                `;
+                
+                div.onclick = () => toggleSelection(card.originalIndex, card.tier);
+                list.appendChild(div);
+            });
+            
+            document.getElementById('locker-room-modal').style.display = 'flex';
+        }
+
+        function closeLockerRoom() {
+            document.getElementById('locker-room-modal').style.display = 'none';
+            selectedIndices = [];
+        }
+
+        function toggleSelection(originalIndex, tier) {
+            let cardDiv = document.getElementById(`locker-card-${originalIndex}`);
+            let isSelected = selectedIndices.includes(originalIndex);
+            let reqAmount = (tier === 'gold' || tier === 'platinum') ? 3 : 5;
+
+            if (tier === 'diamond') {
+                alert("DIAMOND tier assets cannot be sacrificed!");
+                return;
+            }
+
+            if (isSelected) {
+                selectedIndices = selectedIndices.filter(i => i !== originalIndex);
+                cardDiv.classList.remove('card-selected');
+            } else {
+                if (selectedIndices.length > 0) {
+                    // Look up the first selected card directly from the raw array
+                    let firstSelectedTier = rawInventory[selectedIndices[0]].tier;
+                    if (firstSelectedTier !== tier) {
+                        alert(`You are currently selecting ${firstSelectedTier.toUpperCase()} cards. You cannot mix tiers!`);
+                        return;
+                    }
+                }
+                if (selectedIndices.length >= reqAmount) {
+                    alert(`You only need ${reqAmount} ${tier.toUpperCase()} cards for this transformation!`);
+                    return;
+                }
+                
+                selectedIndices.push(originalIndex);
+                cardDiv.classList.add('card-selected');
+            }
+
+            let tracker = document.getElementById('selection-tracker');
+            let btn = document.getElementById('execute-tribute-btn');
+            
+            if (selectedIndices.length === 0) {
+                tracker.innerText = "Select 5 Base, 5 Silver, 3 Gold, or 3 Platinum";
+                tracker.style.color = "#90a4ae";
+                btn.style.display = 'none';
+            } else {
+                let currentTier = rawInventory[selectedIndices[0]].tier;
+                tracker.innerText = `SELECTED: ${selectedIndices.length} / ${reqAmount} ${currentTier.toUpperCase()}`;
+                tracker.style.color = "#ff9f43";
+                
+                if (selectedIndices.length === reqAmount) {
+                    tracker.innerText = "STACK READY. PROCEED TO FEED.";
+                    tracker.style.color = "#00e676";
+                    btn.style.display = 'block';
+                } else {
+                    btn.style.display = 'none';
+                }
+            }
+        }
+
+        // --- REAL REWARD GENERATOR ---
+        function generateRealPlayerCard(tier) {
+            let sport = currentSport;
+            if (!window.SportsData || !window.SportsData[sport]) sport = 'nhl';
+            
+            let playerList = window.SportsData[sport].list;
+            let randomIndex = Math.floor(Math.random() * playerList.length);
+            let rawString = playerList[randomIndex];
+            
+            let cleanName = rawString.split(' (')[0];
+            let exactPosition = window.SportsData[sport].positions[cleanName] || "U";
+
+            return {
+                id: "mut_" + Date.now() + "_" + Math.random(),
+                name: cleanName,
+                dna: "Mutated DNA", 
+                pos: exactPosition,
+                tier: tier,
+                value: pricingMap[tier], 
+                power: powerMap[tier]    
+            };
+        }
+
+        // --- MUTATION ENGINE ---
+        async function executeFeeding() {
+            try {
+                // Hide the main FEED ME button so it doesn't clip the new reward button
+                document.getElementById('feed-me-btn').style.display = 'none';
+
+                // Grab the visual rep card from the raw inventory using its original index
+                let repCard = rawInventory[selectedIndices[0]];
+                let targetTier = repCard.tier;
+                let reqAmount = (targetTier === 'gold' || targetTier === 'platinum') ? 3 : 5;
+
+                document.getElementById('locker-room-modal').style.display = 'none';
+
+                const cardElement = document.getElementById('physical-card');
+                const terminal = document.getElementById('terminal-screen');
+                const mouth = document.getElementById('containment-mouth');
+
+                let bColor = targetTier === 'platinum' ? '#e5e4e2' : targetTier === 'gold' ? '#f1c40f' : targetTier === 'silver' ? '#bdc3c7' : '#7f8c8d';
+                cardElement.style.borderColor = bColor;
+                document.getElementById('card-req-badge').innerText = `x${reqAmount}`;
+                document.getElementById('card-tier-text').innerText = targetTier.toUpperCase();
+                document.getElementById('card-name-text').innerText = repCard.name;
+
+                cardElement.style.transition = 'none'; 
+                cardElement.classList.remove('slide-down-action', 'reward-pop-action'); 
+                cardElement.style.transform = 'translateY(0) scale(1)'; 
+                cardElement.style.opacity = '1';
+                cardElement.style.display = 'flex'; 
+                void cardElement.offsetWidth; 
+                
+                cardElement.style.transition = 'transform 0.6s ease-in, opacity 0.6s'; 
+                cardElement.classList.add('slide-down-action');
+                playSoundSafe('slide');
+
+                terminal.innerText = `LOADING STACK INTO INTAKE...`;
+                terminal.style.color = "#ff9f43";
+
+                // DELETE EXACT CARDS FROM LOCAL STORAGE
+                let vault = JSON.parse(localStorage.getItem(activeChamber.key)) || [];
+                selectedIndices.sort((a, b) => b - a).forEach(idx => {
+                    vault.splice(idx, 1);
+                });
+                selectedIndices = []; 
+
+                await new Promise(r => setTimeout(r, 1000)); 
+                cardElement.style.display = 'none'; 
+                mouth.className = "monster-containment chomping-loop";
+                mouth.innerText = "👅";
+                playSoundSafe('crunch');
+                terminal.innerText = "CRUSHING ASSETS...";
                 terminal.style.color = "#ff4757";
 
-                setTimeout(() => {
-                    tankMouth.className = "monster-containment";
-                    tankMouth.innerText = "🤮";
+                await new Promise(r => setTimeout(r, 2000));
+                mouth.className = "monster-containment";
+                mouth.innerText = "🤮";
+                
+                let roll = Math.random(); 
+                let resultTier = 'nothing';
+                
+                if (targetTier === 'base') {
+                    if (roll <= 0.33) resultTier = 'silver';
+                    else if (roll <= 0.66) resultTier = 'base';
+                } else if (targetTier === 'silver') {
+                    if (roll <= 0.33) resultTier = 'gold';
+                    else if (roll <= 0.66) resultTier = 'silver';
+                    else if (roll <= 0.86) resultTier = 'base';
+                } else if (targetTier === 'gold') {
+                    if (roll <= 0.25) resultTier = 'platinum';
+                    else if (roll <= 0.60) resultTier = 'gold';
+                    else if (roll <= 0.80) resultTier = 'silver';
+                    else if (roll <= 0.90) resultTier = 'base';
+                } else if (targetTier === 'platinum') {
+                    if (roll <= 0.15) resultTier = 'diamond'; 
+                    else if (roll <= 0.50) resultTier = 'platinum';
+                    else if (roll <= 0.75) resultTier = 'gold';
+                    else resultTier = 'silver';
+                }
 
-                    let roll = Math.floor(Math.random() * 3); 
-
-                    if (targetStack.card.tier === 'base') {
-                        if (roll === 0) payoutBase(terminal);
-                        else if (roll === 1) payoutSilver(terminal);
-                        else payoutGold(terminal);
-                    } else if (targetStack.card.tier === 'silver') {
-                        if (roll === 0) payoutSilver(terminal);
-                        else if (roll === 1) payoutGold(terminal);
-                        else payoutPlatinum(terminal);
-                    } else if (targetStack.card.tier === 'gold') {
-                        if (roll === 0) payoutSilver(terminal);
-                        else if (roll === 1) payoutGold(terminal);
-                        else payoutPlatinum(terminal);
-                    }
-
-                    localStorage.setItem(activeChamber.key, JSON.stringify(globalInventory));
-                    scanForCombos(); 
-
+                if (resultTier === 'nothing') {
+                    localStorage.setItem(activeChamber.key, JSON.stringify(vault));
+                    terminal.innerText = "MUTATION DESTROYED: NOTHING RETURNED.";
+                    terminal.style.color = "#ff4757";
+                    
+                    // Reset room after a brief pause when you fail
                     setTimeout(() => {
-                        tankMouth.innerText = "👹";
-                        cardElement.classList.remove('slide-down-action');
-                        button.className = "feed-trigger-3d slammer-ready";
-                        button.disabled = false; 
-                        terminal.innerText = "STABILIZED. READY TO CONSUME NEXT STACK.";
+                        mouth.innerText = "👹";
+                        terminal.innerText = "SYSTEM STABILIZED. AWAITING TRIBUTE.";
                         terminal.style.color = "#00e676";
+                        document.getElementById('feed-me-btn').style.display = 'block';
                     }, 3500);
 
-                }, 2000);
-            }, 600); 
+                } else {
+                    let realPlayerCard = generateRealPlayerCard(resultTier);
+                    
+                    vault.push(realPlayerCard);
+                    localStorage.setItem(activeChamber.key, JSON.stringify(vault));
+                    
+                    let newColor = resultTier === 'diamond' ? '#00e5ff' : resultTier === 'platinum' ? '#e5e4e2' : resultTier === 'gold' ? '#ffd700' : resultTier === 'silver' ? '#bdc3c7' : '#90a4ae';
+                    
+                    cardElement.style.borderColor = newColor;
+                    document.getElementById('card-req-badge').innerText = "REWARD";
+                    document.getElementById('card-tier-text').innerText = resultTier.toUpperCase();
+                    document.getElementById('card-name-text').innerText = realPlayerCard.name;
+                    
+                    cardElement.style.transition = 'none'; 
+                    cardElement.classList.remove('reward-pop-action');
+                    cardElement.classList.add('slide-down-action'); 
+                    cardElement.style.opacity = '1';
+                    cardElement.style.display = 'flex';
+                    void cardElement.offsetWidth; 
+                    
+                    cardElement.style.transition = 'transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)'; 
+                    cardElement.classList.remove('slide-down-action'); 
+                    cardElement.classList.add('reward-pop-action'); 
+                    
+                    playSoundSafe(resultTier === 'base' ? 'crunch' : 'jackpot');
+                    terminal.style.color = newColor;
+                    terminal.innerText = `MUTATION SUCCESS: SPAT OUT 1 ${resultTier.toUpperCase()} CARD!`;
+
+                    // SHOW THE NEW "SEND TO LOCKER" BUTTON
+                    setTimeout(() => {
+                        document.getElementById('collect-reward-btn').style.display = 'block';
+                    }, 800);
+                }
+
+            } catch (error) {
+                console.error("CRITICAL CHAMBER FAILURE:", error);
+                document.getElementById('terminal-screen').innerText = "SYSTEM FAILURE. CHECK DEVELOPER CONSOLE.";
+                document.getElementById('terminal-screen').style.color = "#ff4757";
+            }
         }
 
-        function payoutBase(terminal) {
-            globalInventory.push({ id: Date.now(), name: "Slag Base", tier: "base", value: 100 });
-            terminal.innerText = "MUTATION FAILED: SPAT OUT 1 BASE CARD BACK.";
-            terminal.style.color = "#90a4ae";
-        }
-        function payoutSilver(terminal) {
-            playSound('jackpot');
-            globalInventory.push({ id: Date.now(), name: "Mutated Silver", tier: "silver", value: 450 });
-            terminal.innerText = "MUTATION SUCCESS: SPAT OUT 1 SILVER CARD!";
-            terminal.style.color = "#bdc3c7";
-        }
-        function payoutGold(terminal) {
-            playSound('jackpot');
-            globalInventory.push({ id: Date.now(), name: "Premium Gold", tier: "gold", value: 1400 });
-            terminal.innerText = "MUTATION CRITICAL: SPAT OUT 1 GOLD CARD!";
-            terminal.style.color = "#ffd700";
-        }
-        function payoutPlatinum(terminal) {
-            playSound('jackpot');
-            globalInventory.push({ id: Date.now(), name: "Mythic Platinum", tier: "platinum", value: 5000 });
-            terminal.innerText = "GOD-TIER MUTATION: SPAT OUT 1 PLATINUM CARD!!!";
-            terminal.style.color = "#e5e4e2"; 
+        // --- NEW: Reset function when sending to locker ---
+        function collectMutation() {
+            document.getElementById('collect-reward-btn').style.display = 'none';
+            document.getElementById('feed-me-btn').style.display = 'block';
+
+            const cardElement = document.getElementById('physical-card');
+            const mouth = document.getElementById('containment-mouth');
+            const terminal = document.getElementById('terminal-screen');
+
+            cardElement.style.display = 'none';
+            cardElement.classList.remove('reward-pop-action');
+            mouth.innerText = "👹";
+            terminal.innerText = "SYSTEM STABILIZED. AWAITING TRIBUTE.";
+            terminal.style.color = "#00e676";
         }
     </script>
 </body>
