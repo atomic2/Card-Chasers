@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>The Locker Room | Card Chaser's</title>
-    <script src="data.js"></script>
-    
+   
+    <!-- 1. LOAD THE MASTER DATABASE FIRST -->
+    <script src="master_db.js"></script>
+
     <style>
         :root {
             --primary: #1A73E8;
@@ -45,9 +47,7 @@
         .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; background: rgba(0,0,0,0.2); border: 2px solid #3D424A; border-radius: 20px; padding: 25px; min-height: 350px; }
         .empty-msg { grid-column: 1 / -1; text-align: center; color: #BDC3C7; font-size: 1.2rem; padding-top: 100px; font-family: 'Arial Black', sans-serif; }
 
-        /* ====================================================
-           PREMIUM CARD DESIGN (Exact match to screenshot)
-           ==================================================== */
+        /* PREMIUM CARD DESIGN */
         .card-core { 
             background: #1c1c1e; 
             border-radius: 12px; 
@@ -63,77 +63,29 @@
             margin: 0 auto;
         }
 
-        .pos-badge {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            border: 1px solid #5a5a5e;
-            border-radius: 4px;
-            padding: 3px 6px;
-            font-size: 0.75rem;
-            font-weight: 900;
-            color: #ffffff;
-            font-family: 'Arial Black', sans-serif;
-        }
+        .pos-badge { position: absolute; top: 12px; left: 12px; border: 1px solid #5a5a5e; border-radius: 4px; padding: 3px 6px; font-size: 0.75rem; font-weight: 900; color: #ffffff; font-family: 'Arial Black', sans-serif; }
 
-        .art-box {
-            background: #121213; 
-            width: 110px;
-            height: 110px;
-            border-radius: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 3.5rem;
-            margin-top: 25px;
-            margin-bottom: 15px;
-        }
+        .art-box { background: #121213; width: 110px; height: 110px; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 3.5rem; margin-top: 25px; margin-bottom: 15px; }
 
-        .card-title { 
-            font-size: 1.25rem; 
-            font-weight: 900; 
-            color: #FFFFFF; 
-            margin-bottom: 2px; 
-            text-align: center; 
-        }
+       .card-title { 
+    font-size: 1.1rem; /* Dropped slightly from 1.25 to fit better */
+    font-weight: 900; 
+    color: #FFFFFF; 
+    margin-bottom: 4px; 
+    text-align: center; 
+    width: 100%; /* Keeps it inside the card */
+    overflow-wrap: break-word; /* Forces long strings to wrap to a new line */
+    word-break: break-word;
+    line-height: 1.2;
+}
 
-        .card-descriptive-text { 
-            font-size: 0.7rem; 
-            color: #8e8e93; 
-            margin-bottom: 15px; 
-            text-align: center; 
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+        .card-descriptive-text { font-size: 0.7rem; color: #8e8e93; margin-bottom: 15px; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; }
         
-        .data-panel-core { 
-            background: #242426; 
-            border: 1px solid #3a3a3c; 
-            border-radius: 8px; 
-            padding: 10px; 
-            width: 100%; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            box-sizing: border-box; 
-        }
+        .data-panel-core { background: #242426; border: 1px solid #3a3a3c; border-radius: 8px; padding: 10px; width: 100%; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
 
-        .data-title-gray { 
-            font-size: 0.6rem; 
-            color: #7a7a7e; 
-            text-transform: uppercase; 
-            font-weight: 600; 
-            margin-bottom: 4px; 
-            text-align: center; 
-            letter-spacing: 0.5px;
-        }
+        .data-title-gray { font-size: 0.6rem; color: #7a7a7e; text-transform: uppercase; font-weight: 600; margin-bottom: 4px; text-align: center; letter-spacing: 0.5px; }
 
-        .data-detail-green { 
-            font-size: 0.9rem; 
-            color: #00ff00; 
-            font-weight: bold; 
-            text-align: center; 
-        }
+        .data-detail-green { font-size: 0.9rem; color: #00ff00; font-weight: bold; text-align: center; }
     </style>
 </head>
 <body>
@@ -164,7 +116,8 @@
     </div> 
 
     <script>
-        // --- BRIDGE TO DATA.JS ---
+        // --- BRIDGE TO YOUR NEW MASTER DB ---
+        // We filter directly from the static list now!
         const sportConfig = {
             nhl: { 
                 key: 'nhl_inv', 
@@ -173,10 +126,7 @@
                 icon: '🏒', 
                 primary: '#1A73E8', 
                 bg: '#0A0D10', 
-                pool: window.SportsData.nhl.list.map(name => ({
-                    dna: name, 
-                    pos: window.SportsData.nhl.positions[name.split(' (')[0]] || "UTIL"
-                }))
+                pool: window.masterCardDatabase.filter(card => card.sport === 'nhl')
             },
             mlb: { 
                 key: 'mlb_inv', 
@@ -185,10 +135,7 @@
                 icon: '⚾', 
                 primary: '#E74C3C', 
                 bg: '#100A0A', 
-                pool: window.SportsData.mlb.list.map(name => ({
-                    dna: name, 
-                    pos: window.SportsData.mlb.positions[name.split(' (')[0]] || "UTIL"
-                }))
+                pool: window.masterCardDatabase.filter(card => card.sport === 'mlb')
             },
             nba: { 
                 key: 'nba_inv', 
@@ -197,10 +144,7 @@
                 icon: '🏀', 
                 primary: '#F39C12', 
                 bg: '#1A1C21', 
-                pool: window.SportsData.nba.list.map(name => ({
-                    dna: name, 
-                    pos: window.SportsData.nba.positions[name.split(' (')[0]] || "UTIL"
-                }))
+                pool: window.masterCardDatabase.filter(card => card.sport === 'nba')
             },
             nfl: { 
                 key: 'nfl_inv', 
@@ -209,10 +153,7 @@
                 icon: '🏈', 
                 primary: '#8E44AD', 
                 bg: '#1A1C21', 
-                pool: window.SportsData.nfl.list.map(name => ({
-                    dna: name, 
-                    pos: window.SportsData.nfl.positions[name.split(' (')[0]] || "UTIL"
-                }))
+                pool: window.masterCardDatabase.filter(card => card.sport === 'nfl')
             }
         };
 
@@ -220,71 +161,6 @@
         
         const pricingMap = { "base": 50, "silver": 250, "gold": 1000, "platinum": 1500, "diamond": 2500 };
         const powerMap = { "base": "1x", "silver": "2x", "gold": "3x", "platinum": "6x", "diamond": "10x" };
-
-        // --- DNA HASH GENERATOR (300 Unique Combinations per Position) ---
-        function getCardAlias(sport, pos, dna) {
-            // Hash the exact player string so they always get the same unique title
-            let hash = 0;
-            for (let i = 0; i < dna.length; i++) {
-                hash = dna.charCodeAt(i) + ((hash << 5) - hash);
-            }
-            hash = Math.abs(hash);
-
-            const prefixes = [
-                "The", "Iron", "Shadow", "Neon", "Quantum", "Frost", "Cyber", 
-                "Apex", "Titan", "Phantom", "Rogue", "Savage", "Prime", "Alpha", 
-                "Omega", "Nova", "Stealth", "Vortex", "Elite", "Supreme",
-                "Ghost", "Toxic", "Venom", "Electric", "Plasma", "Crimson", 
-                "Golden", "Silver", "Midnight", "Solar"
-            ];
-            
-            const suffixes = {
-                'G': ['Brick Wall', 'Netminder', 'Guardian', 'Shield', 'Stopper', 'Sentry', 'Blockade', 'Anchor', 'Protector', 'Wall'],
-                'C': ['Ice General', 'Playmaker', 'Boss', 'Commander', 'Maestro', 'Captain', 'Ace', 'Leader', 'Visionary', 'Strategist'],
-                'LW': ['Sniper', 'Assassin', 'Striker', 'Winger', 'Marksman', 'Phenom', 'Threat', 'Rocket', 'Cannon', 'Blaster'],
-                'RW': ['Sniper', 'Assassin', 'Striker', 'Winger', 'Marksman', 'Phenom', 'Threat', 'Rocket', 'Cannon', 'Blaster'],
-                'LD': ['Enforcer', 'Bruiser', 'Defender', 'Protector', 'Warden', 'Hammer', 'Anchor', 'Smasher', 'Destroyer', 'Bulldozer'],
-                'RD': ['Enforcer', 'Bruiser', 'Defender', 'Protector', 'Warden', 'Hammer', 'Anchor', 'Smasher', 'Destroyer', 'Bulldozer'],
-                'PG': ['Floor General', 'Court Vision', 'Dime Dropper', 'Maestro', 'Conductor', 'Strategist', 'Commander', 'Playmaker', 'Boss', 'Ace'],
-                'SG': ['Sharpshooter', 'Buckets', 'Sniper', 'Scorer', 'Marksman', 'Bomber', 'Rocket', 'Assassin', 'Threat', 'Phenom'],
-                'SF': ['Wing Assassin', 'Slam Dunker', 'Slasher', 'Glider', 'Flyer', 'Acrobat', 'Striker', 'Finisher', 'Threat', 'Sniper'],
-                'PF': ['Paint Beast', 'Post Boss', 'Powerhouse', 'Enforcer', 'Bruiser', 'Smasher', 'Destroyer', 'Bulldozer', 'Titan', 'Anchor'],
-                'C_nba': ['Rim Protector', 'Board Crasher', 'Tower', 'Giant', 'Anchor', 'Guardian', 'Blockade', 'Sentry', 'Wall', 'Boss'],
-                'QB': ['Field General', 'Gunslinger', 'Signal Caller', 'Cannon', 'Sniper', 'Commander', 'Strategist', 'Playmaker', 'Boss', 'Ace'],
-                'RB': ['Ground Pounder', 'Speedback', 'Juggernaut', 'Workhorse', 'Dasher', 'Burner', 'Smasher', 'Bruiser', 'Rocket', 'Flyer'],
-                'WR': ['Deep Threat', 'Route Runner', 'Burner', 'Playmaker', 'Acrobat', 'Glider', 'Flyer', 'Assassin', 'Sniper', 'Phenom'],
-                'TE': ['Redzone Target', 'Mismatch', 'Security Blanket', 'Seam Ripper', 'Hybrid', 'Enforcer', 'Bruiser', 'Anchor', 'Boss', 'Titan'],
-                'DEF': ['Sack Artist', 'Tackle Machine', 'Headhunter', 'Ballhawk', 'Stopper', 'Smasher', 'Destroyer', 'Enforcer', 'Predator', 'Beast'],
-                'P': ['The Ace', 'Mound Boss', 'Flamethrower', 'Spin Doctor', 'Hurler', 'Cannon', 'Rocket', 'Sniper', 'Commander', 'Maestro'],
-                'C_mlb': ['Plate General', 'Pitch Framer', 'Wall', 'Commander', 'Caller', 'Guardian', 'Sentry', 'Blockade', 'Boss', 'Leader'],
-                '1B': ['Power Hitter', 'Slugger', 'Masher', 'Bomber', 'Crusher', 'Smasher', 'Destroyer', 'Titan', 'Boss', 'Threat'],
-                '2B': ['Double Play Ace', 'Infield Boss', 'Keystone', 'Turner', 'Pivot', 'Acrobat', 'Playmaker', 'Commander', 'Ace', 'Phenom'],
-                'SS': ['Field General', 'Web Gem', 'Captain', 'Vacuum', 'Acrobat', 'Playmaker', 'Commander', 'Ace', 'Phenom', 'Maestro'],
-                '3B': ['Hot Corner', 'Slugger', 'Cannon', 'Masher', 'Bomber', 'Crusher', 'Smasher', 'Titan', 'Boss', 'Threat'],
-                'OF': ['Fly Chaser', 'Outfield Patrol', 'Gazelle', 'Sniper', 'Cannon', 'Burner', 'Flyer', 'Glider', 'Acrobat', 'Playmaker'],
-                'default': ['Superstar', 'Game Changer', 'Phenom', 'Prodigy', 'Legend', 'Master', 'Elite', 'Prime', 'Titan', 'Boss']
-            };
-
-            let safePos = pos || 'default';
-            if (safePos === 'C') {
-                if (sport === 'nba') safePos = 'C_nba';
-                if (sport === 'mlb') safePos = 'C_mlb';
-            }
-            
-            let validSuffixes = suffixes[safePos] || suffixes['default'];
-            
-            // Map the hash to the arrays
-            let pIndex = hash % prefixes.length;
-            let sIndex = Math.floor(hash / 10) % validSuffixes.length;
-
-            let prefix = prefixes[pIndex];
-            let suffix = validSuffixes[sIndex];
-
-            if (prefix === 'The') {
-                return `The ${suffix}`;
-            }
-            return `${prefix} ${suffix}`;
-        }
 
         function initLocker() {
             const config = sportConfig[activeSport];
@@ -302,9 +178,7 @@
             
             return `
                 <div class="card-core" style="border: 2px solid ${bColor};">
-                    
                     <div class="pos-badge">${shortPos}</div>
-
                     <div class="art-box">${icon}</div>
                     
                     <!-- HIGH VISIBILITY AVATAR TITLE / ALIAS -->
@@ -318,7 +192,6 @@
                     </div>
                     
                     <div style="margin-top: 15px; font-size: 0.8rem; color: #fff; font-weight: bold;">⚡ ${pwrString} Power</div>
-
                 </div>
             `;
         }
@@ -339,11 +212,13 @@
             let currentInv = JSON.parse(localStorage.getItem(sportConfig[activeSport].key)) || [];
             
             // --- AUTOMATIC RETROACTIVE PATCH FOR OLD CARDS ---
+            // Checks your Master DB to fix any old names instantly
             let needsSave = false;
             currentInv.forEach(card => {
-                let correctHashAlias = getCardAlias(activeSport, card.pos, card.dna);
-                if (card.name !== correctHashAlias) {
-                    card.name = correctHashAlias; // Instantly fix any legacy duplicates or real names
+                let masterCard = window.masterCardDatabase.find(c => c.name === card.dna);
+                let correctAlias = masterCard ? masterCard.alias : card.name;
+                if (card.name !== correctAlias) {
+                    card.name = correctAlias;
                     needsSave = true;
                 }
             });
@@ -375,7 +250,9 @@
             let freshlyPulled = [];
 
             for (let i = 0; i < 5; i++) {
+                // Pull a random card object straight out of the Master DB!
                 let template = config.pool[Math.floor(Math.random() * config.pool.length)];
+                
                 let roll = Math.random();
                 let tier = 'base';
 
@@ -386,13 +263,14 @@
 
                 let newCard = {
                     id: "c_" + Date.now() + "_" + Math.random(),
-                    name: getCardAlias(activeSport, template.pos, template.dna), // Generates permanent hashed alias
-                    dna: template.dna,                                           // Preserves green DNA link
+                    name: template.alias,   // Pulls the static alias (e.g., Shohei_Ohtani_Legend)
+                    dna: template.name,     // Pulls the real athlete name for DNA tracking
                     pos: template.pos,
                     tier: tier,
                     value: pricingMap[tier],
                     power: powerMap[tier]
                 };
+                
                 freshlyPulled.push(newCard);
                 currentInv.push(newCard);
             }

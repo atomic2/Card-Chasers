@@ -31,51 +31,48 @@
         
         .marquee-container { width: 90%; overflow: hidden; white-space: nowrap; z-index: 10; border-top: 2px solid rgba(0, 255, 102, 0.4); border-bottom: 2px solid rgba(0, 255, 102, 0.4); padding: 15px 0; background: rgba(0, 255, 102, 0.1); }
         
-        /* UPDATED MARQUEE CONTENT WITH PADDING FIX */
         .marquee-content { 
             display: inline-block; 
             color: #00ff66; 
             font-family: monospace; 
-            font-size: clamp(1.5rem, 4vw, 2.5rem); 
+            font-size: clamp(1rem, 2.5vw, 1.4rem); 
             font-weight: 900; 
             letter-spacing: 2px; 
             text-transform: uppercase; 
             text-shadow: 2px 2px 0px #000, -1px -1px 0px #000, 0 0 15px rgba(0, 255, 102, 0.9); 
-            padding-left: 100%; /* The magic fix */
+            padding-left: 100%; 
+            line-height: 1.1; 
             animation: scrollText 12s linear infinite; 
         }
         
-        /* UPDATED KEYFRAMES STARTING AT 0 */
         @keyframes scrollText { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
         
         @keyframes pulseGlow { 0% { box-shadow: 0 0 20px rgba(0, 255, 102, 0.2), inset 0 0 30px rgba(0, 255, 102, 0.1); border-color: rgba(0, 255, 102, 0.5); } 100% { box-shadow: 0 0 40px rgba(0, 255, 102, 0.5), inset 0 0 60px rgba(0, 255, 102, 0.3); border-color: #00ff66; } }
         @keyframes flashText { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.2; } }
-        .welcome-container { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 30px; perspective: 1000px; margin-bottom: 5vh; }
-        .logo-text { font-size: clamp(3rem, 10vw, 5.5rem); font-weight: 900; color: #ff9f43; text-transform: uppercase; letter-spacing: 4px; margin: 0; line-height: 1; text-shadow: 0 1px 0 #d37724, 0 2px 0 #c26b1f, 0 3px 0 #b1601a, 0 4px 0 #a05416, 0 5px 0 #8f4912, 0 6px 0 #7e3e0e, 0 7px 0 #6d330a, 0 9px 25px rgba(0,0,0,0.9); transform: rotateX(10deg); }
+        .welcome-container { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 20px; perspective: 1000px; margin-bottom: 5vh; width: 100%; }
+        .logo-text { font-size: clamp(3rem, 10vw, 5.5rem); font-weight: 900; color: #ff9f43; text-transform: uppercase; letter-spacing: 4px; margin: 0; margin-bottom: 10px; line-height: 1; text-shadow: 0 1px 0 #d37724, 0 2px 0 #c26b1f, 0 3px 0 #b1601a, 0 4px 0 #a05416, 0 5px 0 #8f4912, 0 6px 0 #7e3e0e, 0 7px 0 #6d330a, 0 9px 25px rgba(0,0,0,0.9); transform: rotateX(10deg); }
+
         .btn-3d-container { position: relative; background: #0f1115; padding: 8px; border-radius: 16px; box-shadow: inset 0 4px 10px rgba(0,0,0,0.8), 0 10px 30px rgba(0,0,0,0.5); margin-top: 10px; }
         .enter-btn-3d { cursor: pointer; outline: none; border: none; font-family: 'Arial Black', sans-serif; font-size: 2.2rem; font-weight: 900; color: #ffffff; background: linear-gradient(135deg, #2d323f, #1b1e26); padding: 20px 60px; border-radius: 12px; position: relative; border-bottom: 12px solid #ff9f43; transform: translateY(-6px); transition: all 0.1s ease; box-shadow: 0 8px 20px rgba(255, 159, 67, 0.3), 0 12px 0px #b1601a; }
         .enter-btn-3d:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(255, 159, 67, 0.4), 0 14px 0px #c26b1f; }
         .enter-btn-3d:active { transform: translateY(4px); border-bottom-width: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.5), 0 2px 0px #5c2807; }
 
         .room-container {
-            width: 100%;       /* Full width by default */
+            width: 100%;       
             padding: 10px;
             box-sizing: border-box;
             overflow-y: auto;
             margin: 0 auto;
         }
 
-        /* Only trigger the phone-style layout when the screen is narrow */
         @media (max-width: 600px) {
             .room-container {
-                max-width: 600px; /* Force the 600px limit ONLY on phones */
+                max-width: 600px; 
             }
         }
     </style>
 </head>
 <body>
-
-    <button onclick="window.location.href='leaderboard.html'">🏆 VIEW LEADERBOARD</button>
 
     <div class="room-container"></div>
 
@@ -89,12 +86,36 @@
     
     <div class="welcome-container">
         <h1 class="logo-text">Card<br>Chaser's</h1>
-        <div class="btn-3d-container">
-            <button class="enter-btn-3d" onclick="window.location.href='playground.html'">ENTER NOW</button>
-        </div>
+        
+        <!-- The Dynamic Button -->
+        <button class="enter-btn-3d" id="smart-btn">LOADING...</button>
     </div>
     
     <script>
+        // --- SMART ROUTING LOGIC ---
+        function initializeSmartButton() {
+            const btn = document.getElementById('smart-btn');
+            
+            // Check the browser's memory for flags
+            const autoLogin = localStorage.getItem('autoLogin');
+            const isRegistered = localStorage.getItem('isRegistered');
+
+            if (autoLogin === 'true') {
+                btn.innerText = 'ENTER HUB';
+                btn.style.borderBottomColor = '#00ff66'; // Green for direct access
+                btn.onclick = () => window.location.href = 'playground.html';
+            } else if (isRegistered === 'true') {
+                btn.innerText = 'LOGIN';
+                btn.style.borderBottomColor = '#00ff66'; // Green for returning users
+                btn.onclick = () => window.location.href = 'login.html';
+            } else {
+                btn.innerText = 'REGISTER';
+                btn.onclick = () => window.location.href = 'register.html';
+            }
+        }
+        initializeSmartButton();
+
+        // --- EXISTING CLOCK LOGIC ---
         function getNextMonsterFeeding() {
             let now = new Date(); let target = new Date(now); target.setUTCHours(20, 0, 0, 0);
             let currentDay = target.getUTCDay(); let daysUntilSunday = (7 - currentDay) % 7; target.setUTCDate(target.getUTCDate() + daysUntilSunday);

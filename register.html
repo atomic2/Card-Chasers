@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Initialize Agent | Card Chaser's</title>
+    
+    <!-- Firebase App and Firestore SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Load master database to prevent player name usage -->
+    <script src="master_db.js"></script>
+
+    <style>
+        body, html {
+            margin: 0; padding: 0; height: 100%;
+            background-color: #1a1512;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.9)), 
+                              linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px), 
+                              linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+            font-family: 'Arial', sans-serif;
+            display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+
+        .auth-container {
+            background: #050608;
+            border: 4px solid #ff9f43;
+            border-radius: 16px;
+            padding: 30px;
+            width: 90%;
+            max-width: 380px;
+            box-shadow: 0 0 30px rgba(255, 159, 67, 0.2), inset 0 0 20px rgba(255, 159, 67, 0.1);
+            text-align: center;
+            box-sizing: border-box;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            /* CRITICAL: Do NOT use overflow: hidden here, or the tooltip gets chopped off */
+        }
+        .auth-container::before { content: '[NEW RECRUIT ENTRY]'; position: absolute; top: -12px; left: 20px; background: #050608; color: #ff9f43; font-family: monospace; font-size: 0.85rem; font-weight: 900; padding: 0 5px; }
+
+        h2 { font-family: 'Arial Black', sans-serif; color: #ff9f43; margin: 0; text-transform: uppercase; letter-spacing: 2px; }
+        .sub-text { color: #8892b0; font-size: 0.8rem; margin-bottom: 10px; font-weight: bold; }
+        
+        .input-group { display: flex; flex-direction: column; gap: 15px; width: 100%; }
+        
+        input {
+            width: 100%;
+            padding: 14px;
+            background: #0A0D10;
+            border: 2px solid #3D424A;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: bold;
+            box-sizing: border-box;
+            font-family: 'Arial Black', sans-serif;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+        input:focus { border-color: #00ff66; outline: none; box-shadow: 0 0 10px rgba(0, 255, 102, 0.2); }
+        input::placeholder { color: #4A525D; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
+        
+        #handle-input { text-transform: lowercase; }
+        #handle-input::placeholder { text-transform: uppercase; }
+
+        /* --- TOOLTIP STYLES --- */
+        .postal-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        .postal-wrapper input { padding-right: 45px; } /* Room for icon */
+        
+        .tooltip-box {
+            position: absolute;
+            right: 12px;
+            width: 24px;
+            height: 24px;
+            background: #0A0D10;
+            border: 2px solid #ff9f43;
+            border-radius: 4px;
+            color: #ff9f43;
+            font-family: monospace;
+            font-weight: 900;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: help;
+            transition: all 0.2s ease;
+        }
+        .tooltip-box:hover { border-color: #00ff66; color: #00ff66; box-shadow: 0 0 8px rgba(0, 255, 102, 0.4); }
+
+        .tooltip-box .tooltip-text {
+            visibility: hidden;
+            width: 260px;
+            background-color: #050608;
+            color: #fff;
+            text-align: left;
+            border: 2px solid #00ff66;
+            border-radius: 8px;
+            padding: 12px;
+            position: absolute;
+            z-index: 999;
+            bottom: 135%; /* Height above the icon */
+            right: -10px;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            transform: translateY(10px);
+            font-family: 'Arial', sans-serif;
+            font-size: 0.75rem;
+            font-weight: normal;
+            line-height: 1.4;
+            letter-spacing: 0.5px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.9), 0 0 15px rgba(0, 255, 102, 0.15);
+        }
+        .tooltip-box .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            right: 16px;
+            border-width: 6px;
+            border-style: solid;
+            border-color: #00ff66 transparent transparent transparent;
+        }
+        .tooltip-box:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        /* ----------------------- */
+
+        .btn-3d-container { position: relative; background: #0f1115; padding: 6px; border-radius: 12px; box-shadow: inset 0 4px 10px rgba(0,0,0,0.8); margin-top: 5px; }
+        .action-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #2d323f, #1b1e26);
+            color: #ffffff;
+            border: none;
+            border-bottom: 6px solid #ff9f43;
+            border-radius: 8px;
+            font-family: 'Arial Black', sans-serif;
+            font-size: 1.1rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 4px 10px rgba(255, 159, 67, 0.2);
+            transition: transform 0.1s ease;
+        }
+        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(255, 159, 67, 0.3); }
+        .action-btn:active { transform: translateY(4px); border-bottom-width: 2px; }
+
+        .footer-links { display: flex; justify-content: space-between; margin-top: 10px; font-family: 'Arial Black', sans-serif; font-size: 0.8rem; }
+        .footer-links button { background: none; border: none; color: #8892b0; cursor: pointer; padding: 0; text-transform: uppercase; }
+        .footer-links button:hover { color: #FFFFFF; }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <h2>Initialize Agent</h2>
+        <div class="sub-text">Starting Bankroll: 1,000 Credits</div>
+        
+        <div class="input-group">
+            <input type="text" id="handle-input" placeholder="Choose Unique Handle">
+            <input type="password" id="pass-input" placeholder="Create Password">
+            <input type="password" id="confirm-pass-input" placeholder="Confirm Password">
+            
+            <div class="postal-wrapper">
+                <input type="text" id="postal-input" placeholder="Postal Code (e.g. L9T)" style="text-transform: uppercase;">
+                <div class="tooltip-box">
+                    ?
+                    <span class="tooltip-text">
+                        <strong>NETWORK INTEL:</strong> Postal code is used solely to map card listings and other users near you. No exact locations are used. 
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="btn-3d-container">
+            <button class="action-btn" onclick="registerUser()">Create Profile</button>
+        </div>
+
+        <div class="footer-links">
+            <button onclick="window.location.href='index.html'">◀ Cancel</button>
+           <button onclick="window.location.href='login.html'">EXISTING USER? LOGIN ▶</button>
+        </div>
+    </div>
+
+    <script>
+  
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCV5z5gectEHK859Ghlpvw0sSUwNrBz7sI",
+  authDomain: "card-chasers-852aa.firebaseapp.com",
+  projectId: "card-chasers-852aa",
+  storageBucket: "card-chasers-852aa.firebasestorage.app",
+  messagingSenderId: "520752040696",
+  appId: "1:520752040696:web:6ebc08f198fadcdfe8c90d",
+  measurementId: "G-NB67RXR0SN"
+};
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        async function registerUser() {
+            const handle = document.getElementById('handle-input').value.trim().toLowerCase();
+            const password = document.getElementById('pass-input').value;
+            const confirmPassword = document.getElementById('confirm-pass-input').value;
+            const postal = document.getElementById('postal-input').value.trim().toUpperCase();
+            
+            if (!handle || !password || !postal) {
+                alert("SYSTEM WARNING: All fields are required.");
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                alert("SECURITY ALERT: Passwords do not match.");
+                return;
+            }
+
+            const isAthleteName = window.masterCardDatabase.some(card => 
+                card.name.toLowerCase() === handle
+            );
+            
+            if (isAthleteName) {
+                alert("IDENTITY CONFLICT: Handle matches a registered athlete. Choose a custom trading alias.");
+                return;
+            }
+
+            const userDocRef = db.collection("users").doc(handle);
+            
+            try {
+                const userSnapshot = await userDocRef.get();
+
+                if (userSnapshot.exists) {
+                    alert("REGISTRATION REJECTED: Handle signature already active on the network.");
+                    return;
+                }
+
+                await userDocRef.set({
+                    handle: handle,
+                    password: password, 
+                    postalCode: postal,
+                    areaCode: postal.substring(0, 3),
+                    credits: 1000, 
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                localStorage.setItem('avatarName', handle);
+                localStorage.setItem('postalCode', postal);
+                window.location.href = 'playground.html';
+
+            } catch (error) {
+                console.error("Database connection failed:", error);
+                alert("NETWORK ERROR: Unable to establish secure uplink. Try again.");
+            }
+        }
+    </script>
+</body>
+</html>
