@@ -205,9 +205,16 @@
         </div>
     </div>
 
-    <script src="config.js"></script>
-
-    <script>
+<script>
+    const firebaseConfig = {
+        apiKey: "65479a3d2ef9cfa668a6b3d6e369f78d09fe8fef",
+        authDomain: "card-chasers-852aa.firebaseapp.com",
+        projectId: "card-chasers-852aa",
+        storageBucket: "card-chasers-852aa.appspot.com",
+        messagingSenderId: "...",
+        appId: "..."
+    };
+   
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
