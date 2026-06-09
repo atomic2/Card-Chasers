@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Arena Slots | Card Chaser's</title>
-    <script src="data.js"></script>
+    <script src="master_db.js"></script>
     
     <style>
         :root {
@@ -315,59 +315,67 @@
             } 
         }
 
-        function mintCard() {
-            try {
-                // 1. Establish sport, ensuring it matches the keys in data.js
-                let sport = currentSport === 'default' ? 'nhl' : currentSport;
-                
-                // Safety: If data.js hasn't loaded or sport is missing, use a fallback
-                if (typeof window.SportsData === 'undefined' || !window.SportsData[sport]) {
-                    console.error("data.js not loaded or sport missing!");
-                    return { name: "Fallback Player", tier: "base", dna: "N/A", pos: "U", value: 50, power: "1x" };
-                }
-
-                // Get the list from data.js
-                let data = window.SportsData[sport];
-                let playerList = data.list;
-                let randomIndex = Math.floor(Math.random() * playerList.length);
-                let rawString = playerList[randomIndex]; 
-                
-                let cleanName = rawString.split(' (')[0];
-                let exactPosition = data.positions[cleanName] || "UTIL";
-
-                // 2. TIER LOGIC
-                let roll = Math.random(); 
-                let tier = 'base';
-                if (roll > 0.99) tier = 'platinum'; 
-                else if (roll > 0.85) tier = 'gold'; 
-                else if (roll > 0.60) tier = 'silver';
-                else tier = 'base';
-
-                // 3. Match the Locker Room structure exactly
-                let newCard = {
-                    id: "slot_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
-                    name: cleanName,
-                    dna: rawString, 
-                    pos: exactPosition,
-                    tier: tier,
-                    value: pricingMap[tier] || 50,
-                    power: powerMap[tier] || "1x"
-                };
-
-                // 4. Save to the Locker Room's exact key
-                let storageKey = activeConfig.key; 
-                
-                let rawData = localStorage.getItem(storageKey);
-                let inv = rawData ? JSON.parse(rawData) : [];
-                inv.push(newCard);
-                localStorage.setItem(storageKey, JSON.stringify(inv));
-                
-                return newCard;
-            } catch (error) {
-                console.error("Crash avoided in mintCard:", error);
-                return { name: "Error Card", tier: "base", dna: "Error", pos: "U", value: 50, power: "1x" };
-            }
+function mintCard() {
+    try {
+        // 1. Establish sport
+        let sport = currentSport === 'default' ? 'nhl' : currentSport;
+        
+        // Safety: Check if master_db.js has loaded into memory
+        if (typeof window.masterCardDatabase === 'undefined') {
+            console.error("master_db.js not loaded!");
+            return { name: "Fallback Player", tier: "base", dna: "N/A", pos: "U", value: 50, power: "1x" };
         }
+
+        // 2. Filter the master database to only include players from the current sport
+        let sportCards = window.masterCardDatabase.filter(card => card.sport === sport);
+
+        // Safety: If there are no players for this sport yet
+        if (sportCards.length === 0) {
+            console.error("No cards found for sport: " + sport);
+            return { name: "Fallback Player", tier: "base", dna: "N/A", pos: "U", value: 50, power: "1x" };
+        }
+
+        // 3. Pick a random card from the filtered list
+        let randomIndex = Math.floor(Math.random() * sportCards.length);
+        let selectedCard = sportCards[randomIndex]; 
+        
+        // 4. TIER LOGIC
+        let roll = Math.random(); 
+        let tier = 'base';
+        if (roll > 0.99) tier = 'platinum'; 
+        else if (roll > 0.85) tier = 'gold'; 
+        else if (roll > 0.60) tier = 'silver';
+        else tier = 'base';
+
+        // 5. Match the Locker Room structure exactly
+        let newCard = {
+            id: "slot_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
+            name: selectedCard.name,
+            dna: selectedCard.alias, // Using your custom alias for the DNA text!
+            pos: selectedCard.pos,
+            tier: tier,
+            value: pricingMap[tier] || 50,
+            power: powerMap[tier] || "1x"
+        };
+
+        // 6. Save to the Locker Room's exact key
+        let storageKey = activeConfig.key; 
+        
+        let rawData = localStorage.getItem(storageKey);
+        let inv = rawData ? JSON.parse(rawData) : [];
+        inv.push(newCard);
+        localStorage.setItem(storageKey, JSON.stringify(inv));
+        
+        return newCard;
+    } catch (error) {
+        console.error("Crash avoided in mintCard:", error);
+        return { name: "Error Card", tier: "base", dna: "Error", pos: "U", value: 50, power: "1x" };
+    }
+}       
+
+
+
+
 
         function pullLever() { 
             initAudio(); 
