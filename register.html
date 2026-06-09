@@ -5,11 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Initialize Agent | Card Chaser's</title>
     
-    <!-- Firebase App and Firestore SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     
-    <!-- Load master database to prevent player name usage -->
     <script src="master_db.js"></script>
 
     <style>
@@ -38,7 +36,6 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
-            /* CRITICAL: Do NOT use overflow: hidden here, or the tooltip gets chopped off */
         }
         .auth-container::before { content: '[NEW RECRUIT ENTRY]'; position: absolute; top: -12px; left: 20px; background: #050608; color: #ff9f43; font-family: monospace; font-size: 0.85rem; font-weight: 900; padding: 0 5px; }
 
@@ -74,7 +71,7 @@
             align-items: center;
             width: 100%;
         }
-        .postal-wrapper input { padding-right: 45px; } /* Room for icon */
+        .postal-wrapper input { padding-right: 45px; } 
         
         .tooltip-box {
             position: absolute;
@@ -107,7 +104,7 @@
             padding: 12px;
             position: absolute;
             z-index: 999;
-            bottom: 135%; /* Height above the icon */
+            bottom: 135%; 
             right: -10px;
             opacity: 0;
             transition: opacity 0.3s, transform 0.3s;
@@ -133,7 +130,6 @@
             opacity: 1;
             transform: translateY(0);
         }
-        /* ----------------------- */
 
         .btn-3d-container { position: relative; background: #0f1115; padding: 6px; border-radius: 12px; box-shadow: inset 0 4px 10px rgba(0,0,0,0.8); margin-top: 5px; }
         .action-btn {
@@ -157,6 +153,24 @@
         .footer-links { display: flex; justify-content: space-between; margin-top: 10px; font-family: 'Arial Black', sans-serif; font-size: 0.8rem; }
         .footer-links button { background: none; border: none; color: #8892b0; cursor: pointer; padding: 0; text-transform: uppercase; }
         .footer-links button:hover { color: #FFFFFF; }
+
+        /* --- MOBILE RESPONSIVENESS --- */
+        @media (max-width: 768px) {
+            .auth-container {
+                position: relative !important;
+                width: 90% !important;
+                margin: 20px auto !important;
+                left: auto !important;
+                top: auto !important;
+                transform: none !important;
+            }
+            .sidebar-class { display: none !important; }
+            input, .action-btn {
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .logo-text { font-size: 2.5rem !important; }
+        }
     </style>
 </head>
 <body>
@@ -187,17 +201,13 @@
 
         <div class="footer-links">
             <button onclick="window.location.href='index.html'">◀ Cancel</button>
-           <button onclick="window.location.href='login.html'">EXISTING USER? LOGIN ▶</button>
+            <button onclick="window.location.href='login.html'">EXISTING USER? LOGIN ▶</button>
         </div>
     </div>
 
+    <script src="config.js"></script>
+
     <script>
-  
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-<script src="config.js"></script>
-
-
-
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
@@ -247,6 +257,8 @@
 
                 localStorage.setItem('avatarName', handle);
                 localStorage.setItem('postalCode', postal);
+                localStorage.setItem('isRegistered', 'true'); // Memory flag for smart buttons
+                
                 window.location.href = 'playground.html';
 
             } catch (error) {
@@ -254,34 +266,6 @@
                 alert("NETWORK ERROR: Unable to establish secure uplink. Try again.");
             }
         }
-
-@media (max-width: 768px) {
-    /* 1. Reset the container to stack vertically instead of side-by-side */
-    .auth-container {
-        position: relative !important; /* Take it out of fixed positioning */
-        width: 90% !important;
-        margin: 20px auto !important;
-        left: auto !important;
-        top: auto !important;
-        transform: none !important;
-    }
-
-    /* 2. Hide the heavy decorative sidebar on mobile */
-    .sidebar-class { /* Replace with your actual sidebar class name */
-        display: none !important;
-    }
-
-    /* 3. Ensure all inputs and buttons fill the screen width */
-    input, .action-btn {
-        width: 100% !important;
-        box-sizing: border-box !important;
-    }
-
-    /* 4. Increase font size slightly for readability on small screens */
-    .logo-text { font-size: 2.5rem !important; }
-}
-
-
     </script>
 </body>
 </html>
